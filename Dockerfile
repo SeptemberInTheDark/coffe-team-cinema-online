@@ -2,8 +2,10 @@ FROM python:3.11-slim
 
 ENV PYTHONUNBUFFERED=1
 
-COPY . .
+COPY . /app
+
+WORKDIR /app
 
 RUN pip install -r requirements/dev.txt
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "80"]
