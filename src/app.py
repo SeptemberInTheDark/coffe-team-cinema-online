@@ -8,6 +8,8 @@ from db import get_db
 from Users.models import get_users
 from sqlalchemy.orm import Session
 
+import uvicorn
+
 app = FastAPI()
 
 origins = [
@@ -74,3 +76,12 @@ async def http_exception_handler(request, exc):
     )
 
 
+if __name__ == '__main__':
+    uvicorn.run(
+        "app:app",
+        # host='0.0.0.0',
+        host='localhost',
+        # port=8080,
+        log_level="info",
+        reload=False
+    )

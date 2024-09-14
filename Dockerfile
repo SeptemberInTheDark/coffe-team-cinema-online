@@ -1,10 +1,10 @@
-FROM python:3.11-slim
+FROM python
 
 ENV PYTHONUNBUFFERED=1
 
-COPY . /app
-
 WORKDIR /app
+
+COPY . /app
 
 RUN pip install -r requirements/dev.txt
 
