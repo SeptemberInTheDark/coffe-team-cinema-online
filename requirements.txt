@@ -1,5 +1,0 @@
-fastapi[all]
-python-dotenv==1.0.1
-SQLAlchemy==2.0.34
-psycopg2==2.9.9
-psycopg2-binary==2.9.9
