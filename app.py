@@ -4,13 +4,10 @@ from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError, HTTPException
 from fastapi.responses import JSONResponse
-from .Users.models import get_users
+from src.Users.models import get_users
 from sqlalchemy.orm import Session
 
-try:
-    from db import get_db
-except ImportError:
-    from .db import get_db
+from db import get_db
 
 import uvicorn
 
@@ -83,8 +80,7 @@ async def http_exception_handler(request, exc):
 # if __name__ == '__main__':
 #     uvicorn.run(
 #         "app:app",
-#         host='0.0.0.0',
-#         # host='localhost',
+#         host='localhost',
 #         port=8080,
 #         log_level="info",
 #         reload=False
