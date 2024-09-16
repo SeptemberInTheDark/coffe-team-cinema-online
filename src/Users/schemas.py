@@ -9,10 +9,7 @@ class User(BaseModel):
     phone: str
     hashed_password: str
 
-    is_active: Optional[bool] = False
-
-    class Config:
-        orm_mode = True
+    is_active: Optional[bool] = True
 
 
 class UserCreate(User):

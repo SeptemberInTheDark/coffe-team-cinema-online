@@ -28,7 +28,7 @@ async def user_registration(
         existing_user = check_user(db, username, email, phone)
 
         if existing_user:
-            return JSONResponse(status_code=400, content={"error":"Пользователь с таким именем или email уже существует."})
+            return JSONResponse(status_code=400, content={"error":"Пользователь с таким именем или почтой уже существует."})
 
 
         new_user = UserCreate(
@@ -41,7 +41,21 @@ async def user_registration(
 
         if not user:
             return JSONResponse(status_code=400, content={"error": "Ошибка при создании пользователя, попробуйте еще раз ..."})
-        return {"success": True, "message": "Пользователь успешно зарегистрирован", "user_id": user['id']}
+
+        print('user: ', user)
+        return JSONResponse(status_code=200, content={
+            "success": True,
+            "login": True,
+            "message": "Пользователь успешно зарегистрирован",
+            # "username": user.username,
+            # "user_id": user.id
+            "data": {
+                "user_id": user.id,
+                "username": user.username,
+                "phone": user.phone,
+                "email": user.email
+            }
+            })
 
     except Exception as http_exc:
         raise http_exc

@@ -44,11 +44,11 @@ async def validation_exception_handler(request, exc):
 
 
 
-# if __name__ == '__main__':
-#     uvicorn.run(
-#         "app:app",
-#         host='localhost',
-#         port=8080,
-#         log_level="info",
-#         reload=False
-#     )
+if __name__ == '__main__':
+    uvicorn.run(
+        "app:app",
+        host='localhost',
+        port=8080,
+        log_level="info",
+        reload=False
+    )

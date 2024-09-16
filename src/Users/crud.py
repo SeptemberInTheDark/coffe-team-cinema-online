@@ -53,7 +53,7 @@ def create_user(db: Session, user: schemas.UserCreate):
     try:
         db.commit()
         db.refresh(db_user)
-        return True
+        return db_user
 
     except Exception as e:
         db.rollback()
