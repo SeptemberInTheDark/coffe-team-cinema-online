@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError, HTTPException
 from fastapi.responses import JSONResponse
 from src.register.router import router as register_router
+from src.Users.router import router as user_router
 import uvicorn
 
 app = FastAPI()
@@ -32,6 +33,7 @@ def read_root(request: Request):
 
 
 app.include_router(register_router)
+app.include_router(user_router)
 
 
 #exception handlers
@@ -44,11 +46,11 @@ async def validation_exception_handler(request, exc):
 
 
 
-if __name__ == '__main__':
-    uvicorn.run(
-        "app:app",
-        host='localhost',
-        port=8080,
-        log_level="info",
-        reload=False
-    )
+# if __name__ == '__main__':
+#     uvicorn.run(
+#         "app:app",
+#         host='localhost',
+#         port=8080,
+#         log_level="info",
+#         reload=False
+#     )

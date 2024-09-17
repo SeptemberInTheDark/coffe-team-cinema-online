@@ -20,7 +20,7 @@ def get_user_by_login(db: Session, username: str):
     return db.query(models.User).filter(models.User.username == username).first()
 
 
-def get_users(db: Session):
+def get_users(db: Session, skip: int = 0, limit: int = 20):
     return db.query(models.User).offset(skip).limit(limit).all()
 
 
