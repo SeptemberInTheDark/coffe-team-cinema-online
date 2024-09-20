@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, Form
-from fastapi.exceptions import HTTPException
 from fastapi.responses import JSONResponse
-from db import get_db
+from db import get_session
 from sqlalchemy.orm import Session
 from src.Users.crud import check_user, create_user
 from src.Users.schemas import UserCreate
@@ -20,7 +19,7 @@ async def user_registration(
     password: str = Form(..., min_length=3),
     email: str = Form(...),
     phone: str = Form(...),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_session)
 ):
     try:
         user_salt = os.urandom(32).hex()

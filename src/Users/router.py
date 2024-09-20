@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Depends, Form
+from fastapi import APIRouter, Depends
 from fastapi.exceptions import HTTPException
 from fastapi.responses import JSONResponse
-from db import get_db
+from db import get_session
 from sqlalchemy.orm import Session
 from src.Users.crud import (
     get_users,
@@ -10,7 +10,6 @@ from src.Users.crud import (
     get_user_by_login
 )
 from src.Users.schemas import User
-
 
 router = APIRouter(
     prefix='/api',
@@ -23,10 +22,10 @@ router = APIRouter(
     response_model=User,
     summary="Получить всех пользователей",
     response_description="Список пользователей"
-    )
-async def get_all_users(db: Session = Depends(get_db)):
+)
+async def get_all_users(session: Session = Depends(get_session)):
     try:
-        users = get_users(db)
+        users = get_users(session)
         if not users:
             return JSONResponse(status_code=200, content={"users": []})
 
@@ -51,10 +50,10 @@ async def get_all_users(db: Session = Depends(get_db)):
     response_model=User,
     summary="Получение пользователя по его email",
     response_description="Конкретный пользователь"
-    )
-async def get_current_user_by_email(email: str, db: Session = Depends(get_db)):
+)
+async def get_current_user_by_email(email: str, session: Session = Depends(get_session)):
     try:
-        user_db_email = get_user_by_email(db, email=email)
+        user_db_email = get_user_by_email(session, email=email)
         if user_db_email is None:
             return JSONResponse(status_code=400, content={"error": "Пользователь не найден"})
 
@@ -73,16 +72,15 @@ async def get_current_user_by_email(email: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail={f"Ошибка при получении пользователя: {e}"})
 
 
-
 @router.get(
     "/user/by_phone/{phone}",
     response_model=User,
     summary="Получение пользователя по его телефону",
     response_description="Конкретный пользователь"
-    )
-async def get_current_user_by_phone(phone: str, db: Session = Depends(get_db)):
+)
+async def get_current_user_by_phone(phone: str, session: Session = Depends(get_session)):
     try:
-        user_phone = get_user_by_phone(db, phone=phone)
+        user_phone = get_user_by_phone(session, phone=phone)
         if user_phone is None:
             return JSONResponse(status_code=400, content={"error": "Пользователь не найден"})
 
@@ -106,10 +104,10 @@ async def get_current_user_by_phone(phone: str, db: Session = Depends(get_db)):
     response_model=User,
     summary="Получение пользователя по его логину",
     response_description="Конкретный пользователь"
-    )
-async def get_current_user_by_login(login: str, db: Session = Depends(get_db)):
+)
+async def get_current_user_by_login(login: str, session: Session = Depends(get_session)):
     try:
-        user_login = get_user_by_login(db, username=login)
+        user_login = get_user_by_login(session, username=login)
         if user_login is None:
             return JSONResponse(status_code=400, content={"error": "Пользователь не найден"})
 

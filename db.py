@@ -1,29 +1,12 @@
-#sync
+# sync
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.ext.declarative import declarative_base
 
-try:
-    from config import (
-    DB_USERNAME,
-    DB_PASSWORD,
-    DB_HOST,
-    DB_PORT,
-    DB_NAME
-)
-except ImportError:
-    from .config import (
-        DB_USERNAME,
-        DB_PASSWORD,
-        DB_HOST,
-        DB_PORT,
-        DB_NAME
-    )
+from config import settings
 
-
-DATABASE_URL = f'postgresql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}'
-
-
+DATABASE_URL = (f'postgresql://{settings.DB_USERNAME}:{settings.DB_PASSWORD}@'
+                f'{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}')
 
 engine = create_engine(
     DATABASE_URL
@@ -32,18 +15,11 @@ engine = create_engine(
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 print(f'SessionLocal: {SessionLocal}')
 
-
 Base = declarative_base()
 
 Base.metadata.create_all(bind=engine)
 
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-
+async def get_session() -> Session:
+    with SessionLocal() as session:
+        yield session
