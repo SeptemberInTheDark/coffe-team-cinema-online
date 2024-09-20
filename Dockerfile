@@ -10,4 +10,3 @@ RUN pip install -r requirements/dev.txt
 
 CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "80"]
 
-

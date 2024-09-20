@@ -45,10 +45,7 @@ async def user_registration(
         print('user: ', user)
         return JSONResponse(status_code=200, content={
             "success": True,
-            "login": True,
             "message": "Пользователь успешно зарегистрирован",
-            # "username": user.username,
-            # "user_id": user.id
             "data": {
                 "user_id": user.id,
                 "username": user.username,

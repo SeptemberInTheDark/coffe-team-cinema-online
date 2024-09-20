@@ -1,14 +1,16 @@
 
-from fastapi import FastAPI, Request, Depends
+from fastapi import FastAPI, Request
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.exceptions import RequestValidationError, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse, RedirectResponse
 from src.register.router import router as register_router
 from src.Users.router import router as user_router
 import uvicorn
+from src.auth.router import router as auth_router
 
 app = FastAPI()
+
 
 origins = [
     "http://localhost",
@@ -28,12 +30,13 @@ app.add_middleware(
 templates = Jinja2Templates(directory="templates")
 
 @app.get("/")
-def read_root(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+def read_root():
+    return RedirectResponse(url="/docs")
 
 
 app.include_router(register_router)
 app.include_router(user_router)
+app.include_router(auth_router)
 
 
 #exception handlers
@@ -44,13 +47,3 @@ async def validation_exception_handler(request, exc):
         content={"detail": "Validation error", "errors": exc.errors()}
     )
 
-
-
-# if __name__ == '__main__':
-#     uvicorn.run(
-#         "app:app",
-#         host='localhost',
-#         port=8080,
-#         log_level="info",
-#         reload=False
-#     )
