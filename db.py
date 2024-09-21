@@ -19,6 +19,23 @@ Base = declarative_base()
 
 Base.metadata.create_all(bind=engine)
 
+"""
+Альтернативное создание базового класса
+from sqlalchemy import MetaData, TIMESTAMP
+from sqlalchemy.orm import DeclarativeBase,
+
+
+class BaseModel(DeclarativeBase):
+    metadata = MetaData()
+    created_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP, nullable=False, default=datetime.utcnow
+    )
+В дальнейшем при создании моделей наследуемся от базового класса
+тк он уже содержит метаданные, то прописывать 
+Base.metadata.create_all(bind=engine) уже не требуется та-же в него можно поместить поля 
+моделей по умолчанию например created_at.
+"""
+
 
 async def get_session() -> Session:
     with SessionLocal() as session:
