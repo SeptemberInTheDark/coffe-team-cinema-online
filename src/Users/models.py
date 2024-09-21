@@ -1,8 +1,8 @@
 from sqlalchemy import Column, String, Integer, Boolean, TIMESTAMP, func
-from db import Base, engine
+from db import BaseModel, engine
 
 
-class User(Base):
+class User(BaseModel):
     __tablename__ = "users"
     __table_args__ = {"schema": "public"}
 
@@ -14,4 +14,4 @@ class User(Base):
     is_active = Column(Boolean, default=False)
     registered_data = Column(TIMESTAMP, server_default=func.now())
 
-Base.metadata.create_all(bind=engine)
+# Base.metadata.create_all(bind=engine)

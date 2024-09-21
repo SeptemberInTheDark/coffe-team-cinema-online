@@ -1,43 +1,54 @@
-from sqlalchemy.orm import Session
+import os
+import logging
+
+from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from . import models, schemas
 from .manager import UserHashManager
-import os
+
+logger = logging.getLogger(__name__)
 
 
-def get_user(db: Session, user_id: int):
-    return db.query(models.User).filter(models.User.id == user_id).first()
+async def get_user(session: AsyncSession, user_id: int):
+    return await session.scalar(select(models.User).where(models.User.id == user_id))
 
 
-def get_user_by_email(db: Session, email: str):
-    return db.query(models.User).filter(models.User.email == email).all()
+async def get_user_by_email(session: AsyncSession, email: str):
+    return await session.scalar(select(models.User).where(models.User.email == email))
 
 
-def get_user_by_phone(db: Session, phone: str):
-    return db.query(models.User).filter(models.User.phone == phone).all()
+async def get_user_by_phone(session: AsyncSession, phone: str):
+    return await session.scalar(select(models.User).where(models.User.phone == phone))
 
 
-def get_user_by_login(db: Session, username: str):
-    return db.query(models.User).filter(models.User.username == username).all()
+async def get_user_by_login(session: AsyncSession, username: str):
+    return await session.scalar(select(models.User).where(models.User.username == username))
 
 
-def get_users(db: Session, skip: int = 0, limit: int = 20):
-    return db.query(models.User).offset(skip).limit(limit).all()
+async def get_users(session: AsyncSession, skip: int = 0, limit: int = 20):
+    result = await session.scalars(select(models.User).offset(skip).limit(limit))
+    return result.all()
 
 
-def check_user(db: Session, username: str, email: str, phone: str):
+async def check_user(session: AsyncSession, username: str, email: str, phone: str):
     try:
-        existing_user = db.query(models.User).filter(
-            (models.User.username == username) |
-            (models.User.email == email) |
-            (models.User.phone == phone)
-        ).first()
-        return existing_user if existing_user else None
+        result = await session.execute(
+            select(models.User).where(
+                (models.User.username == username) |
+                (models.User.email == email) |
+                (models.User.phone == phone)
+            )
+        )
+        existing_user = result.scalar_one_or_none()
+        return existing_user
     except Exception as e:
-        print(f"Ошибка при проверке пользователя: {e}")
+        logger.error("Error checking user: %s", e)
         return None
 
 
-def create_user(db: Session, user: schemas.UserCreate):
+async def create_user(session: AsyncSession, user: schemas.UserCreate):
     user_salt = os.urandom(32).hex()
     hashed_password = UserHashManager.hash_str(user.hashed_password, user_salt)
 
@@ -48,17 +59,15 @@ def create_user(db: Session, user: schemas.UserCreate):
         hashed_password=hashed_password,
         is_active=user.is_active
     )
-    user = db.add(db_user)
+    session.add(db_user)
 
     try:
-        db.commit()
-        db.refresh(db_user)
+        await session.commit()
+        await session.refresh(db_user)
         return db_user
-
-    except Exception as e:
-        db.rollback()
-        print(f"Ошибка при создании пользователя: {e}")
-        return False
+    except IntegrityError as error:
+        logger.error("%s\nПользователь уже существует", error)
+        await session.rollback()
 
 #На потом
 def update_user_info():

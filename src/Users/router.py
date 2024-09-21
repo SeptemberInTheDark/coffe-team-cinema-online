@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
 from fastapi.exceptions import HTTPException
 from fastapi.responses import JSONResponse
-from db import get_session
-from sqlalchemy.orm import Session
+from db import get_async_session
+from sqlalchemy.ext.asyncio import AsyncSession
 from src.Users.crud import (
     get_users,
     get_user_by_email,
@@ -23,9 +23,9 @@ router = APIRouter(
     summary="Получить всех пользователей",
     response_description="Список пользователей"
 )
-async def get_all_users(session: Session = Depends(get_session)):
+async def get_all_users(session: AsyncSession = Depends(get_async_session)):
     try:
-        users = get_users(session)
+        users = await get_users(session)
         if not users:
             return JSONResponse(status_code=200, content={"users": []})
 
@@ -37,7 +37,7 @@ async def get_all_users(session: Session = Depends(get_session)):
                 "phone": user.phone,
                 "is_active": user.is_active
             }
-            for user in users
+           for user in users
         ]
 
         return JSONResponse(status_code=200, content={"users": user_list})
@@ -51,21 +51,18 @@ async def get_all_users(session: Session = Depends(get_session)):
     summary="Получение пользователя по его email",
     response_description="Конкретный пользователь"
 )
-async def get_current_user_by_email(email: str, session: Session = Depends(get_session)):
+async def get_current_user_by_email(email: str, session: AsyncSession = Depends(get_async_session)):
     try:
-        user_db_email = get_user_by_email(session, email=email)
+        user_db_email = await get_user_by_email(session, email=email)
         if user_db_email is None:
             return JSONResponse(status_code=400, content={"error": "Пользователь не найден"})
 
-        user_data = [
-            {
-                "id": user.id,
-                "login": user.username,
-                "email": user.email,
-                "phone": user.phone,
-            }
-            for user in user_db_email
-        ]
+        user_data = {
+            "id": user_db_email.id,
+            "login": user_db_email.username,
+            "email": user_db_email.email,
+            "phone": user_db_email.phone,
+        }
         return JSONResponse(status_code=200, content={"user": user_data})
 
     except Exception as e:
@@ -78,22 +75,18 @@ async def get_current_user_by_email(email: str, session: Session = Depends(get_s
     summary="Получение пользователя по его телефону",
     response_description="Конкретный пользователь"
 )
-async def get_current_user_by_phone(phone: str, session: Session = Depends(get_session)):
+async def get_current_user_by_phone(phone: str, session: AsyncSession = Depends(get_async_session)):
     try:
-        user_phone = get_user_by_phone(session, phone=phone)
+        user_phone = await get_user_by_phone(session, phone=phone)
         if user_phone is None:
             return JSONResponse(status_code=400, content={"error": "Пользователь не найден"})
 
-        user_data = [
-            {
-                "id": user.id,
-                "login": user.username,
-                "email": user.email,
-                "phone": user.phone,
-            }
-            for user in user_phone
-        ]
-
+        user_data = {
+            "id": user_phone.id,
+            "login": user_phone.username,
+            "email": user_phone.email,
+            "phone": user_phone.phone,
+        }
         return JSONResponse(status_code=200, content={"user": user_data})
     except Exception as e:
         raise HTTPException(status_code=500, detail={f"Ошибка при получении пользователя: {e}"})
@@ -105,21 +98,18 @@ async def get_current_user_by_phone(phone: str, session: Session = Depends(get_s
     summary="Получение пользователя по его логину",
     response_description="Конкретный пользователь"
 )
-async def get_current_user_by_login(login: str, session: Session = Depends(get_session)):
+async def get_current_user_by_login(login: str, session: AsyncSession = Depends(get_async_session)):
     try:
-        user_login = get_user_by_login(session, username=login)
+        user_login =await get_user_by_login(session, username=login)
         if user_login is None:
             return JSONResponse(status_code=400, content={"error": "Пользователь не найден"})
 
-        user_data = [
-            {
-                "id": user.id,
-                "login": user.username,
-                "email": user.email,
-                "phone": user.phone,
-            }
-            for user in user_login
-        ]
+        user_data = {
+            "id": user_login.id,
+            "login": user_login.username,
+            "email": user_login.email,
+            "phone": user_login.phone,
+        }
 
         return JSONResponse(status_code=200, content={"user": user_data})
     except Exception as e:

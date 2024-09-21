@@ -1,42 +1,23 @@
-# sync
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
-from sqlalchemy.ext.declarative import declarative_base
+from typing import AsyncGenerator
+
+from sqlalchemy import MetaData
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.orm import DeclarativeBase
 
 from config import settings
 
-DATABASE_URL = (f'postgresql://{settings.DB_USERNAME}:{settings.DB_PASSWORD}@'
+
+DATABASE_URL = (f'postgresql+asyncpg://{settings.DB_USERNAME}:{settings.DB_PASSWORD}@'
                 f'{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}')
 
-engine = create_engine(
-    DATABASE_URL
-)
-
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-print(f'SessionLocal: {SessionLocal}')
-
-Base = declarative_base()
-
-Base.metadata.create_all(bind=engine)
-
-"""
-Альтернативное создание базового класса
-from sqlalchemy import MetaData, TIMESTAMP
-from sqlalchemy.orm import DeclarativeBase,
+engine = create_async_engine(DATABASE_URL)
+async_session_maker = async_sessionmaker(engine, autocommit=False, autoflush=False)
 
 
 class BaseModel(DeclarativeBase):
     metadata = MetaData()
-    created_at: Mapped[datetime] = mapped_column(
-        TIMESTAMP, nullable=False, default=datetime.utcnow
-    )
-В дальнейшем при создании моделей наследуемся от базового класса
-тк он уже содержит метаданные, то прописывать 
-Base.metadata.create_all(bind=engine) уже не требуется так-же в него можно поместить поля 
-моделей по умолчанию например created_at.
-"""
 
 
-async def get_session() -> Session:
-    with SessionLocal() as session:
+async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
+    async with async_session_maker() as session:
         yield session
