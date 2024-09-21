@@ -1,3 +1,4 @@
+import asyncio
 from sqlalchemy import Column, String, Integer, Boolean, TIMESTAMP, func
 from db import Base, engine
 
@@ -14,4 +15,9 @@ class User(Base):
     is_active = Column(Boolean, default=False)
     registered_data = Column(TIMESTAMP, server_default=func.now())
 
-Base.metadata.create_all(bind=engine)
+async def init_models():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(Base.metadata.create_all)
+
+asyncio.run(init_models())

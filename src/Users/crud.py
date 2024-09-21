@@ -1,30 +1,31 @@
-from sqlalchemy.orm import Session
+
+from sqlalchemy.ext.asyncio import AsyncSession
 from . import models, schemas
 from .manager import UserHashManager
 import os
 
 
-def get_user(db: Session, user_id: int):
-    return db.query(models.User).filter(models.User.id == user_id).first()
+async def get_user(db: AsyncSession, user_id: int):
+    return await db.query(models.User).filter(models.User.id == user_id).first()
 
 
-def get_user_by_email(db: Session, email: str):
-    return db.query(models.User).filter(models.User.email == email).all()
+async def get_user_by_email(db: AsyncSession, email: str):
+    return await db.query(models.User).filter(models.User.email == email).all()
 
 
-def get_user_by_phone(db: Session, phone: str):
-    return db.query(models.User).filter(models.User.phone == phone).all()
+async def get_user_by_phone(db: AsyncSession, phone: str):
+    return await db.query(models.User).filter(models.User.phone == phone).all()
 
 
-def get_user_by_login(db: Session, username: str):
-    return db.query(models.User).filter(models.User.username == username).all()
+async def get_user_by_login(db: AsyncSession, username: str):
+    return await db.query(models.User).filter(models.User.username == username).all()
 
 
-def get_users(db: Session, skip: int = 0, limit: int = 20):
-    return db.query(models.User).offset(skip).limit(limit).all()
+async def get_users(db: AsyncSession, skip: int = 0, limit: int = 20):
+    return await db.query(models.User).offset(skip).limit(limit).all()
 
 
-def check_user(db: Session, username: str, email: str, phone: str):
+async def check_user(db: AsyncSession, username: str, email: str, phone: str):
     try:
         existing_user = db.query(models.User).filter(
             (models.User.username == username) |
@@ -37,7 +38,7 @@ def check_user(db: Session, username: str, email: str, phone: str):
         return None
 
 
-def create_user(db: Session, user: schemas.UserCreate):
+async def create_user(db: AsyncSession, user: schemas.UserCreate):
     user_salt = os.urandom(32).hex()
     hashed_password = UserHashManager.hash_str(user.hashed_password, user_salt)
 
@@ -48,15 +49,15 @@ def create_user(db: Session, user: schemas.UserCreate):
         hashed_password=hashed_password,
         is_active=user.is_active
     )
-    user = db.add(db_user)
+    user = await db.add(db_user)
 
     try:
-        db.commit()
-        db.refresh(db_user)
-        return db_user
+        await db.commit()
+        await db.refresh(db_user)
+        return await db_user
 
     except Exception as e:
-        db.rollback()
+        await db.rollback()
         print(f"Ошибка при создании пользователя: {e}")
         return False
 
