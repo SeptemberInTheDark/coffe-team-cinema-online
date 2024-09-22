@@ -11,6 +11,9 @@ class Settings(BaseSettings):
     DB_USERNAME: str
     DB_PASSWORD: str
 
+    PHONE_VALIDATOR: str
+    EMAIL_VALIDATOR: str
+
     class Config:
         env_file: str = ".env"
 

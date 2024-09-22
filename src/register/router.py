@@ -22,27 +22,30 @@ router = APIRouter(
 
 @router.post("")
 async def user_registration(
-        username: str = Form(..., min_length=3),
-        password: str = Form(..., min_length=3),
-        email: str = Form(...),
-        phone: str = Form(...),
-        session: AsyncSession = Depends(get_async_session)
+    username: str = Form(..., min_length=3),
+    password: str = Form(..., min_length=3),
+    email: str = Form(...),
+    phone: str = Form(...),
+    session: AsyncSession = Depends(get_async_session)
 ):
     try:
         user_salt = os.urandom(32).hex()
         hashed_password = UserHashManager.hash_str(password, user_salt)
         existing_user = await check_user(session, username, email, phone)
         if existing_user:
-            return JSONResponse(status_code=400, content={"error": "Пользователь с таким"
-                                                                   " именем или почтой уже существует."})
+            return JSONResponse(status_code=400, content={"error":"Пользователь с таким"
+                                                                  " именем или почтой уже существует."})
 
-        new_user = UserCreate(
-            username=username,
-            email=email,
-            phone=phone,
-            hashed_password=hashed_password
-        )
-        user = await create_user(session=session, user=new_user)
+        try:
+            new_user = UserCreate(
+                username=username,
+                email=email,
+                phone=phone,
+                hashed_password=hashed_password
+            )
+            user =await create_user(session=session, user=new_user)
+        except ValueError as e:
+            return JSONResponse(status_code=400, content={"error": str(e)})
 
         if not user:
             return JSONResponse(status_code=400, content={"error": "Ошибка при создании "
@@ -57,8 +60,10 @@ async def user_registration(
                 "phone": user.phone,
                 "email": user.email
             }
-        })
+            })
 
     except Exception as http_exc:
         logging.error("Unexpected error: %e", http_exc)
         raise HTTPException(status_code=500, detail="Internal server error")
+
+
