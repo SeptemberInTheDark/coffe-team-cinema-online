@@ -3,12 +3,7 @@ from fastapi.exceptions import HTTPException
 from fastapi.responses import JSONResponse
 from db import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.Users.crud import (
-    get_users,
-    get_user_by_email,
-    get_user_by_phone,
-    get_user_by_login
-)
+from src.Users.crud import UserCRUD
 from src.Users.schemas import User
 
 
@@ -26,7 +21,7 @@ router = APIRouter(
     )
 async def get_all_users(db: AsyncSession = Depends(get_db)):
     try:
-        users = await get_users(db)
+        users = await UserCRUD.get_users(db)
         if not users:
             return JSONResponse(status_code=200, content={"users": []})
 
@@ -54,7 +49,7 @@ async def get_all_users(db: AsyncSession = Depends(get_db)):
     )
 async def get_current_user_by_email(email: str, db: AsyncSession = Depends(get_db)):
     try:
-        user_db_email = await get_user_by_email(db, email=email)
+        user_db_email = await UserCRUD.get_user_by_email(db, email=email)
         if user_db_email is None:
             return JSONResponse(status_code=400, content={"error": "Пользователь не найден"})
 
@@ -82,7 +77,7 @@ async def get_current_user_by_email(email: str, db: AsyncSession = Depends(get_d
     )
 async def get_current_user_by_phone(phone: str, db: AsyncSession = Depends(get_db)):
     try:
-        user_phone = await get_user_by_phone(db, phone=phone)
+        user_phone = await UserCRUD.get_user_by_phone(db, phone=phone)
         if user_phone is None:
             return JSONResponse(status_code=400, content={"error": "Пользователь не найден"})
 
@@ -109,7 +104,7 @@ async def get_current_user_by_phone(phone: str, db: AsyncSession = Depends(get_d
     )
 async def get_current_user_by_login(login: str, db: AsyncSession = Depends(get_db)):
     try:
-        user_login = await get_user_by_login(db, username=login)
+        user_login = await UserCRUD.get_user_by_login(db, username=login)
         if user_login is None:
             return JSONResponse(status_code=400, content={"error": "Пользователь не найден"})
 
