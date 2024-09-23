@@ -40,7 +40,7 @@ class Settings(BaseSettings):
         Returns:
             PostgresDsn: The constructed PostgresDsn URL for asyncpg.
         """
-        return MultiHostUrl.build(
+        return PostgresDsn.build(
             scheme="postgresql+asyncpg",
             username=self.POSTGRES_USER,
             password=self.POSTGRES_PASSWORD,
@@ -65,7 +65,7 @@ class Settings(BaseSettings):
         Returns:
             PostgresDsn: The constructed PostgresDsn URL.
         """
-        return MultiHostUrl.build(
+        return PostgresDsn.build(
             scheme="postgres",
             username=self.POSTGRES_USER,
             password=self.POSTGRES_PASSWORD,
@@ -73,7 +73,5 @@ class Settings(BaseSettings):
             path=self.POSTGRES_DB,
             port=int(self.POSTGRES_PORT),
         )
-
-
 
 settings = Settings()
