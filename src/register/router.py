@@ -1,16 +1,14 @@
-import os
-import logging
-
-from fastapi import APIRouter, Depends, Form, HTTPException
+from fastapi import APIRouter, Depends, Form
 from fastapi.responses import JSONResponse
-
-from db import get_async_session
-
+from db import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
+from src.Users.crud import UserCRUD
 
-from src.Users.crud import check_user, create_user
 from src.Users.schemas import UserCreate
 from src.Users.manager import UserHashManager
+from src.utils.logging import AppLogger
+
+logger = AppLogger().get_logger()
 
 logger = logging.getLogger(__name__)
 
@@ -26,26 +24,29 @@ async def user_registration(
     password: str = Form(..., min_length=3),
     email: str = Form(...),
     phone: str = Form(...),
-    session: AsyncSession = Depends(get_async_session)
+
+    db: AsyncSession = Depends(get_db)
 ):
     try:
         user_salt = os.urandom(32).hex()
         hashed_password = UserHashManager.hash_str(password, user_salt)
-        existing_user = await check_user(session, username, email, phone)
+
+        existing_user = await UserCRUD.check_user(db, username, email, phone)
+
+
         if existing_user:
             return JSONResponse(status_code=400, content={"error":"Пользователь с таким"
                                                                   " именем или почтой уже существует."})
 
-        try:
-            new_user = UserCreate(
-                username=username,
-                email=email,
-                phone=phone,
-                hashed_password=hashed_password
-            )
-            user =await create_user(session=session, user=new_user)
-        except ValueError as e:
-            return JSONResponse(status_code=400, content={"error": str(e)})
+
+        new_user = UserCreate(
+            username=username,
+            email=email,
+            phone=phone,
+            hashed_password=hashed_password
+        )
+        user = await UserCRUD.create_user(db=db, user=new_user)
+
 
         if not user:
             return JSONResponse(status_code=400, content={"error": "Ошибка при создании "
@@ -63,7 +64,8 @@ async def user_registration(
             })
 
     except Exception as http_exc:
-        logging.error("Unexpected error: %e", http_exc)
-        raise HTTPException(status_code=500, detail="Internal server error")
+        logger.error(f'Ошибка при создании пользователя: {Exception}')
+        raise http_exc
+
 
 

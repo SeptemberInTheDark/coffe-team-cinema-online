@@ -29,7 +29,6 @@
 - Linting: Ruff
 - Testing: PyTest
 - Authentication: OAuth2 для управления авторизацией и регистрацией.
-- Storage: S3-совместимое хранилище (например, AWS S3 или MinIO) для хранения видеофайлов.
 - Frontend: React.
 - Streaming: Nginx с модулем RTMP.
 

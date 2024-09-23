@@ -1,23 +1,34 @@
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 
-from sqlalchemy import MetaData
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.ext.asyncio import async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy import MetaData
+from config import settings as global_settings
+from src.utils.logging import AppLogger
 
-from config import settings
+logger = AppLogger().get_logger()
 
+engine = create_async_engine(
+    global_settings.asyncpg_url.unicode_string(),
+    future=True,
+    echo=True,
+)
 
-DATABASE_URL = (f'postgresql+asyncpg://{settings.DB_USERNAME}:{settings.DB_PASSWORD}@'
-                f'{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}')
-
-engine = create_async_engine(DATABASE_URL)
-async_session_maker = async_sessionmaker(engine, autocommit=False, autoflush=False)
-
+# expire_on_commit=False will prevent attributes from being expired
+# after commit.
+AsyncSessionFactory = async_sessionmaker(
+    engine,
+    autoflush=False,
+    expire_on_commit=False,
+)
 
 class BaseModel(DeclarativeBase):
     metadata = MetaData()
 
-
-async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
-    async with async_session_maker() as session:
+# Dependency
+async def get_db() -> AsyncGenerator:
+    async with AsyncSessionFactory() as session:
+        logger.debug(f"ASYNC Pool: {engine.pool.status()}")
         yield session
+        
