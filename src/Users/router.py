@@ -53,15 +53,13 @@ async def get_current_user_by_email(email: str, db: AsyncSession = Depends(get_d
         if user_db_email is None:
             return JSONResponse(status_code=400, content={"error": "Пользователь не найден"})
 
-        user_data = [
-            {
-                "id": user.id,
-                "login": user.username,
-                "email": user.email,
-                "phone": user.phone,
+        user_data = {
+                "id": user_db_email.id,
+                "login": user_db_email.username,
+                "email": user_db_email.email,
+                "phone": user_db_email.phone,
             }
-            for user in user_db_email
-        ]
+
         return JSONResponse(status_code=200, content={"user": user_data})
 
     except Exception as e:
@@ -81,15 +79,12 @@ async def get_current_user_by_phone(phone: str, db: AsyncSession = Depends(get_d
         if user_phone is None:
             return JSONResponse(status_code=400, content={"error": "Пользователь не найден"})
 
-        user_data = [
-            {
-                "id": user.id,
-                "login": user.username,
-                "email": user.email,
-                "phone": user.phone,
+        user_data = {
+                "id": user_phone.id,
+                "login": user_phone.username,
+                "email": user_phone.email,
+                "phone": user_phone.phone,
             }
-            for user in user_phone
-        ]
 
         return JSONResponse(status_code=200, content={"user": user_data})
     except Exception as e:
@@ -108,15 +103,12 @@ async def get_current_user_by_login(login: str, db: AsyncSession = Depends(get_d
         if user_login is None:
             return JSONResponse(status_code=400, content={"error": "Пользователь не найден"})
 
-        user_data = [
-            {
-                "id": user.id,
-                "login": user.username,
-                "email": user.email,
-                "phone": user.phone,
+        user_data = {
+                "id": user_login.id,
+                "login": user_login.username,
+                "email": user_login.email,
+                "phone": user_login.phone,
             }
-            for user in user_login
-        ]
 
         return JSONResponse(status_code=200, content={"user": user_data})
     except Exception as e:

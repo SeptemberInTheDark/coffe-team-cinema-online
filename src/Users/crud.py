@@ -1,44 +1,49 @@
-
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from . import models, schemas
 from .manager import UserHashManager
 import os
 from typing import List, Optional
+from src.utils.logging import AppLogger
 
+logger = AppLogger().get_logger()
 
 class UserCRUD:
 
     @staticmethod
     async def get_user(db: AsyncSession, user_id: int) -> Optional[models.User]:
-        return await db.query(models.User).filter(models.User.id == user_id).first()
+        return await db.scalar(select(models.User).where(models.User.id == user_id))
 
     @staticmethod
     async def get_user_by_email(db: AsyncSession, email: str) ->List[models.User]:
-        return await db.query(models.User).filter(models.User.email == email).all()
+        return await db.scalar(select(models.User).where(models.User.email == email))
 
     @staticmethod
     async def get_user_by_phone(db: AsyncSession, phone: str) -> List[models.User]:
-        return await db.query(models.User).filter(models.User.phone == phone).all()
+        return await db.scalar(select(models.User).where(models.User.phone == phone))
 
     @staticmethod
     async def get_user_by_login(db: AsyncSession, username: str) -> List[models.User]:
-        return await db.query(models.User).filter(models.User.username == username).all()
+        return await db.scalar(select(models.User).where(models.User.username == username))
 
     @staticmethod
-    async def get_users(db: AsyncSession, skip: int = 0, limit: int = 20):
-        return await db.query(models.User).offset(skip).limit(limit).all()
+    async def get_users(session: AsyncSession, skip: int = 0, limit: int = 20):
+        result = await session.scalars(select(models.User).offset(skip).limit(limit))
+        return result.all()
 
-    @staticmethod
-    async def check_user(db: AsyncSession, username: str, email: str, phone: str) -> Optional[models.User]:
+    async def check_user(session: AsyncSession, username: str, email: str, phone: str) -> Optional[models.User]:
         try:
-            existing_user = await db.query(models.User).filter(
-                (models.User.username == username) |
-                (models.User.email == email) |
-                (models.User.phone == phone)
-            ).first()
-            return existing_user if existing_user else None
+            result = await session.execute(
+                select(models.User).where(
+                    (models.User.username == username) |
+                    (models.User.email == email) |
+                    (models.User.phone == phone)
+                )
+            )
+            existing_user = result.scalar_one_or_none()
+            return existing_user
         except Exception as e:
-            print(f"Ошибка при проверке пользователя: {e}")
+            logger.error("Error checking user: %s", e)
             return None
 
     @staticmethod
