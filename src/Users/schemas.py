@@ -6,6 +6,11 @@ from pydantic import BaseModel, Field, field_validator
 
 from config import settings
 
+"""
+Регулярное выражение для телефона: (?:\+7|7|8)[-\s\(]?(\d{3})[\)\s-]?(\d{3})[-\s]?(\d{2})[-\s]?(\d{2})
+Регулярное выражение для почты: (^[\w\.-]+@[\w\.-]+\.\w{2,}$)
+"""
+
 email_regex = settings.EMAIL_VALIDATOR
 phone_regex = settings.PHONE_VALIDATOR
 

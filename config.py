@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str
     POSTGRES_HOST: str
     POSTGRES_DB: str
+    POSTGRES_PORT: int
+    PHONE_VALIDATOR: str
+    EMAIL_VALIDATOR: str
 
 
     @computed_field
@@ -43,6 +46,7 @@ class Settings(BaseSettings):
             password=self.POSTGRES_PASSWORD,
             host=self.POSTGRES_HOST,
             path=self.POSTGRES_DB,
+            port=int(self.POSTGRES_PORT),
         )
 
     @computed_field
@@ -67,7 +71,9 @@ class Settings(BaseSettings):
             password=self.POSTGRES_PASSWORD,
             host=self.POSTGRES_HOST,
             path=self.POSTGRES_DB,
+            port=int(self.POSTGRES_PORT),
         )
+
 
 
 settings = Settings()
