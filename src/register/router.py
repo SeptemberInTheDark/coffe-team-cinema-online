@@ -1,12 +1,14 @@
 from fastapi import APIRouter, Depends, Form
-from fastapi.exceptions import HTTPException
 from fastapi.responses import JSONResponse
 from db import get_db
-from sqlalchemy.orm import Session
-from src.Users.crud import check_user, create_user
+from sqlalchemy.ext.asyncio import AsyncSession
+from src.Users.crud import UserCRUD
 from src.Users.schemas import UserCreate
 import os
 from src.Users.manager import UserHashManager
+from src.utils.logging import AppLogger
+
+logger = AppLogger().get_logger()
 
 router = APIRouter(
     prefix='/api/register',
@@ -20,12 +22,12 @@ async def user_registration(
     password: str = Form(..., min_length=3),
     email: str = Form(...),
     phone: str = Form(...),
-    db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_db)
 ):
     try:
         user_salt = os.urandom(32).hex()
         hashed_password = UserHashManager.hash_str(password, user_salt)
-        existing_user = check_user(db, username, email, phone)
+        existing_user = await UserCRUD.check_user(db, username, email, phone)
 
         if existing_user:
             return JSONResponse(status_code=400, content={"error":"Пользователь с таким именем или почтой уже существует."})
@@ -37,7 +39,7 @@ async def user_registration(
             phone=phone,
             hashed_password=hashed_password
         )
-        user = create_user(db=db, user=new_user)
+        user = await UserCRUD.create_user(db=db, user=new_user)
 
         if not user:
             return JSONResponse(status_code=400, content={"error": "Ошибка при создании пользователя, попробуйте еще раз ..."})
@@ -55,6 +57,7 @@ async def user_registration(
             })
 
     except Exception as http_exc:
+        logger.error(f'Ошибка при создании пользователя: {Exception}')
         raise http_exc
 
 
