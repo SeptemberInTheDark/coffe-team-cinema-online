@@ -1,3 +1,4 @@
+import os
 from fastapi import APIRouter, Depends, Form
 from fastapi.responses import JSONResponse
 from db import get_db
@@ -10,7 +11,6 @@ from src.utils.logging import AppLogger
 
 logger = AppLogger().get_logger()
 
-logger = logging.getLogger(__name__)
 
 router = APIRouter(
     prefix='/api/register',
