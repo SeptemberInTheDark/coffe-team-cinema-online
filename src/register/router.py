@@ -6,6 +6,9 @@ from src.Users.crud import UserCRUD
 from src.Users.schemas import UserCreate
 import os
 from src.Users.manager import UserHashManager
+from src.utils.logging import AppLogger
+
+logger = AppLogger().get_logger()
 
 router = APIRouter(
     prefix='/api/register',
@@ -54,6 +57,7 @@ async def user_registration(
             })
 
     except Exception as http_exc:
+        logger.error(f'Ошибка при создании пользователя: {Exception}')
         raise http_exc
 
 

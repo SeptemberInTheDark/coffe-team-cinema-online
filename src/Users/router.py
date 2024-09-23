@@ -5,7 +5,9 @@ from db import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.Users.crud import UserCRUD
 from src.Users.schemas import User
+from src.utils.logging import AppLogger
 
+logger = AppLogger().get_logger()
 
 router = APIRouter(
     prefix='/api',
@@ -23,6 +25,7 @@ async def get_all_users(db: AsyncSession = Depends(get_db)):
     try:
         users = await UserCRUD.get_users(db)
         if not users:
+            logger.info('Ни одного пользователя не найдено, либо не существует')
             return JSONResponse(status_code=200, content={"users": []})
 
         user_list = [
@@ -38,6 +41,7 @@ async def get_all_users(db: AsyncSession = Depends(get_db)):
 
         return JSONResponse(status_code=200, content={"users": user_list})
     except Exception as e:
+        logger.error("Ошибка при получении пользователей:\n %s", e)
         raise HTTPException(status_code=500, detail={f"Ошибка при получении пользователей: {e}"})
 
 
@@ -51,6 +55,7 @@ async def get_current_user_by_email(email: str, db: AsyncSession = Depends(get_d
     try:
         user_db_email = await UserCRUD.get_user_by_email(db, email=email)
         if user_db_email is None:
+            logger.info("Пользователь по email %s не найден", email)
             return JSONResponse(status_code=400, content={"error": "Пользователь не найден"})
 
         user_data = {
@@ -63,6 +68,7 @@ async def get_current_user_by_email(email: str, db: AsyncSession = Depends(get_d
         return JSONResponse(status_code=200, content={"user": user_data})
 
     except Exception as e:
+        logger.error("Ошибка при получении пользователя по email:\n %s", e)
         raise HTTPException(status_code=500, detail={f"Ошибка при получении пользователя: {e}"})
 
 
@@ -77,6 +83,7 @@ async def get_current_user_by_phone(phone: str, db: AsyncSession = Depends(get_d
     try:
         user_phone = await UserCRUD.get_user_by_phone(db, phone=phone)
         if user_phone is None:
+            logger.info("Пользователь по телефону %s не найден", phone)
             return JSONResponse(status_code=400, content={"error": "Пользователь не найден"})
 
         user_data = {
@@ -88,6 +95,7 @@ async def get_current_user_by_phone(phone: str, db: AsyncSession = Depends(get_d
 
         return JSONResponse(status_code=200, content={"user": user_data})
     except Exception as e:
+        logger.error("Ошибка при получении пользователя по phone:\n %s", e)
         raise HTTPException(status_code=500, detail={f"Ошибка при получении пользователя: {e}"})
 
 
@@ -101,6 +109,7 @@ async def get_current_user_by_login(login: str, db: AsyncSession = Depends(get_d
     try:
         user_login = await UserCRUD.get_user_by_login(db, username=login)
         if user_login is None:
+            logger.info("Пользователь по логину %s не найден", login)
             return JSONResponse(status_code=400, content={"error": "Пользователь не найден"})
 
         user_data = {
@@ -112,4 +121,5 @@ async def get_current_user_by_login(login: str, db: AsyncSession = Depends(get_d
 
         return JSONResponse(status_code=200, content={"user": user_data})
     except Exception as e:
+        logger.error("Ошибка при получении пользователя по login:\n %s", e)
         raise HTTPException(status_code=500, detail={f"Ошибка при получении пользователя: {e}"})
