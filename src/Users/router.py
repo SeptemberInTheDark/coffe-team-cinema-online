@@ -4,8 +4,10 @@ from fastapi.responses import JSONResponse
 from db import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.Users.crud import UserCRUD
+
 from src.Users.schemas import User
 from src.utils.logging import AppLogger
+
 
 logger = AppLogger().get_logger()
 
@@ -20,12 +22,14 @@ router = APIRouter(
     response_model=User,
     summary="Получить всех пользователей",
     response_description="Список пользователей"
+
     )
 async def get_all_users(db: AsyncSession = Depends(get_db)):
     try:
         users = await UserCRUD.get_users(db)
         if not users:
             logger.info('Ни одного пользователя не найдено, либо не существует')
+
             return JSONResponse(status_code=200, content={"users": []})
 
         user_list = [
@@ -36,7 +40,7 @@ async def get_all_users(db: AsyncSession = Depends(get_db)):
                 "phone": user.phone,
                 "is_active": user.is_active
             }
-            for user in users
+           for user in users
         ]
 
         return JSONResponse(status_code=200, content={"users": user_list})
@@ -51,6 +55,7 @@ async def get_all_users(db: AsyncSession = Depends(get_db)):
     summary="Получение пользователя по его email",
     response_description="Конкретный пользователь"
     )
+
 async def get_current_user_by_email(email: str, db: AsyncSession = Depends(get_db)):
     try:
         user_db_email = await UserCRUD.get_user_by_email(db, email=email)
@@ -72,13 +77,13 @@ async def get_current_user_by_email(email: str, db: AsyncSession = Depends(get_d
         raise HTTPException(status_code=500, detail={f"Ошибка при получении пользователя: {e}"})
 
 
-
 @router.get(
     "/user/by_phone/{phone}",
     response_model=User,
     summary="Получение пользователя по его телефону",
     response_description="Конкретный пользователь"
     )
+
 async def get_current_user_by_phone(phone: str, db: AsyncSession = Depends(get_db)):
     try:
         user_phone = await UserCRUD.get_user_by_phone(db, phone=phone)
@@ -93,6 +98,7 @@ async def get_current_user_by_phone(phone: str, db: AsyncSession = Depends(get_d
                 "phone": user_phone.phone,
             }
 
+
         return JSONResponse(status_code=200, content={"user": user_data})
     except Exception as e:
         logger.error("Ошибка при получении пользователя по phone:\n %s", e)
@@ -105,6 +111,7 @@ async def get_current_user_by_phone(phone: str, db: AsyncSession = Depends(get_d
     summary="Получение пользователя по его логину",
     response_description="Конкретный пользователь"
     )
+
 async def get_current_user_by_login(login: str, db: AsyncSession = Depends(get_db)):
     try:
         user_login = await UserCRUD.get_user_by_login(db, username=login)
@@ -122,4 +129,5 @@ async def get_current_user_by_login(login: str, db: AsyncSession = Depends(get_d
         return JSONResponse(status_code=200, content={"user": user_data})
     except Exception as e:
         logger.error("Ошибка при получении пользователя по login:\n %s", e)
+
         raise HTTPException(status_code=500, detail={f"Ошибка при получении пользователя: {e}"})

@@ -1,5 +1,15 @@
+import re
+
+import logging
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
+
+from config import settings
+
+email_regex = settings.EMAIL_VALIDATOR
+phone_regex = settings.PHONE_VALIDATOR
+
+logger = logging.getLogger(__name__)
 
 
 class User(BaseModel):
@@ -18,5 +28,21 @@ class UserCreate(User):
     phone: str
     email: str
 
+    @field_validator('email')
+    def validate_email(cls, value):
+        if not re.match(email_regex, value):
+            logger.error('Invalid email')
+            raise ValueError('Invalid email')
+        return value
+
+
+    @field_validator('phone')
+    def validate_phone(cls, value):
+        if not re.match(phone_regex, value):
+            logger.error('Invalid phone')
+            raise ValueError('Invalid phone')
+        return value
+
+
     class Config:
-        orm_mode = True
+        from_attributes = True

@@ -23,8 +23,7 @@ AsyncSessionFactory = async_sessionmaker(
     expire_on_commit=False,
 )
 
-
-class Base(DeclarativeBase):
+class BaseModel(DeclarativeBase):
     metadata = MetaData()
 
 # Dependency
@@ -32,3 +31,4 @@ async def get_db() -> AsyncGenerator:
     async with AsyncSessionFactory() as session:
         logger.debug(f"ASYNC Pool: {engine.pool.status()}")
         yield session
+        
