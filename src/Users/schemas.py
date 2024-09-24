@@ -33,21 +33,5 @@ class UserCreate(User):
     phone: str
     email: str
 
-    @field_validator('email')
-    def validate_email(cls, value):
-        if not re.match(email_regex, value):
-            logger.error('Invalid email')
-            raise ValueError('Invalid email')
-        return value
-
-
-    @field_validator('phone')
-    def validate_phone(cls, value):
-        if not re.match(phone_regex, value):
-            logger.error('Invalid phone')
-            raise ValueError('Invalid phone')
-        return value
-
-
     class Config:
         from_attributes = True
