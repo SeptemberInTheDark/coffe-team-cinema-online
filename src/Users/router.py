@@ -129,5 +129,4 @@ async def get_current_user_by_login(login: str, db: AsyncSession = Depends(get_d
         return JSONResponse(status_code=200, content={"user": user_data})
     except Exception as e:
         logger.error("Ошибка при получении пользователя по login:\n %s", e)
-
         raise HTTPException(status_code=500, detail={f"Ошибка при получении пользователя: {e}"})
