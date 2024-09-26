@@ -1,9 +1,10 @@
 from collections.abc import AsyncGenerator
+from datetime import datetime
 
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.ext.asyncio import async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy import MetaData
+from sqlalchemy import MetaData, Column, DateTime
 from config import settings as global_settings
 from src.utils.logging import AppLogger
 
@@ -25,6 +26,8 @@ AsyncSessionFactory = async_sessionmaker(
 
 class BaseModel(DeclarativeBase):
     metadata = MetaData()
+    created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
+    updated_at = Column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
 
 # Dependency
 async def get_db() -> AsyncGenerator:
