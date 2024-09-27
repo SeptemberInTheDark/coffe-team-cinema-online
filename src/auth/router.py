@@ -1,6 +1,4 @@
-
 from fastapi import APIRouter, Depends, HTTPException, status
-from typing import Annotated
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from .schemas import User
 from db import get_db

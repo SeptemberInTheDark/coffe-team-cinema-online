@@ -1,5 +1,18 @@
+import logging
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
+
+from config import settings
+
+"""
+Регулярное выражение для телефона: (?:\+7|7|8)[-\s\(]?(\d{3})[\)\s-]?(\d{3})[-\s]?(\d{2})[-\s]?(\d{2})
+Регулярное выражение для почты: (^[\w\.-]+@[\w\.-]+\.\w{2,}$)
+"""
+
+email_regex = settings.EMAIL_VALIDATOR
+phone_regex = settings.PHONE_VALIDATOR
+
+logger = logging.getLogger(__name__)
 
 
 class User(BaseModel):
@@ -18,5 +31,4 @@ class UserCreate(User):
     phone: str
     email: str
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

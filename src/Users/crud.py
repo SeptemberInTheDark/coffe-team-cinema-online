@@ -3,28 +3,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from . import models, schemas
 from .manager import UserHashManager
 import os
-from typing import List, Optional
+from typing import Optional
 from src.utils.logging import AppLogger
 
 logger = AppLogger().get_logger()
 
+
 class UserCRUD:
 
     @staticmethod
-    async def get_user(db: AsyncSession, user_id: int) -> Optional[models.User]:
-        return await db.scalar(select(models.User).where(models.User.id == user_id))
-
-    @staticmethod
-    async def get_user_by_email(db: AsyncSession, email: str) ->List[models.User]:
-        return await db.scalar(select(models.User).where(models.User.email == email))
-
-    @staticmethod
-    async def get_user_by_phone(db: AsyncSession, phone: str) -> List[models.User]:
-        return await db.scalar(select(models.User).where(models.User.phone == phone))
-
-    @staticmethod
-    async def get_user_by_login(db: AsyncSession, username: str) -> List[models.User]:
-        return await db.scalar(select(models.User).where(models.User.username == username))
+    async def get_user(db: AsyncSession, **kwargs) -> Optional[models.User]:
+        return await db.scalar(select(models.User).filter_by(**kwargs))
 
     @staticmethod
     async def get_users(session: AsyncSession, skip: int = 0, limit: int = 20):
@@ -35,7 +24,7 @@ class UserCRUD:
         try:
             result = await session.execute(
                 select(models.User).where(
-                    (models.User.username == username) |
+                    (username == models.User.username) |
                     (models.User.email == email) |
                     (models.User.phone == phone)
                 )
@@ -47,7 +36,7 @@ class UserCRUD:
             return None
 
     @staticmethod
-    async def create_user(db: AsyncSession, user: schemas.UserCreate) -> Optional[models.User]:
+    async def create_user(db: AsyncSession, user: schemas.UserCreate) -> Optional[models.User | bool]:
         user_salt = os.urandom(32).hex()
         hashed_password = UserHashManager.hash_str(user.hashed_password, user_salt)
 
@@ -67,9 +56,9 @@ class UserCRUD:
 
         except Exception as e:
             await db.rollback()
-            print(f"Ошибка при создании пользователя: {e}")
+            logger.error("Ошибка при создании пользователя: %s", e)
             return False
 
-    #На потом
+    # На потом
     def update_user_info():
         pass

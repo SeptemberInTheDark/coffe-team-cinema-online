@@ -1,23 +1,27 @@
-import asyncio
-from sqlalchemy import Column, String, Integer, Boolean, TIMESTAMP, func
-from db import Base, engine
+from sqlalchemy import Column, String, Integer, Boolean, JSON, ForeignKey
+
+from db import BaseModel
 
 
-class User(Base):
+class Role(BaseModel):
+    __tablename__ = "roles"
+    __table_args__ = {"schema": "public"}
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(length=50), nullable=False)
+    permissions = Column(JSON)
+
+
+class User(BaseModel):
     __tablename__ = "users"
     __table_args__ = {"schema": "public"}
 
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String(length=255), nullable=False)
+    first_name = Column(String(length=255))
+    last_name = Column(String(length=255))
     email = Column(String(length=255), nullable=False, unique=True, index=True)
     phone = Column(String(length=15), nullable=False, unique=True, index=True)
     hashed_password = Column(String, nullable=False)
     is_active = Column(Boolean, default=False)
-    registered_data = Column(TIMESTAMP, server_default=func.now())
-
-# async def init_models():
-#     async with engine.begin() as conn:
-#         await conn.run_sync(Base.metadata.drop_all)
-#         await conn.run_sync(Base.metadata.create_all)
-
-# asyncio.run(init_models())
+    role_id = Column(Integer, ForeignKey(Role.id), nullable=False, default=2)

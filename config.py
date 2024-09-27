@@ -1,7 +1,4 @@
-import os
-
 from pydantic import PostgresDsn, computed_field
-from pydantic_core import MultiHostUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -19,6 +16,10 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str
     POSTGRES_HOST: str
     POSTGRES_DB: str
+    POSTGRES_PORT: int
+    PHONE_VALIDATOR: str
+    EMAIL_VALIDATOR: str
+    DATABASE_URL_TEST: str
 
 
     @computed_field
@@ -37,10 +38,11 @@ class Settings(BaseSettings):
         Returns:
             PostgresDsn: The constructed PostgresDsn URL for asyncpg.
         """
-        return MultiHostUrl.build(
+        return PostgresDsn.build(
             scheme="postgresql+asyncpg",
             username=self.POSTGRES_USER,
             password=self.POSTGRES_PASSWORD,
+            port=self.POSTGRES_PORT,
             host=self.POSTGRES_HOST,
             path=self.POSTGRES_DB,
         )
@@ -61,13 +63,13 @@ class Settings(BaseSettings):
         Returns:
             PostgresDsn: The constructed PostgresDsn URL.
         """
-        return MultiHostUrl.build(
-            scheme="postgres",
+        return PostgresDsn.build(
+            scheme="postgresql",
             username=self.POSTGRES_USER,
             password=self.POSTGRES_PASSWORD,
+            port=self.POSTGRES_PORT,
             host=self.POSTGRES_HOST,
             path=self.POSTGRES_DB,
         )
-
 
 settings = Settings()
