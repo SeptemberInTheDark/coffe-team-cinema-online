@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     POSTGRES_PORT: int
     PHONE_VALIDATOR: str
     EMAIL_VALIDATOR: str
+    DATABASE_URL_TEST: str
 
 
     @computed_field
