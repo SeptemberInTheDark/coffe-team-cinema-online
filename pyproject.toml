@@ -1,0 +1,20 @@
+[tool.ruff]
+select = [
+    "E",
+    "F",
+#    "W"
+]
+ignore = ["E501"]
+line-length = 100
+exclude = [".git", "__pycache__", ".env", ".venv", "migrations", "tests"]
+fix = false
+[tool.ruff.per-file-ignores]
+"tests/*.py" = ["F401"]  # Игнорировать F401 в тестовых файлах
+
+[tool.pytest.ini_options]
+pythonpath = [
+    ".", "src"
+]
+asyncio_mode="auto"
+asyncio_default_fixture_loop_scope="function"
+filterwarnings="ignore"

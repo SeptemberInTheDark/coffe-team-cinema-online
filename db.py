@@ -1,49 +1,37 @@
-#sync
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
+from collections.abc import AsyncGenerator
+from datetime import datetime
 
-try:
-    from config import (
-    DB_USERNAME,
-    DB_PASSWORD,
-    DB_HOST,
-    DB_PORT,
-    DB_NAME
-)
-except ImportError:
-    from .config import (
-        DB_USERNAME,
-        DB_PASSWORD,
-        DB_HOST,
-        DB_PORT,
-        DB_NAME
-    )
+from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.ext.asyncio import async_sessionmaker
+from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy import MetaData, Column, DateTime
+from config import settings as global_settings
+from src.utils.logging import AppLogger
 
+logger = AppLogger().get_logger()
 
-DATABASE_URL = f'postgresql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}'
-
-
-
-engine = create_engine(
-    DATABASE_URL
+engine = create_async_engine(
+    global_settings.asyncpg_url.unicode_string(),
+    future=True,
+    echo=True,
 )
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-print(f'SessionLocal: {SessionLocal}')
+# expire_on_commit=False will prevent attributes from being expired
+# after commit.
+AsyncSessionFactory = async_sessionmaker(
+    engine,
+    autoflush=False,
+    expire_on_commit=False,
+)
 
+class BaseModel(DeclarativeBase):
+    metadata = MetaData()
+    created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
+    updated_at = Column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
 
-Base = declarative_base()
-
-Base.metadata.create_all(bind=engine)
-
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-
+# Dependency
+async def get_db() -> AsyncGenerator:
+    async with AsyncSessionFactory() as session:
+        logger.debug(f"ASYNC Pool: {engine.pool.status()}")
+        yield session
+        

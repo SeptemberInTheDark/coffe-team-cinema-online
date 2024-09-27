@@ -1,12 +1,11 @@
-
-from fastapi import FastAPI, Request
+import uvicorn
+from fastapi import FastAPI
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, RedirectResponse
 from src.register.router import router as register_router
 from src.Users.router import router as user_router
-import uvicorn
 from src.auth.router import router as auth_router
 
 app = FastAPI()

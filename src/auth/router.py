@@ -1,6 +1,4 @@
-
 from fastapi import APIRouter, Depends, HTTPException, status
-from typing import Annotated
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from .schemas import User
 
@@ -42,15 +40,6 @@ def get_user(db, username: str):
 class UserInDB(User):
     hashed_password: str
 
-
-class UserInDB(User):
-    hashed_password: str
-
-
-def get_user(db, username: str):
-    if username in db:
-        user_dict = db[username]
-        return UserInDB(**user_dict)
 
 
 def fake_decode_token(token):
