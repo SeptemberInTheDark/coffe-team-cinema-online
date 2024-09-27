@@ -1,47 +1,50 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status, Form
+from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from .schemas import User
 from db import get_db
 from src.Users.crud import UserCRUD
+from src.Users.models import User as users_db
 from sqlalchemy.ext.asyncio import AsyncSession
 import os
 from src.Users.manager import UserHashManager
+from src.utils.logging import AppLogger
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+logger = AppLogger().get_logger()
 
 router = APIRouter(
-    prefix='/api',
-    tags=['Авторизация'],
+    prefix='/api/auth',
+    tags=['Авторизация пользователя']
 )
 
 
-async def decode_token(token, db: AsyncSession = Depends(get_db)):
-    # This doesn't provide any security at all
-    # Check the next version
-    user = await UserCRUD.get_user(db, token)
-    return user
+@router.post("/login")
+async def auth_user(
+    username: str = Form(..., min_length=2),
+    password: str = Form(..., min_length=2),
+    db: AsyncSession = Depends(get_db)
+):
+    try:
+        if not username or not password:
+            return JSONResponse(content={"error": "Логин и пароль обязательны для вввода"}, status_code=status.HTTP_400_BAD_REQUEST)
+
+        user = await UserCRUD.get_user(db, username)
+        if not user:
+            return JSONResponse(content="Пользователь не зарегистрирован", status_code=status.HTTP_401_UNAUTHORIZED)
+
+        access_token = JWTManager.encode_jwt({"sub": username})
+
+        response = JSONResponse(content={
+            "success": True,
+            "login": True,
+            "password": True
+        }, status_code=200)
+
+        response.set_cookie(key="accepted_key_token", value=access_token, httponly=True)
+        return response
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme)):
-    user = decode_token(token)
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authentication credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    return user
 
-
-@router.post("/token")
-async def login(form_data: OAuth2PasswordRequestForm = Depends()):
-    user_dict = await UserCRUD.get_users.get(form_data.username)
-    if not user_dict:
-        raise HTTPException(status_code=400, detail="Incorrect username or password")
-    user = User(**user_dict)
-    user_salt = os.urandom(32).hex()
-    hashed_password = UserHashManager.hash_str(form_data.password, user_salt)
-    if not hashed_password == user.hashed_password:
-        raise HTTPException(status_code=400, detail="Incorrect username or password")
-
-    return {"access_token": user.username, "token_type": "bearer"}
+async def get_cuurrent_user(request: Request):
+    token = request.cookies.get('accepted_key_token')
