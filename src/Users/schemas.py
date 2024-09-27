@@ -1,8 +1,6 @@
-import re
-
 import logging
 from typing import Optional
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, ConfigDict
 
 from config import settings
 
@@ -33,5 +31,4 @@ class UserCreate(User):
     phone: str
     email: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

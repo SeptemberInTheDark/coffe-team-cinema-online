@@ -60,7 +60,7 @@ async def user_registration(
                                 content={"error": "Ошибка при создании пользователя, попробуйте еще раз..."})
         logger.info(f"Пользователь {user.username} успешно зарегистрирован")
 
-        return JSONResponse(status_code=200, content={
+        return JSONResponse(status_code=201, content={
             "success": True,
             "message": "Пользователь успешно зарегистрирован",
             "data": {
