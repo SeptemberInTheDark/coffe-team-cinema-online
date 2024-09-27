@@ -33,6 +33,7 @@ python-dotenv==1.0.1
 python-multipart==0.0.9
 pytest==8.3.3
 pytest-asyncio==0.24.0
+pytest-cov==5.0.0
 PyYAML==6.0.2
 rich==13.8.1
 shellingham==1.5.4
