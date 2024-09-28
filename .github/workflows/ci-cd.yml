@@ -56,6 +56,7 @@ jobs:
           DATABASE_URL_TEST: ${{ env.DATABASE_URL_TEST }}
         run: pytest -v --cov=src tests/
 
+
   # Деплой на сервер для ветки master
 #  deploy:
 #    if: github.ref == 'refs/heads/master'
@@ -63,9 +64,21 @@ jobs:
 #    needs: test
 #
 #    steps:
-#    - name: Checkout repository
-#      uses: actions/checkout@v3
-#
-#    - name: Deploy to server using Docker
-#      run:
-      #TODO: Подключение к серверу и команды docker
+#      - name: Deploy to server using Docker
+#        uses: appleboy/ssh-action@master
+#        with:
+#          host: ${{ secrets.SSH_HOST }}
+#          username: ${{ secrets.SSH_USERNAME }}
+#          password: ${{ secrets.SSH_PASSWORD }}
+#          port: ${{ secrets.SSH_PORT }}
+#          script: |
+#            cd /home/<папка_проекта>
+#            git pull origin master
+#            source .venv/bin/activate
+#            docker build -t <your-image-name>:latest
+#            docker stop <your-container-name>
+#            docker rm <your-container-name>
+#            docker run -d --name <your-container-name>
+            
+#            TODO:Если в процессе установки требуется ввод паролей то создаем файлы deploy.sh и deploy.exp
+#            TODO:Так-же устанавливаем expect sudo apt install expect -y
