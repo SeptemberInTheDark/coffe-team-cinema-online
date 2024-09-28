@@ -17,9 +17,13 @@ class Settings(BaseSettings):
     POSTGRES_HOST: str
     POSTGRES_DB: str
     POSTGRES_PORT: int
+
     PHONE_VALIDATOR: str
     EMAIL_VALIDATOR: str
+
     DATABASE_URL_TEST: str
+
+    REDIS_URL: str
 
 
     @computed_field

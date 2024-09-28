@@ -34,6 +34,17 @@ jobs:
           --health-cmd pg_isready
           --health-interval 5s
           --health-timeout 5s
+          --health-retries
+      redis:
+        image: redis
+        env:
+          REDIS_HOST: redis
+          REDIS_PORT: 6379
+          REDIS_URL: redis://localhost:6379/0
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
           --health-retries 5
 
     steps:
