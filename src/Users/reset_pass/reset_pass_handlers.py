@@ -1,5 +1,4 @@
 import os
-from datetime import datetime, timedelta
 
 import redis.asyncio as redis
 from fastapi import APIRouter, Depends, HTTPException
@@ -10,7 +9,7 @@ from config import settings
 from db import get_db
 from src.Users.crud import UserCRUD
 from src.Users.manager import UserHashManager
-from src.Users.reset_pass.reset_pass_utils import is_valid_email, generate_reset_code, send_email
+from src.Users.reset_pass.reset_pass_utils import is_valid_email, generate_reset_code
 from src.Users.schemas import PasswordResetConfirm
 from src.utils.logging import AppLogger
 
