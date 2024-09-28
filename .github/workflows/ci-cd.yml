@@ -20,6 +20,7 @@ jobs:
       DATABASE_URL_TEST: postgresql+asyncpg://test_user:test_pass@localhost:5432/test_db
       PHONE_VALIDATOR: (?:\+7|7|8)[-\s\(]?(\d{3})[\)\s-]?(\d{3})[-\s]?(\d{2})[-\s]?(\d{2})
       EMAIL_VALIDATOR: (^[\w\.-]+@[\w\.-]+\.\w{2,}$)
+      REDIS_URL: redis://localhost:6379/0
 
     services:
       postgres:
@@ -35,7 +36,7 @@ jobs:
         env:
           REDIS_HOST: redis
           REDIS_PORT: 6379
-          REDIS_URL: redis://localhost:6379/0
+          REDIS_URL: ${{ env.REDIS_URL }}
 
     steps:
       - name: Checkout repository
