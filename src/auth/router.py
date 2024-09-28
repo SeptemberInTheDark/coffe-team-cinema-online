@@ -1,13 +1,16 @@
 from fastapi import APIRouter, Depends, HTTPException, Request, status, Form
 from fastapi.responses import JSONResponse
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+# from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from db import get_db
 from src.Users.crud import UserCRUD
-from src.Users.models import User as users_db
+# from src.Users.models import User as users_db
 from sqlalchemy.ext.asyncio import AsyncSession
-import os
-from src.Users.manager import UserHashManager
+# import os
+# from src.Users.manager import UserHashManager
 from src.utils.logging import AppLogger
+from .manager import JWTManager
+import jwt
+
 
 logger = AppLogger().get_logger()
 
@@ -36,7 +39,8 @@ async def auth_user(
         response = JSONResponse(content={
             "success": True,
             "login": True,
-            "password": True
+            "password": True,
+            "username": username,
         }, status_code=200)
 
         response.set_cookie(key="accepted_key_token", value=access_token, httponly=True)
@@ -46,5 +50,17 @@ async def auth_user(
 
 
 
-async def get_cuurrent_user(request: Request):
+async def get_current_user(request: Request):
     token = request.cookies.get('accepted_key_token')
+    if token is None:
+        raise HTTPException(status_code=401, detail="Срок действия сессии истёк, пожалуйста, авторизуйтесь заново.")
+
+    try:
+        payload = JWTManager.decode_jwt(token)
+        username = payload.get("sub")
+        if username is None:
+            raise HTTPException(status_code=401, detail="Не валидный токен")
+
+        return {"username": username}
+    except jwt.PyJWTError:
+        raise HTTPException(status_code=401, detail="Не валидный токен")
