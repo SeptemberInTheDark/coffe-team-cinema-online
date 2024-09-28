@@ -1,16 +1,13 @@
 from pydantic import PostgresDsn, computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
-
+import os
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env", env_ignore_empty=True, extra="ignore"
     )
-    # jwt_algorithm: str = os.getenv("JWT_ALGORITHM")
-    # jwt_expire: int = os.getenv("JWT_EXPIRE")
-
-    # JWT_ALGORITHM: str
-    # JWT_EXPIRE: int
+    ALGORITHM: str = os.getenv("ALGORITHM")
+    SECRET_KEY: str = os.getenv("SECRET_KEY")
 
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
