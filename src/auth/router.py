@@ -1,15 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, Request, status, Form
 from fastapi.responses import JSONResponse
-# from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from db import get_db
 from src.Users.crud import UserCRUD
-# from src.Users.models import User as users_db
 from sqlalchemy.ext.asyncio import AsyncSession
-# import os
 from src.utils.logging import AppLogger
 from .manager import JWTManager
 from src.Users.manager import user_hash_manager
 from jwt.exceptions import PyJWTError
+from datetime import timedelta
+
 
 logger = AppLogger().get_logger()
 
@@ -49,7 +48,12 @@ async def auth_user(
                 "username": username,
             }, status_code=status.HTTP_200_OK)
 
-            response.set_cookie(key="accepted_key_token", value=access_token, httponly=True)
+            response.set_cookie(
+                key="accepted_key_token",
+                value=access_token,
+                httponly=True,
+                max_age=timedelta(days=3).total_seconds()
+            )
             return response
         else:
             return JSONResponse(content={"error": "Такого пароля не существует"}, status_code=status.HTTP_401_UNAUTHORIZED)
