@@ -9,7 +9,7 @@ from config import settings
 from db import get_db
 from src.Users.crud import UserCRUD
 from src.Users.manager import UserHashManager
-from src.Users.reset_pass.reset_pass_utils import is_valid_email, generate_reset_code
+from src.Users.reset_pass.reset_pass_utils import is_valid_email, generate_reset_code, send_email_reset_code
 from src.Users.schemas import PasswordResetConfirm
 from src.utils.logging import AppLogger
 
@@ -44,7 +44,9 @@ async def request_password_reset(email: str, db: AsyncSession = Depends(get_db))
     await redis_client.set(f"password_reset:{email}", reset_code, ex=600)
 
     # Отправляем код на email
-    # send_email(email, reset_code)
+    send_email_reset_code(email=email,
+                          reset_code=reset_code,
+                          user_name=user.username)
 
     logger.info(f"Password reset code sent to {email}")
     return JSONResponse(status_code=200, content={
