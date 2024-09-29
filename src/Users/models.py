@@ -2,7 +2,6 @@ from sqlalchemy import Column, String, Integer, Boolean, JSON, ForeignKey
 
 from db import BaseModel
 
-
 class Role(BaseModel):
     __tablename__ = "roles"
     __table_args__ = {"schema": "public"}

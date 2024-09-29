@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from . import models, schemas
 from .manager import UserHashManager
 import os
-from typing import Optional
+from typing import Optional, Tuple
 from src.utils.logging import AppLogger
 
 logger = AppLogger().get_logger()
@@ -36,9 +36,18 @@ class UserCRUD:
             return None
 
     @staticmethod
+    async def get_user_credentials(db: AsyncSession, username:str) -> Optional[Tuple[str, str]]:
+        secrets_info = await db.execute(
+            select(models.User.hashed_password)
+            .where(models.User.username == username)
+        )
+        credentials = secrets_info.scalar_one_or_none()
+        return credentials
+
+
+    @staticmethod
     async def create_user(db: AsyncSession, user: schemas.UserCreate) -> Optional[models.User | bool]:
-        user_salt = os.urandom(32).hex()
-        hashed_password = UserHashManager.hash_str(user.hashed_password, user_salt)
+        hashed_password = UserHashManager.hash_password(user.hashed_password)
 
         db_user = models.User(
             username=user.username,

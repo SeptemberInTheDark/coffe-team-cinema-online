@@ -6,11 +6,10 @@ from src.Users.crud import UserCRUD
 # from src.Users.models import User as users_db
 from sqlalchemy.ext.asyncio import AsyncSession
 # import os
-# from src.Users.manager import UserHashManager
 from src.utils.logging import AppLogger
 from .manager import JWTManager
-import jwt
-
+from src.Users.manager import UserHashManager
+from jwt.exceptions import PyJWTError
 
 logger = AppLogger().get_logger()
 
@@ -27,27 +26,32 @@ async def auth_user(
     db: AsyncSession = Depends(get_db)
 ):
     try:
-        if not username or not password:
-            return JSONResponse(content={"error": "Логин и пароль обязательны для вввода"}, status_code=status.HTTP_400_BAD_REQUEST)
+        user = await UserCRUD.get_user(db=db, username=username)
 
-        user = await UserCRUD.get_user(db, username)
         if not user:
-            return JSONResponse(content="Пользователь не зарегистрирован", status_code=status.HTTP_401_UNAUTHORIZED)
+            return JSONResponse(content={"error": "Пользователь не зарегистрирован"}, status_code=status.HTTP_401_UNAUTHORIZED)
+
+        hashed_password = await UserCRUD.get_user_credentials(db, username)
+
+        if not hashed_password or not UserHashManager.check_password(hashed_password, password):
+            return JSONResponse(content={"error": "Неверный пароль"}, status_code=status.HTTP_401_UNAUTHORIZED)
 
         access_token = JWTManager.encode_jwt({"sub": username})
 
         response = JSONResponse(content={
             "success": True,
             "login": True,
-            "password": True,
             "username": username,
-        }, status_code=200)
+        }, status_code=status.HTTP_200_OK)
 
         response.set_cookie(key="accepted_key_token", value=access_token, httponly=True)
         return response
-    except Exception as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
+    except Exception as e:
+        raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail={"error": "Произошла ошибка на стороне сервера, обратитесь в тех. поддержку.", "details": str(e)}
+            )
 
 
 async def get_current_user(request: Request):
@@ -62,5 +66,5 @@ async def get_current_user(request: Request):
             raise HTTPException(status_code=401, detail="Не валидный токен")
 
         return {"username": username}
-    except jwt.PyJWTError:
+    except PyJWTError:
         raise HTTPException(status_code=401, detail="Не валидный токен")
