@@ -23,7 +23,7 @@ jobs:
       REDIS_URL: redis://localhost:6379/0
       SMTP_PASS: test_pass
       SMTP_USER: test_user
-      SMTP_PORT: test_port
+      SMTP_PORT: 465
       SMTP_HOST: localhost
 
     services:
