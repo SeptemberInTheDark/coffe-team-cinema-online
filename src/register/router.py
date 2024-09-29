@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.Users.crud import UserCRUD
 
 from src.Users.schemas import UserCreate
-from src.Users.manager import UserHashManager
+from src.Users.manager import user_hash_manager
 from src.utils.logging import AppLogger
 
 from config import settings
@@ -39,7 +39,6 @@ async def user_registration(
             logger.error('Некорректный номер телефона')
             return JSONResponse(status_code=400, content={"error": "Некорректный номер телефона"})
 
-        hashed_password = UserHashManager.hash_password(password)
 
         existing_user = await UserCRUD.check_user(db, username, email, phone)
         if existing_user:
@@ -50,7 +49,7 @@ async def user_registration(
             username=username,
             email=email,
             phone=phone,
-            hashed_password=hashed_password,
+            hashed_password=password,
         )
         user = await UserCRUD.create_user(db=db, user=new_user)
 

@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from . import models, schemas
-from .manager import UserHashManager
+from .manager import user_hash_manager
 import os
 from typing import Optional, Tuple
 from src.utils.logging import AppLogger
@@ -47,7 +47,7 @@ class UserCRUD:
 
     @staticmethod
     async def create_user(db: AsyncSession, user: schemas.UserCreate) -> Optional[models.User | bool]:
-        hashed_password = UserHashManager.hash_password(user.hashed_password)
+        hashed_password = user_hash_manager.hash_password(user.hashed_password)
 
         db_user = models.User(
             username=user.username,

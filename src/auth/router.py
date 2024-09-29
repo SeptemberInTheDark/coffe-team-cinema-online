@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 # import os
 from src.utils.logging import AppLogger
 from .manager import JWTManager
-from src.Users.manager import UserHashManager
+from src.Users.manager import user_hash_manager
 from jwt.exceptions import PyJWTError
 
 logger = AppLogger().get_logger()
@@ -33,19 +33,26 @@ async def auth_user(
 
         hashed_password = await UserCRUD.get_user_credentials(db, username)
 
-        if not hashed_password or not UserHashManager.check_password(hashed_password, password):
+        if not hashed_password:
             return JSONResponse(content={"error": "Неверный пароль"}, status_code=status.HTTP_401_UNAUTHORIZED)
 
-        access_token = JWTManager.encode_jwt({"sub": username})
+        decode_pass = user_hash_manager.check_password(hashed_password, password)
+        print(f'decode_pass: {decode_pass}')
 
-        response = JSONResponse(content={
-            "success": True,
-            "login": True,
-            "username": username,
-        }, status_code=status.HTTP_200_OK)
+        if decode_pass:
 
-        response.set_cookie(key="accepted_key_token", value=access_token, httponly=True)
-        return response
+            access_token = JWTManager.encode_jwt({"sub": username})
+
+            response = JSONResponse(content={
+                "success": True,
+                "login": True,
+                "username": username,
+            }, status_code=status.HTTP_200_OK)
+
+            response.set_cookie(key="accepted_key_token", value=access_token, httponly=True)
+            return response
+        else:
+            return JSONResponse(content={"error": "Такого пароля не существует"}, status_code=status.HTTP_401_UNAUTHORIZED)
 
     except Exception as e:
         raise HTTPException(

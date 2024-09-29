@@ -5,8 +5,10 @@
 from argon2 import PasswordHasher
 
 
-ph = PasswordHasher()
+password_hassher = PasswordHasher()
 class UserHashManager():
+    def __init__(self, ph=password_hassher) -> None:
+        self.ph = ph
 
     # @staticmethod
     # def hash_password(password: str):
@@ -18,15 +20,16 @@ class UserHashManager():
     #     return stored_hashed_password == hashlib.sha256(salt + input_password).hexdigest()
 
 
-    @staticmethod
-    def hash_password(password: str) -> str:
-        return ph.hash(password)
+    def hash_password(self, password: str) -> str:
+        return self.ph.hash(password)
 
 
-    @staticmethod
-    def check_password(stored_hashed_password: str, input_password: str) -> bool:
+    def check_password(self, stored_hashed_password: str, input_password: str) -> bool:
         try:
-             ph.verify(stored_hashed_password, input_password)
+             self.ph.verify(stored_hashed_password, input_password)
              return True
         except Exception:
              return False
+
+
+user_hash_manager = UserHashManager()
