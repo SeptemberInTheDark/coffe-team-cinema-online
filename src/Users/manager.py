@@ -1,7 +1,3 @@
-# import bcrypt
-# import hashlib
-# import os
-
 from argon2 import PasswordHasher
 
 
@@ -9,15 +5,6 @@ password_hassher = PasswordHasher()
 class UserHashManager():
     def __init__(self, ph=password_hassher) -> None:
         self.ph = ph
-
-    # @staticmethod
-    # def hash_password(password: str):
-    #     salt = os.urandom(32)
-    #     return hashlib.sha256(salt + password).hexdigest()
-
-    # @staticmethod
-    # def check_pasword(stored_hashed_password, salt, input_password):
-    #     return stored_hashed_password == hashlib.sha256(salt + input_password).hexdigest()
 
 
     def hash_password(self, password: str) -> str:
