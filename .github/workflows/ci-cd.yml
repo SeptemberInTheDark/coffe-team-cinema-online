@@ -21,6 +21,10 @@ jobs:
       PHONE_VALIDATOR: (?:\+7|7|8)[-\s\(]?(\d{3})[\)\s-]?(\d{3})[-\s]?(\d{2})[-\s]?(\d{2})
       EMAIL_VALIDATOR: (^[\w\.-]+@[\w\.-]+\.\w{2,}$)
       REDIS_URL: redis://localhost:6379/0
+      SMTP_PASS: test_pass
+      SMTP_USER: test_user
+      SMTP_PORT: test_port
+      SMTP_HOST: localhost
 
     services:
       postgres:
