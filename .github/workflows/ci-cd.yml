@@ -79,6 +79,11 @@ jobs:
             cd coffe-team-cinema-online
             git pull origin master
             docker build . --tag fastapi_app
-            docker stop fastapi_app
-            docker rm fastapi_app
-            docker run -d fastapi_app -p 80:80
+
+            # Остановить и удалить старый контейнер, если он существует
+            docker stop fastapi_app || true
+            docker rmi fastapi_app || true
+
+            # Запуск нового контейнера с правильными параметрами
+            docker run -p 80:80 fastapi_app
+  
