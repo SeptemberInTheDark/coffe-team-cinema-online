@@ -2,7 +2,6 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from . import models, schemas
 from .manager import user_hash_manager
-import os
 from typing import Optional, Tuple
 from src.utils.logging import AppLogger
 
