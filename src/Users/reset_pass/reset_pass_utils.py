@@ -26,6 +26,7 @@ def get_email_template(user: str,
         '<div>'
         f'<h1>Сброс пароля для аккаунта {user}</h1>'
         f'<p>Ваш код для сброса пароля: {reset_code}</p>'
+        f'<p>Ссылка на сброс пароля: ...</p>'
         '</div>',
         subtype="html"
     )
