@@ -17,7 +17,7 @@ jobs:
       POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
       POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
       POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
-      DATABASE_URL_TEST: postgresql+asyncpg://test_user:pass@localhost:5432/cinema_test
+      DATABASE_URL_TEST: postgresql+asyncpg://test_user:test_pass@localhost:5432/test_db
       PHONE_VALIDATOR: ${{ secrets.PHONE_VALIDATOR }}
       EMAIL_VALIDATOR: ${{ secrets.EMAIL_VALIDATOR }}
       REDIS_URL: ${{ secrets.REDIS_URL }}
@@ -81,4 +81,4 @@ jobs:
             docker build . --tag fastapi_app
             docker stop fastapi_app
             docker rm fastapi_app
-            docker run -d --name fastapi_app -p 80:80
+            docker run -d fastapi_app -p 80:80
