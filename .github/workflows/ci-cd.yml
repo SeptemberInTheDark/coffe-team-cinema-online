@@ -57,27 +57,28 @@ jobs:
       - name: Run linters
         run: ruff check
 
-#      - name: Run tests
-#        env:
-#          DATABASE_URL_TEST: ${{ secrets.DATABASE_URL_TEST }}
-#        run: pytest -v --cov=src tests/
+      - name: Run tests
+        env:
+          DATABASE_URL_TEST: ${{ secrets.DATABASE_URL_TEST }}
+        run: pytest -v --cov=src tests/
 
 
 #   Деплой на сервер для ветки master
-#  deploy:
-#    if: github.ref == 'refs/heads/master'
-#
-#    steps:
-#      - name: Deploy to server using Docker
-#        uses: appleboy/ssh-action@master
-#        with:
-#          host: ${{ secrets.SSH_HOST }}
-#          username: ${{ secrets.SSH_USERNAME }}
-#          password: ${{ secrets.SSH_PASSWORD }}
-#          script: |
-#            cd coffe-team-cinema-online
-#            git pull origin master
-#            docker build -t fastapi_app
-#            docker stop fastapi_app
-#            docker rm fastapi_app
-#            docker run -d --name fastapi_app -p 80:80
+  deploy:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to server using Docker
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          script: |
+            cd coffe-team-cinema-online
+            git pull origin master
+            docker build . --tag fastapi_app
+            docker stop fastapi_app
+            docker rm fastapi_app
+            docker run -d --name fastapi_app -p 80:80
