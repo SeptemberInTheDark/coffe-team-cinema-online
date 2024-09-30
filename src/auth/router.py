@@ -1,79 +1,81 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from .schemas import User
+from fastapi import APIRouter, Depends, HTTPException, Request, status, Form
+from fastapi.responses import JSONResponse
+from db import get_db
+from src.Users.crud import UserCRUD
+from sqlalchemy.ext.asyncio import AsyncSession
+from src.utils.logging import AppLogger
+from .manager import JWTManager
+from src.Users.manager import user_hash_manager
+from jwt.exceptions import PyJWTError
+from datetime import timedelta
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+logger = AppLogger().get_logger()
 
 router = APIRouter(
-    prefix='/api',
-    tags=['Авторизация'],
+    prefix='/api/auth',
+    tags=['Авторизация пользователя']
 )
 
 
-fake_users_db = {
-    "johndoe": {
-        "username": "johndoe",
-        "full_name": "John Doe",
-        "email": "johndoe@example.com",
-        "hashed_password": "fakehashedsecret",
-        "disabled": False,
-    },
-    "alice": {
-        "username": "alice",
-        "full_name": "Alice Wonderson",
-        "email": "alice@example.com",
-        "hashed_password": "fakehashedsecret2",
-        "disabled": True,
-    },
-}
+@router.post("/login")
+async def auth_user(
+    username: str = Form(..., min_length=2),
+    password: str = Form(..., min_length=2),
+    db: AsyncSession = Depends(get_db)
+):
+    try:
+        user = await UserCRUD.get_user(db=db, username=username)
 
-def fake_hash_password(password: str):
-    return "fakehashed" + password
+        if not user:
+            return JSONResponse(content={"error": "Пользователь не зарегистрирован"}, status_code=status.HTTP_401_UNAUTHORIZED)
 
+        hashed_password = await UserCRUD.get_user_credentials(db, username)
 
-def get_user(db, username: str):
-    if username in db:
-        user_dict = db[username]
-        return UserInDB(**user_dict)
+        if not hashed_password:
+            return JSONResponse(content={"error": "Неверный пароль"}, status_code=status.HTTP_401_UNAUTHORIZED)
 
+        decode_pass = user_hash_manager.check_password(hashed_password, password)
+        print(f'decode_pass: {decode_pass}')
 
-class UserInDB(User):
-    hashed_password: str
+        if decode_pass:
 
+            access_token = JWTManager.encode_jwt({"sub": username})
 
+            response = JSONResponse(content={
+                "success": True,
+                "login": True,
+                "username": username,
+            }, status_code=status.HTTP_200_OK)
 
-def fake_decode_token(token):
-    # This doesn't provide any security at all
-    # Check the next version
-    user = get_user(fake_users_db, token)
-    return user
+            response.set_cookie(
+                key="_key_token",
+                value=access_token,
+                httponly=True,
+                max_age=timedelta(days=3).total_seconds()
+            )
+            return response
+        else:
+            return JSONResponse(content={"error": "Такого пароля не существует"}, status_code=status.HTTP_401_UNAUTHORIZED)
 
-
-async def get_current_user(token: str = Depends(oauth2_scheme)):
-    user = fake_decode_token(token)
-    if not user:
+    except Exception as e:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authentication credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    return user
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail={"error": "Произошла ошибка на стороне сервера, обратитесь в тех. поддержку.", "details": str(e)}
+            )
 
 
-async def get_current_active_user(current_user: User = Depends(get_current_user)):
-    if current_user.disabled:
-        raise HTTPException(status_code=400, detail="Inactive user")
-    return current_user
+async def get_current_user(request: Request):
+    token = request.cookies.get('_key_token')
+    if token is None:
+        raise HTTPException(status_code=401, detail="Срок действия сессии истёк, пожалуйста, авторизуйтесь заново.")
 
+    try:
+        payload = JWTManager.decode_jwt(token)
+        username = payload.get("sub")
+        if username is None:
+            raise HTTPException(status_code=401, detail="Не валидный токен")
 
-@router.post("/token")
-async def login(form_data: OAuth2PasswordRequestForm = Depends()):
-    user_dict = fake_users_db.get(form_data.username)
-    if not user_dict:
-        raise HTTPException(status_code=400, detail="Incorrect username or password")
-    user = UserInDB(**user_dict)
-    hashed_password = fake_hash_password(form_data.password)
-    if not hashed_password == user.hashed_password:
-        raise HTTPException(status_code=400, detail="Incorrect username or password")
-
-    return {"access_token": user.username, "token_type": "bearer"}
+        return {"username": username}
+    except PyJWTError:
+        raise HTTPException(status_code=401, detail="Не валидный токен")
