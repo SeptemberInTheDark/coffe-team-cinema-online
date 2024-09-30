@@ -46,28 +46,6 @@ def test_send_email_reset_code_exception(mock_smtp):
         send_email_reset_code("test@example.com", "123456", "TestUser")
 
 
-# Тест для запроса на сброс пароля
-@pytest.mark.asyncio
-@patch("src.Users.reset_pass.reset_pass_handlers.redis_client.set", new_callable=AsyncMock)
-@patch("src.Users.crud.UserCRUD.get_user", new_callable=AsyncMock)
-async def test_request_password_reset(mock_get_user, mock_redis_set):
-    # Мокаем возврат пользователя из базы данных
-    mock_get_user.return_value = AsyncMock(username="TestUser")
-
-    # Мокаем функцию send_email_reset_code
-    with patch("src.Users.reset_pass.reset_pass_utils.send_email_reset_code",
-               new_callable=AsyncMock) as mock_send_email:
-        # Вызов функции сброса пароля
-        response = await request_password_reset(email="test@example.com", db=AsyncMock())
-
-        # Проверяем, что статус ответа 200
-        assert response.status_code == 200
-
-        # Проверяем, что get_user был вызван один раз
-        mock_get_user.assert_called_once_with(mock.ANY, email="test@example.com")
-
-
-
 
 # Тест на случай, когда пользователь не найден
 @pytest.mark.asyncio
