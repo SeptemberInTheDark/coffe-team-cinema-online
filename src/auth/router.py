@@ -4,7 +4,7 @@ from db import get_db
 from src.Users.crud import UserCRUD
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.utils.logging import AppLogger
-from .manager import JWTManager
+from src.auth.manager import JWTManager
 from src.Users.manager import user_hash_manager
 from jwt.exceptions import PyJWTError
 from datetime import timedelta
