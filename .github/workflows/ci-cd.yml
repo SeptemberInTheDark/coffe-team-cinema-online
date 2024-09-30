@@ -59,7 +59,7 @@ jobs:
 
       - name: Run tests
         env:
-          DATABASE_URL_TEST: ${{ env.DATABASE_URL_TEST }}
+          DATABASE_URL_TEST: ${{ secrets.DATABASE_URL_TEST }}
         run: pytest -v --cov=src tests/
 
 
