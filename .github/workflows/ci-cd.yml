@@ -17,7 +17,7 @@ jobs:
       POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
       POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
       POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
-      DATABASE_URL_TEST: ${{ secrets.DATABASE_URL_TEST }}
+      DATABASE_URL_TEST: postgresql+asyncpg://test_user:pass@localhost:5432/cinema_test
       PHONE_VALIDATOR: ${{ secrets.PHONE_VALIDATOR }}
       EMAIL_VALIDATOR: ${{ secrets.EMAIL_VALIDATOR }}
       REDIS_URL: ${{ secrets.REDIS_URL }}
@@ -59,7 +59,7 @@ jobs:
 
       - name: Run tests
         env:
-          DATABASE_URL_TEST: ${{ secrets.DATABASE_URL_TEST }}
+          DATABASE_URL_TEST: ${{ env.DATABASE_URL_TEST }}
         run: pytest -v --cov=src tests/
 
 
