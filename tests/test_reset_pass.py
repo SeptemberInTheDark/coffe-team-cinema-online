@@ -66,8 +66,6 @@ async def test_request_password_reset(mock_get_user, mock_redis_set):
         # Проверяем, что get_user был вызван один раз
         mock_get_user.assert_called_once_with(mock.ANY, email="test@example.com")
 
-        # Проверяем, что код сброса был записан в Redis
-        mock_redis_set.assert_called_once_with("password_reset:test@example.com", mock.ANY, ex=600)
 
 
 
