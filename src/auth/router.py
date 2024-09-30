@@ -49,7 +49,7 @@ async def auth_user(
             }, status_code=status.HTTP_200_OK)
 
             response.set_cookie(
-                key="accepted_key_token",
+                key="_key_token",
                 value=access_token,
                 httponly=True,
                 max_age=timedelta(days=3).total_seconds()
@@ -66,7 +66,7 @@ async def auth_user(
 
 
 async def get_current_user(request: Request):
-    token = request.cookies.get('accepted_key_token')
+    token = request.cookies.get('_key_token')
     if token is None:
         raise HTTPException(status_code=401, detail="Срок действия сессии истёк, пожалуйста, авторизуйтесь заново.")
 

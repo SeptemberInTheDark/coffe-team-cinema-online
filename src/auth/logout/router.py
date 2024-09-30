@@ -1,12 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException, Request, status
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, Response
 
 
 router = APIRouter(
     prefix='/api/logout',
-    tags=['Авторизация пользователя']
+    tags=['Выход с аккаунта']
 )
 
+
 @router.post('')
-async def logout():
-    pass
+async def logout(response: Response):
+    response.delete_cookie("_key_token")
+    return {"status": "success"}
