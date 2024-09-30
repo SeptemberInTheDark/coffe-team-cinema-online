@@ -5,6 +5,7 @@ __pycache__/
 .idea
 # C extensions
 *.so
+*.exp
 
 # Distribution / packaging
 .Python
