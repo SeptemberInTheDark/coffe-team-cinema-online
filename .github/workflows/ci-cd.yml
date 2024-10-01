@@ -62,8 +62,6 @@ jobs:
           DATABASE_URL_TEST: ${{ env.DATABASE_URL_TEST }}
         run: pytest -v --cov=src tests/
 
-
-#   Деплой на сервер для ветки master
   deploy:
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
@@ -79,30 +77,30 @@ jobs:
             cd coffe-team-cinema-online
             git pull origin master
             
-          # Получаем временную метку для новой версии контейнера
+            # Получаем временную метку для новой версии контейнера
             TIMESTAMP=$(date +"%Y%m%d%H%M%S")
 
-          # Строим новый образ с меткой по временной метке
+            # Строим новый образ с меткой по временной метке
             docker build . --tag fastapi_app:$TIMESTAMP
           
-          # Запуск нового контейнера
+            # Запуск нового контейнера
             docker run -d --name fastapi_app_$TIMESTAMP -p 88:80 fastapi_app:$TIMESTAMP
 
-          # Проверяем, существует ли предыдущий контейнер fastapi_app_current
+            # Проверяем, существует ли предыдущий контейнер fastapi_app_current
             if [ "$(docker ps -q -f name=fastapi_app_current)" ]; then
               echo "Stopping and renaming current container to fastapi_app_previous..."
               docker stop fastapi_app_current
               docker rename fastapi_app_current fastapi_app_previous
             fi
 
-          # Переименовываем новый контейнер в fastapi_app_current
+            # Переименовываем новый контейнер в fastapi_app_current
             docker rename fastapi_app_$TIMESTAMP fastapi_app_current
 
-          # Удаляем позапрошлый контейнер, если он существует
+            # Удаляем позапрошлый контейнер, если он существует
             if [ "$(docker ps -a -q -f name=fastapi_app_previous)" ]; then
               echo "Removing old previous container..."
               docker rm fastapi_app_previous
             fi
 
-          # Удаляем старый образ
+            # Удаляем старый образ
             docker image prune -f
