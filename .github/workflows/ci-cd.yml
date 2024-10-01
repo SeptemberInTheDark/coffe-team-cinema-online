@@ -18,6 +18,8 @@ jobs:
       POSTGRES_DB: test_db
       POSTGRES_PORT: 5432
       DATABASE_URL_TEST: postgresql+asyncpg://test_user:test_pass@localhost:5432/test_db
+      ALGORITHM: dsfg
+      SECRET_KEY: sdfg
       PHONE_VALIDATOR: ${{ secrets.PHONE_VALIDATOR }}
       EMAIL_VALIDATOR: ${{ secrets.EMAIL_VALIDATOR }}
       REDIS_URL: ${{ secrets.REDIS_URL }}
