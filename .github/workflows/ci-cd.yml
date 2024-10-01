@@ -84,7 +84,7 @@ jobs:
             docker build . --tag fastapi_app:$TIMESTAMP
           
             # Запуск нового контейнера
-            docker run -d --name fastapi_app_$TIMESTAMP -p 88:80 fastapi_app:$TIMESTAMP
+            docker run -d --name fastapi_app_$TIMESTAMP -p 80:80 fastapi_app:$TIMESTAMP
 
             # Проверяем, существует ли предыдущий контейнер fastapi_app_current
             if [ "$(docker ps -q -f name=fastapi_app_current)" ]; then
@@ -102,5 +102,3 @@ jobs:
               docker rm fastapi_app_previous
             fi
 
-            # Удаляем старый образ
-            docker image prune -f
