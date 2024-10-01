@@ -60,7 +60,8 @@ jobs:
       - name: Run tests
         env:
           DATABASE_URL_TEST: ${{ env.DATABASE_URL_TEST }}
-        run: pytest -v --cov=src tests/
+        run:
+          pytest -v --cov=src tests/
 
   deploy:
     if: github.ref == 'refs/heads/master'
