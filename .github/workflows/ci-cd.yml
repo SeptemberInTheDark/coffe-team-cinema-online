@@ -12,12 +12,12 @@ jobs:
   test:
     runs-on: ubuntu-22.04
     env:
-      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-      POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
-      POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-      POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
-      DATABASE_URL_TEST: ${{ secrets.DATABASE_URL_TEST }}
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_pass
+      POSTGRES_HOST: localhost
+      POSTGRES_DB: test_db
+      POSTGRES_PORT: 5432
+      DATABASE_URL_TEST: postgresql+asyncpg://test_user:test_pass@localhost:5432/test_db
       PHONE_VALIDATOR: ${{ secrets.PHONE_VALIDATOR }}
       EMAIL_VALIDATOR: ${{ secrets.EMAIL_VALIDATOR }}
       REDIS_URL: ${{ secrets.REDIS_URL }}
@@ -57,27 +57,48 @@ jobs:
       - name: Run linters
         run: ruff check
 
-#      - name: Run tests
-#        env:
-#          DATABASE_URL_TEST: ${{ secrets.DATABASE_URL_TEST }}
-#        run: pytest -v --cov=src tests/
+      - name: Run tests
+        env:
+          DATABASE_URL_TEST: ${{ env.DATABASE_URL_TEST }}
+        run: pytest -v --cov=src tests/
 
+  deploy:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
 
-#   Деплой на сервер для ветки master
-#  deploy:
-#    if: github.ref == 'refs/heads/master'
-#
-#    steps:
-#      - name: Deploy to server using Docker
-#        uses: appleboy/ssh-action@master
-#        with:
-#          host: ${{ secrets.SSH_HOST }}
-#          username: ${{ secrets.SSH_USERNAME }}
-#          password: ${{ secrets.SSH_PASSWORD }}
-#          script: |
-#            cd coffe-team-cinema-online
-#            git pull origin master
-#            docker build -t fastapi_app
-#            docker stop fastapi_app
-#            docker rm fastapi_app
-#            docker run -d --name fastapi_app -p 80:80
+    steps:
+      - name: Deploy to server using Docker
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          script: |
+            cd coffe-team-cinema-online
+            git pull origin master
+            
+            # Получаем временную метку для новой версии контейнера
+            TIMESTAMP=$(date +"%Y%m%d%H%M%S")
+
+            # Строим новый образ с меткой по временной метке
+            docker build . --tag fastapi_app:$TIMESTAMP
+          
+            # Запуск нового контейнера
+            docker run -d --name fastapi_app_$TIMESTAMP -p 80:80 fastapi_app:$TIMESTAMP
+
+            # Проверяем, существует ли предыдущий контейнер fastapi_app_current
+            if [ "$(docker ps -q -f name=fastapi_app_current)" ]; then
+              echo "Stopping and renaming current container to fastapi_app_previous..."
+              docker stop fastapi_app_current
+              docker rename fastapi_app_current fastapi_app_previous
+            fi
+
+            # Переименовываем новый контейнер в fastapi_app_current
+            docker rename fastapi_app_$TIMESTAMP fastapi_app_current
+
+            # Удаляем позапрошлый контейнер, если он существует
+            if [ "$(docker ps -a -q -f name=fastapi_app_previous)" ]; then
+              echo "Removing old previous container..."
+              docker rm fastapi_app_previous
+            fi
+
