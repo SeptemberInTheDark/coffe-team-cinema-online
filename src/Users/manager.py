@@ -1,10 +1,22 @@
-import hashlib
+from argon2 import PasswordHasher
 
+
+password_hassher = PasswordHasher()
 class UserHashManager():
-    def __init__(self, id, user_password, user_salt) :
-        self.password = user_password
-        self.user_salt = user_salt
+    def __init__(self, ph=password_hassher) -> None:
+        self.ph = ph
 
-    @staticmethod
-    def hash_str(str, salt):
-        return hashlib.sha3_256((str + salt).encode('utf-8')).hexdigest()
+
+    def hash_password(self, password: str) -> str:
+        return self.ph.hash(password)
+
+
+    def check_password(self, stored_hashed_password: str, input_password: str) -> bool:
+        try:
+             self.ph.verify(stored_hashed_password, input_password)
+             return True
+        except Exception:
+             return False
+
+
+user_hash_manager = UserHashManager()
