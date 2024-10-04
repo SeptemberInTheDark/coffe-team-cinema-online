@@ -1,13 +1,17 @@
 
+
+
 FROM python
 
 ENV PYTHONUNBUFFERED=1
+
+COPY . /app
 
 WORKDIR /app
 
 COPY requirements/dev.txt .
 
-RUN pip install -r app/requirements/dev.txt
+RUN pip install -r requirements/dev.txt
 
 COPY . .
 
