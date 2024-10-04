@@ -7,7 +7,7 @@ WORKDIR /app
 
 COPY requirements/dev.txt .
 
-RUN pip install -r /requirements/dev.txt
+RUN pip install -r app/requirements/dev.txt
 
 COPY . .
 
