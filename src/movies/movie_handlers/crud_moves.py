@@ -2,7 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
 
-from src.movies.movie_handlers.movie_schemas import MoveCreateSchema
+from src.movies.movie_schemas import MoveCreateSchema
 from src.utils.logging import AppLogger
 from src.movies import models
 
@@ -12,17 +12,21 @@ logger = AppLogger().get_logger()
 class MovesCRUD:
 
     @staticmethod
-    async def get_move(session: AsyncSession, **kwargs) -> Optional[models.Movie]:
+    async def get_movie(session: AsyncSession, **kwargs) -> Optional[models.Movie]:
         return await session.scalar(select(models.Movie).filter_by(**kwargs))
 
     @staticmethod
-    async def get_all_moves(session: AsyncSession, skip: int = 0, limit: int = 20):
+    async def get_movies_filter(session: AsyncSession, skip: int = 0, limit: int = 20, **kwargs, ):
+        result = await session.scalars(select(models.Movie).filter_by(**kwargs).offset(skip).limit(limit))
+        return result.all()
+
+    @staticmethod
+    async def get_all_movies(session: AsyncSession, skip: int = 0, limit: int = 20):
         result = await session.scalars(select(models.Movie).offset(skip).limit(limit))
         return result.all()
 
-
     @staticmethod
-    async def create_moves(session: AsyncSession, movie: MoveCreateSchema) -> Optional[models.Movie | bool]:
+    async def create_movies(session: AsyncSession, movie: MoveCreateSchema) -> Optional[models.Movie | bool]:
         add_movie = models.Movie(
             title=movie.title,
             description=movie.description,
@@ -46,7 +50,7 @@ class MovesCRUD:
             return False
 
     @staticmethod
-    async def delete_move(session: AsyncSession, **kwargs) -> bool:
+    async def delete_movie(session: AsyncSession, **kwargs) -> bool:
         delete_movie = await session.get(models.Movie, **kwargs)
         if delete_movie:
             await session.delete(delete_movie)
@@ -56,7 +60,7 @@ class MovesCRUD:
             return False
 
     @staticmethod
-    async def update_move(session: AsyncSession, **kwargs) -> Optional[models.Movie | bool]:
+    async def update_movie(session: AsyncSession, **kwargs) -> Optional[models.Movie | bool]:
         update_movie = await session.get(models.Movie, **kwargs)
         if update_movie:
             update_movie.title = kwargs['title']
