@@ -6,7 +6,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.utils.logging import AppLogger
 from src.auth.manager import JWTManager
 from src.Users.manager import user_hash_manager
-from jwt.exceptions import PyJWTError
 from datetime import timedelta
 
 
@@ -77,5 +76,5 @@ async def get_current_user(request: Request):
             raise HTTPException(status_code=401, detail="Не валидный токен")
 
         return {"username": username}
-    except PyJWTError:
+    except Exception:
         raise HTTPException(status_code=401, detail="Не валидный токен")
