@@ -62,7 +62,7 @@ async def add_movie(
         })
 
     except Exception as exc:
-        logger.error(f'Ошибка при создании пользователя: %s', exc)
+        logger.error('Ошибка при создании пользователя: %s', exc)
         return JSONResponse(status_code=500, content={"error": "Внутренняя ошибка сервера"})
 
 
@@ -89,4 +89,4 @@ async def get_movies(session: AsyncSession = Depends(get_db)):
         })
 
     except Exception as exc:
-        logger.error(f'Ошибка поиске фильма: %s', exc)
+        logger.error('Ошибка поиске фильма: %s', exc)
