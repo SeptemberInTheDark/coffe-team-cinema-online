@@ -1,11 +1,10 @@
-from fastapi import APIRouter, Depends, Form, HTTPException
+from fastapi import APIRouter, Depends, Form
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from db import get_db
 from src.movies.genres_handlers.crud_genre import GenreCRUD
-from src.movies.models import Genre
 
-from src.movies.movie_schemas import MoveCreateSchema, GenreCreateSchema
+from src.movies.movie_schemas import GenreCreateSchema
 from fastapi.responses import JSONResponse
 
 

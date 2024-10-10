@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional
 from pydantic import BaseModel, ConfigDict
 from src.utils.logging import AppLogger
 
