@@ -32,7 +32,7 @@ class MovesCRUD:
             description=movie.description,
             photo=movie.photo,
             release_year=movie.release_year,
-            genre_id=movie.genre_id,
+            genre_name=movie.genre_name,
             duration=movie.duration,
             actors=movie.actors,
             director=movie.director
@@ -46,7 +46,7 @@ class MovesCRUD:
 
         except Exception as e:
             await session.rollback()
-            logger.error("Ошибка при создании пользователя: %s", e)
+            logger.error("Ошибка при создании фильма: %s", e)
             return False
 
     @staticmethod

@@ -7,12 +7,13 @@ from src.Users.models import User
 class Genre(BaseModel):
     __tablename__ = 'genres'
     id = Column(Integer, primary_key=True)
-    name = Column(String(100), nullable=False)
+    name = Column(String(100), unique=True, nullable=False)
 
 
 class Movie(BaseModel):
     __tablename__ = 'movies'
     id = Column(Integer, primary_key=True)
+    url_movie = Column(Text)
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=False)
     photo = Column(String(255), nullable=False)
@@ -20,7 +21,7 @@ class Movie(BaseModel):
     director = Column(String(255), nullable=False)
     actors = Column(JSON, nullable=False)
     duration = Column(Integer, nullable=False)
-    genre_id = Column(Integer, ForeignKey(Genre.id), nullable=False)
+    genre_name = Column(String, ForeignKey(Genre.name), nullable=False)
 
 
 class Review(BaseModel):

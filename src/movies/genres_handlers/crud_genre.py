@@ -9,7 +9,7 @@ from src.movies import models
 logger = AppLogger().get_logger()
 
 
-class MovesCRUD:
+class GenreCRUD:
 
     @staticmethod
     async def get_genre(session: AsyncSession, **kwargs) -> Optional[models.Genre]:
@@ -21,7 +21,7 @@ class MovesCRUD:
         return result.all()
 
     @staticmethod
-    async def get_all_genres(session: AsyncSession, skip: int = 0, limit: int = 20):
+    async def get_all_genres(session: AsyncSession, skip: int = 0, limit: int = 10):
         result = await session.scalars(select(models.Genre).offset(skip).limit(limit))
         return result.all()
 
@@ -38,7 +38,7 @@ class MovesCRUD:
 
         except Exception as e:
             await session.rollback()
-            logger.error("Ошибка при создании пользователя: %s", e)
+            logger.error("Ошибка при создании жанра: %s", e)
             return False
 
     @staticmethod

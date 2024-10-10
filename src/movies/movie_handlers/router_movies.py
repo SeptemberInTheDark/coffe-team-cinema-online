@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, Form
+from coverage.files import actual_path
+from fastapi import APIRouter, Depends, Form, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from db import get_db
@@ -18,19 +19,21 @@ moves_router = APIRouter(
 
 
 @moves_router.post(
-    path="add_movie",
+    path="/add_movie",
     summary="Добавить фильм",
     response_description="Добавленный фильм"
 )
 async def add_movie(
         session: AsyncSession = Depends(get_db),
         title: str = Form(...),
+        url_movie: str = Form(...),
         description: str = Form(...),
         photo: str = Form(...),
         release_year: int = Form(...),
         director: str = Form(...),
+        actors: str = Form(...),
         duration: int = Form(...),
-        genre_id: int = Form(...),
+        genre_name: str = Form(...),
 
 ):
     try:
@@ -41,12 +44,14 @@ async def add_movie(
 
         new_movie = MoveCreateSchema(
             title=title,
+            url_movie=url_movie,
             description=description,
             photo=photo,
             release_year=release_year,
             director=director,
+            actors=actors,
             duration=duration,
-            genre_id=genre_id,
+            genre_name=genre_name,
         )
         movie = await MovesCRUD.create_movies(session, new_movie)
         if not movie:
@@ -69,16 +74,16 @@ async def add_movie(
 
 
 @moves_router.get(
-    path="get_movies",
+    path="/get_movies",
     summary="Получить все фильмы",
     response_description="Список фильмов"
 )
 async def get_movies(session: AsyncSession = Depends(get_db)):
     try:
-        movies = await MovesCRUD.get_movie(session)
+        movies = await MovesCRUD.get_all_movies(session)
         if not movies:
             return JSONResponse(status_code=404,
-                                content={"error": "Фильм не найден."})
+                                content={"error": "Фильмы не найдены."})
         logger.info("Фильм получен")
         return JSONResponse(status_code=200, content={
             "success": True,
@@ -90,3 +95,33 @@ async def get_movies(session: AsyncSession = Depends(get_db)):
 
     except Exception as exc:
         logger.error('Ошибка поиске фильма: %s', exc)
+
+@moves_router.get(
+    path="/get_movie_by_title",
+    summary="Получить фильм по названию",
+    response_description="Список фильмов"
+)
+async def get_movie_by_title(title: str, session: AsyncSession = Depends(get_db)):
+    try:
+        movie = await MovesCRUD.get_movie(session, title=title)
+        if movie is None:
+            logger.info("Фильм не найден")
+            return JSONResponse(status_code=404, content={"error": "Фильм не найден"})
+
+        movie_data = {
+            "title": movie.title,
+            "url_movie": movie.url_movie,
+            "description": movie.description,
+            "photo": movie.photo,
+            "release_year": movie.release_year,
+            "director": movie.director,
+            "actors": movie.actors,
+            "duration": movie.duration,
+            "genre_name": movie.genre_name,
+        }
+        return JSONResponse(status_code=200, content={"movie" :movie_data})
+    except Exception as e:
+        logger.error("Ошибка при получении фильма:\n %s", e)
+        raise HTTPException(status_code=500, detail={f"Ошибка при получении пользователя: {e}"})
+
+

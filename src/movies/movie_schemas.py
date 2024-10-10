@@ -21,13 +21,14 @@ class MovieSchema(BaseModel):
 
 class MoveCreateSchema(BaseModel):
     title: str
+    url_movie: str
     description: str
     photo: str
     release_year: int
     director: str
-    actors: List[str]
+    actors: str
     duration: int
-    genre_id: int
+    genre_name: str
     model_config = ConfigDict(from_attributes=True)
 
 
