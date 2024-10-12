@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Form, HTTPException
+from fastapi import APIRouter, Depends, Form, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from db import get_db
@@ -6,14 +6,14 @@ from src.movies.movie_handlers.crud_moves import MovesCRUD
 from src.movies.movie_schemas import MoveCreateSchema
 from fastapi.responses import JSONResponse
 
-
+from src.movies.utils import form_movies_data
 from src.utils.logging import AppLogger
 
 logger = AppLogger().get_logger()
 
 moves_router = APIRouter(
     prefix='/api',
-    tags=['Movies'],
+    tags=['Фильмы'],
 )
 
 
@@ -70,8 +70,6 @@ async def add_movie(
         return JSONResponse(status_code=500, content={"error": "Внутренняя ошибка сервера"})
 
 
-
-
 @moves_router.get(
     path="/get_movies",
     summary="Получить все фильмы",
@@ -81,15 +79,67 @@ async def get_movies(session: AsyncSession = Depends(get_db)):
     try:
         movies = await MovesCRUD.get_all_movies(session)
         if not movies:
+            logger.info('Фильмы не найдены')
             return JSONResponse(status_code=404,
                                 content={"error": "Фильмы не найдены."})
-        logger.info("Фильм получен")
+
+        movies_data = form_movies_data(movies)
+        logger.info("Фильмы получен")
         return JSONResponse(status_code=200, content={
-            "success": True,
-            "message": "Фильм получен",
-            "data": {
-                "movies": movies,
-            }
+            "movies": movies_data
+        })
+
+    except Exception as exc:
+        logger.error('Ошибка поиске фильма: %s', exc)
+
+
+
+@moves_router.get(
+    path="/search_movies_by_title_and_description",
+    summary="Получить фильмы по ключевому запросу",
+    response_description="Список фильмов"
+)
+async def get_movies_by_title_and_description(
+        session: AsyncSession = Depends(get_db),
+        query: str = Query(...),
+                                              ):
+    try:
+        movies = await MovesCRUD.search_movies(session, query=query)
+        if not movies:
+            logger.info('Фильмы не найдены')
+            return JSONResponse(status_code=404,
+                                content={"error": "Фильмы не найдены."})
+
+        movies_data = form_movies_data(movies)
+        logger.info("Фильмы получены")
+        return JSONResponse(status_code=200, content={
+            "movies": movies_data
+        })
+
+    except Exception as exc:
+        logger.error('Ошибка поиске фильма: %s', exc)
+
+
+@moves_router.get(
+    path="/search_movies_by_genre",
+    summary="Получить фильмы по жанру",
+    response_description="Список фильмов"
+)
+async def get_movies_by_genre(
+        session: AsyncSession = Depends(get_db),
+        genre: str = Query(...),
+                                              ):
+    try:
+        movies = await MovesCRUD.search_movies_by_genre(session, genre_name=genre)
+        if not movies:
+            logger.info('Фильмы не найдены')
+            return JSONResponse(status_code=404,
+                                content={"error": "Фильмы не найдены."})
+
+        movies_data = form_movies_data(movies)
+        logger.info("Фильмы получены")
+        return JSONResponse(status_code=200, content={
+            "movies": movies_data
         })
 
     except Exception as exc:
@@ -118,9 +168,29 @@ async def get_movie_by_title(title: str, session: AsyncSession = Depends(get_db)
             "duration": movie.duration,
             "genre_name": movie.genre_name,
         }
-        return JSONResponse(status_code=200, content={"movie" :movie_data})
+        return JSONResponse(status_code=200, content={"movie": movie_data})
     except Exception as e:
         logger.error("Ошибка при получении фильма:\n %s", e)
         raise HTTPException(status_code=500, detail={f"Ошибка при получении пользователя: {e}"})
 
 
+@moves_router.delete(
+    path="/delete_movie",
+    summary="Удалить фильм",
+    response_description="Удаленный фильм"
+)
+async def delete_movie(session: AsyncSession = Depends(get_db),
+                       title: str = Form(...)):
+
+    try:
+        deleted = await MovesCRUD.delete_movie(session, title=title)
+        if deleted:
+            logger.info("Фильм %s удален", title)
+            return JSONResponse(status_code=200, content={"message": f"Фильм '{title}' успешно удален."})
+        else:
+            logger.info("Фильм с названием %s не найден", title)
+            return JSONResponse(status_code=404, content={"error": "Фильм не найден."})
+
+    except Exception as exc:
+            logger.error('Ошибка при удалении фильма: %s', exc)
+            return JSONResponse(status_code=500, content={"error": "Внутренняя ошибка сервера"})

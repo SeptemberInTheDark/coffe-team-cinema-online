@@ -1,5 +1,6 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import or_
 from typing import Optional
 
 from src.movies.movie_schemas import MoveCreateSchema
@@ -51,13 +52,14 @@ class MovesCRUD:
 
     @staticmethod
     async def delete_movie(session: AsyncSession, **kwargs) -> bool:
-        delete_movie = await session.get(models.Movie, **kwargs)
-        if delete_movie:
-            await session.delete(delete_movie)
+        movie = await session.scalar(select(models.Movie).filter_by(**kwargs))
+        if movie:
+            await session.delete(movie)
             await session.commit()
             return True
         else:
             return False
+
 
     @staticmethod
     async def update_movie(session: AsyncSession, **kwargs) -> Optional[models.Movie | bool]:
@@ -76,3 +78,34 @@ class MovesCRUD:
             return update_movie
         else:
             return False
+
+
+    @staticmethod
+    async def search_movies(session: AsyncSession, query: str, skip: int = 0, limit: int = 20):
+        """
+        Поиск фильмов по любому слову из title и description.
+        """
+        search_query = f"%{query}%"
+        result = await session.scalars(
+            select(models.Movie)
+            .where(or_(
+                models.Movie.title.ilike(search_query),
+                models.Movie.description.ilike(search_query)
+            ))
+            .offset(skip)
+            .limit(limit)
+        )
+        return result.all()
+
+
+    @staticmethod
+    async def search_movies_by_genre(session: AsyncSession, genre_name: str, skip: int = 0, limit: int = 20):
+        """
+        Поиск фильмов по названию жанра.
+        """
+        result = await session.scalars(
+            select(models.Movie).where(models.Movie.genre_name == genre_name)
+            .offset(skip)
+            .limit(limit)
+        )
+        return result.all()

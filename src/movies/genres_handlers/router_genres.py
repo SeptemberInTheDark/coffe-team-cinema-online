@@ -14,7 +14,7 @@ logger = AppLogger().get_logger()
 
 genres_router = APIRouter(
     prefix='/api',
-    tags=['Genres'],
+    tags=['Жанры'],
 )
 
 
