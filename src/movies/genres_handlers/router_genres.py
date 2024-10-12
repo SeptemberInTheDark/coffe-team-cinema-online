@@ -13,7 +13,7 @@ from src.utils.logging import AppLogger
 logger = AppLogger().get_logger()
 
 genres_router = APIRouter(
-    prefix='/api',
+    prefix='/api/genres',
     tags=['Жанры'],
 )
 

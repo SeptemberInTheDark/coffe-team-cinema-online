@@ -12,7 +12,7 @@ from src.utils.logging import AppLogger
 logger = AppLogger().get_logger()
 
 moves_router = APIRouter(
-    prefix='/api',
+    prefix='/api/movies',
     tags=['Фильмы'],
 )
 
