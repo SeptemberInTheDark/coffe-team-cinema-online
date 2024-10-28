@@ -27,23 +27,24 @@ class MovesCRUD:
         return result.all()
 
     @staticmethod
-    async def create_movies(session: AsyncSession, movie: MoveCreateSchema) -> Optional[models.Movie | bool]:
-        add_movie = models.Movie(
-            title=movie.title,
-            description=movie.description,
-            photo=movie.photo,
-            release_year=movie.release_year,
-            genre_name=movie.genre_name,
-            duration=movie.duration,
-            actors=movie.actors,
-            director=movie.director
+    async def create_movies(session: AsyncSession, movie_data: MoveCreateSchema) -> Optional[models.Movie | bool]:
+        # Создаем объект модели SQLAlchemy на основе Pydantic-схемы
+        new_movie = models.Movie(
+            title=movie_data.title,
+            url_movie=movie_data.url_movie,
+            description=movie_data.description,
+            photo=movie_data.photo,
+            release_year=movie_data.release_year,
+            director=movie_data.director,
+            actors=list(movie_data.actors),
+            duration=movie_data.duration,
+            genre_name=movie_data.genre_name,
         )
-
         try:
-            session.add(add_movie)
+            session.add(new_movie)
             await session.commit()
-            await session.refresh(add_movie)
-            return add_movie
+            await session.refresh(new_movie)
+            return new_movie
 
         except Exception as e:
             await session.rollback()

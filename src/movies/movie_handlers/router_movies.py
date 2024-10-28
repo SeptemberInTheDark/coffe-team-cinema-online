@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import APIRouter, Depends, Form, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -30,7 +32,7 @@ async def add_movie(
         photo: str = Form(...),
         release_year: int = Form(...),
         director: str = Form(...),
-        actors: str = Form(...),
+        actors: List[str] = Form(...),
         duration: int = Form(...),
         genre_name: str = Form(...),
 
@@ -55,7 +57,7 @@ async def add_movie(
         movie = await MovesCRUD.create_movies(session, new_movie)
         if not movie:
             return JSONResponse(status_code=400,
-                                content={"error": "Ошибка при создании пользователя, попробуйте еще раз..."})
+                                content={"error": "Ошибка при создании фильма, попробуйте еще раз..."})
         logger.info("Фильм %s успешно добавлен", movie.title)
         return JSONResponse(status_code=201, content={
             "success": True,

@@ -1,5 +1,5 @@
-from typing import Optional
-from pydantic import BaseModel, ConfigDict
+from typing import Optional, List
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 from src.utils.logging import AppLogger
 
 logger = AppLogger().get_logger()
@@ -21,18 +21,25 @@ class MovieSchema(BaseModel):
 
 class MoveCreateSchema(BaseModel):
     title: str
-    url_movie: str
+    url_movie: HttpUrl
     description: str
     photo: str
     release_year: int
     director: str
-    actors: str
+    actors: List[str]
     duration: int
     genre_name: str
-    model_config = ConfigDict(from_attributes=True)
+    class Config:
+        from_attributes = True
 
 
 class GenreCreateSchema(BaseModel):
     name: str
     model_config = ConfigDict(from_attributes=True)
+
+class ActorCreateSchema(BaseModel):
+    name: str = Field(..., max_length=255, description="Имя актера")
+    description: str = Field(..., description="Описание актера")
+    photo: str = Field(..., description="Ссылка на фото актера")
+    movies: List[str] = Field(..., description="Список фильмов, в которых снимался актер")
 
