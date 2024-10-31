@@ -7,6 +7,7 @@ on:
       - demo
       - dev_iprepin
       - dev/andrey_solovev
+      - dev_melixz
 
 jobs:
   test:
@@ -69,32 +70,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy to server using Docker
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy to server with Docker Compose
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           password: ${{ secrets.SSH_PASSWORD }}
           script: |
-            cd coffe-team-cinema-online
+            cd /path/to/your/project/folder
+
+            # Обновление проекта
             git pull origin master
 
-            TIMESTAMP=$(date +"%Y%m%d%H%M%S")
+            # Переменные окружения
+            export POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+            export POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+            export POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+            export SMTP_PASS=${{ secrets.SMTP_PASS }}
+            export SMTP_USER=${{ secrets.SMTP_USER }}
+            export SMTP_PORT=${{ secrets.SMTP_PORT }}
+            export SMTP_HOST=${{ secrets.SMTP_HOST }}
 
-            docker build . --tag fastapi_app:$TIMESTAMP
-          
-            docker run -d --name fastapi_app_$TIMESTAMP -p 80:80 fastapi_app:$TIMESTAMP
+            # Остановка и удаление старых контейнеров
+            docker-compose down
 
-            if [ "$(docker ps -q -f name=fastapi_app_current)" ]; then
-              echo "Stopping and renaming current container to fastapi_app_previous..."
-              docker stop fastapi_app_current
-              docker rename fastapi_app_current fastapi_app_previous
-            fi
-
-            docker rename fastapi_app_$TIMESTAMP fastapi_app_current
-
-            if [ "$(docker ps -a -q -f name=fastapi_app_previous)" ]; then
-              echo "Removing old previous container..."
-              docker rm fastapi_app_previous
-            fi
-
+            # Пересборка и запуск новых контейнеров
+            docker-compose up -d --build
