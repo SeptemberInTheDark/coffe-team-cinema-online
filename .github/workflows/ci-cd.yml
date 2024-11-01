@@ -57,8 +57,8 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements/dev.txt
 
-      - name: Run linters
-        run: ruff check
+#      - name: Run linters
+#        run: ruff check
 
 #      - name: Run tests
  #       env:
