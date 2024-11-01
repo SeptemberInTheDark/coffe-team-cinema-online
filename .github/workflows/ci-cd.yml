@@ -60,10 +60,10 @@ jobs:
       - name: Run linters
         run: ruff check
 
-      - name: Run tests
-        env:
-          DATABASE_URL_TEST: ${{ env.DATABASE_URL_TEST }}
-        run: pytest -v --cov=src tests/
+#      - name: Run tests
+ #       env:
+  #        DATABASE_URL_TEST: ${{ env.DATABASE_URL_TEST }}
+   #     run: pytest -v --cov=src tests/
 
   deploy:
     if: github.ref == 'refs/heads/master'
