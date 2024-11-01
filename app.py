@@ -15,6 +15,7 @@ origins = [
     "http://localhost:5173" #react
 ]
 
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -23,7 +24,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 register_routers(app)
+
 
 @app.get("/")
 def read_root():
@@ -37,7 +40,6 @@ async def validation_exception_handler(request, exc):
         status_code=422,
         content={"detail": "Validation error", "errors": exc.errors()}
     )
-
 
 
 if __name__ == '__main__':
