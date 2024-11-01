@@ -31,4 +31,5 @@ class UserSettings(BaseModel):
     country: Optional[str] = None
     town: Optional[str] = None
     love_genres: Optional[List[str]] = None
+    avatar: Optional[str] = None #base64
     info: Optional[List[str]] = None
