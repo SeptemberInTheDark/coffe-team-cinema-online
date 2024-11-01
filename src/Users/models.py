@@ -1,6 +1,6 @@
 from sqlalchemy import Column, String, Integer, Boolean, JSON, ForeignKey
 
-from db import BaseModel
+from db import BaseModel, engine
 
 class Role(BaseModel):
     __tablename__ = "roles"
@@ -24,3 +24,5 @@ class User(BaseModel):
     hashed_password = Column(String, nullable=False)
     is_active = Column(Boolean, default=False)
     role_id = Column(Integer, ForeignKey(Role.id), nullable=False, default=2)
+
+
