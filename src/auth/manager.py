@@ -3,7 +3,7 @@ import jwt
 import secrets
 import string
 from config import settings as global_settings
-from jwt import PyJWTError
+
 
 class JWTManager():
 
@@ -18,7 +18,8 @@ class JWTManager():
         try:
             payload = jwt.decode(token, global_settings.SECRET_KEY, algorithms=[global_settings.ALGORITHM])
             return payload
-        except PyJWTError:
+
+        except Exception:
             return HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid authentication credentials"
