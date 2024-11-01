@@ -1,7 +1,7 @@
 from collections.abc import AsyncGenerator
 from datetime import datetime
 
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.ext.asyncio import async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy import MetaData, Column, DateTime
@@ -35,16 +35,4 @@ async def get_db() -> AsyncGenerator:
         logger.debug(f"ASYNC Pool: {engine.pool.status()}")
         yield session
 
-# Асинхронная функция для создания таблиц
-async def create_tables():
-    async with engine.begin() as conn:
-        # Создаем все таблицы, определенные в BaseModel
-        await conn.run_sync(BaseModel.metadata.create_all)
 
-# Основная функция для запуска
-async def main():
-    await create_tables()
-
-if __name__ == "__main__":
-    import asyncio
-    asyncio.run(main())
