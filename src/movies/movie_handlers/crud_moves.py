@@ -28,7 +28,6 @@ class MovesCRUD:
 
     @staticmethod
     async def create_movies(session: AsyncSession, movie_data: MoveCreateSchema) -> Optional[models.Movie | bool]:
-        # Создаем объект модели SQLAlchemy на основе Pydantic-схемы
         new_movie = models.Movie(
             title=movie_data.title,
             url_movie=movie_data.url_movie,
@@ -36,10 +35,19 @@ class MovesCRUD:
             photo=movie_data.photo,
             release_year=movie_data.release_year,
             director=movie_data.director,
-            actors=list(movie_data.actors),
             duration=movie_data.duration,
             genre_name=movie_data.genre_name,
         )
+
+        # Получение или создание актеров
+        for actor_name in movie_data.actors:
+            actor = await session.scalar(select(models.Actor).filter_by(name=actor_name))
+            if actor is None:
+                actor = models.Actor(name=actor_name)  # Создание нового актера
+                session.add(actor)
+            
+            new_movie.actors.append(actor)  # Добавление актера к фильму
+
         try:
             session.add(new_movie)
             await session.commit()
@@ -50,16 +58,15 @@ class MovesCRUD:
             await session.rollback()
             logger.error("Ошибка при создании фильма: %s", e)
             return False
-
-    @staticmethod
-    async def delete_movie(session: AsyncSession, **kwargs) -> bool:
-        movie = await session.scalar(select(models.Movie).filter_by(**kwargs))
-        if movie:
-            await session.delete(movie)
-            await session.commit()
-            return True
-        else:
-            return False
+        @staticmethod
+        async def delete_movie(session: AsyncSession, **kwargs) -> bool:
+            movie = await session.scalar(select(models.Movie).filter_by(**kwargs))
+            if movie:
+                await session.delete(movie)
+                await session.commit()
+                return True
+            else:
+                return False
 
 
     @staticmethod

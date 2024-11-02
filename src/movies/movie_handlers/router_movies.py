@@ -35,7 +35,6 @@ async def add_movie(
         actors: List[str] = Form(...),
         duration: int = Form(...),
         genre_name: str = Form(...),
-
 ):
     try:
         existing_movie = await MovesCRUD.get_movie(session, title=title)
@@ -54,11 +53,15 @@ async def add_movie(
             duration=duration,
             genre_name=genre_name,
         )
+        
         movie = await MovesCRUD.create_movies(session, new_movie)
+        
         if not movie:
             return JSONResponse(status_code=400,
                                 content={"error": "Ошибка при создании фильма, попробуйте еще раз..."})
+        
         logger.info("Фильм %s успешно добавлен", movie.title)
+        
         return JSONResponse(status_code=201, content={
             "success": True,
             "message": "Фильм успешно добавлен",
@@ -68,7 +71,7 @@ async def add_movie(
         })
 
     except Exception as exc:
-        logger.error('Ошибка при создании пользователя: %s', exc)
+        logger.error('Ошибка при создании фильма: %s', exc)
         return JSONResponse(status_code=500, content={"error": "Внутренняя ошибка сервера"})
 
 

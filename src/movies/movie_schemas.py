@@ -21,7 +21,7 @@ class MovieSchema(BaseModel):
 
 class MoveCreateSchema(BaseModel):
     title: str
-    url_movie: HttpUrl
+    url_movie: str
     description: str
     photo: str
     release_year: int
