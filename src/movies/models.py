@@ -52,6 +52,6 @@ class Actor(BaseModel):
     id = Column(Integer, primary_key=True)
     name = Column(String(255), nullable=False)
     movies = relationship('Movie', secondary=actor_movies, back_populates='actors')
-    description = Column(Text, nullable=False)
-    photo = Column(String(255), nullable=False)
+    description = Column(Text)
+    photo = Column(String(255))
 
