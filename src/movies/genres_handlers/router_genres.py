@@ -1,9 +1,7 @@
 from fastapi import APIRouter, Depends, Form
-from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from db import get_db
-from src.movies import models
 from src.movies.genres_handlers.crud_genre import GenreCRUD
 
 from src.movies.movie_schemas import GenreCreateSchema
