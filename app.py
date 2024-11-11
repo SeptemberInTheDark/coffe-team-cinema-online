@@ -1,14 +1,10 @@
 import uvicorn
 from fastapi import FastAPI
-from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, RedirectResponse
-from src.register.router import router as register_router
-from src.Users.router import router as user_router
-from src.auth.router import router as auth_router
-from src.auth.logout.router import router as logout_router
-from src.my_account.router import router as account_router
+from src.utils.routers import register_routers
+
 
 app = FastAPI()
 
@@ -19,6 +15,7 @@ origins = [
     "http://localhost:5173" #react
 ]
 
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -28,18 +25,12 @@ app.add_middleware(
 )
 
 
-templates = Jinja2Templates(directory="templates")
+register_routers(app)
+
 
 @app.get("/")
 def read_root():
     return RedirectResponse(url="/docs")
-
-
-app.include_router(register_router)
-app.include_router(user_router)
-app.include_router(auth_router)
-app.include_router(logout_router)
-app.include_router(account_router)
 
 
 #exception handlers
@@ -49,7 +40,6 @@ async def validation_exception_handler(request, exc):
         status_code=422,
         content={"detail": "Validation error", "errors": exc.errors()}
     )
-
 
 
 if __name__ == '__main__':

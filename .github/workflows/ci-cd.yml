@@ -1,0 +1,101 @@
+name: Test and Deploy
+
+on:
+  push:
+    branches:
+      - master
+      - demo
+      - dev_iprepin
+      - dev/andrey_solovev
+      - dev_melixz
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+    env:
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_pass
+      POSTGRES_HOST: localhost
+      POSTGRES_DB: test_db
+      POSTGRES_PORT: 5432
+      DATABASE_URL_TEST: postgresql+asyncpg://test_user:test_pass@localhost:5432/test_db
+      ALGORITHM: dsfg
+      SECRET_KEY: sdfg
+      PHONE_VALIDATOR: ${{ secrets.PHONE_VALIDATOR }}
+      EMAIL_VALIDATOR: ${{ secrets.EMAIL_VALIDATOR }}
+      REDIS_URL: ${{ secrets.REDIS_URL }}
+      SMTP_PASS: ${{ secrets.SMTP_PASS }}
+      SMTP_USER: ${{ secrets.SMTP_USER }}
+      SMTP_PORT: ${{ secrets.SMTP_PORT }}
+      SMTP_HOST: ${{ secrets.SMTP_HOST }}
+
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_DB: ${{ env.POSTGRES_DB }}
+          POSTGRES_USER: ${{ env.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
+        ports:
+          - 5432:5432
+      redis:
+        image: redis
+        env:
+          REDIS_HOST: redis
+          REDIS_PORT: 6379
+          REDIS_URL: ${{ env.REDIS_URL }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+
+      - name: Install dependencies
+        run: pip install -r requirements/dev.txt
+
+#      - name: Run linters
+#        run: ruff check
+
+#      - name: Run tests
+ #       env:
+  #        DATABASE_URL_TEST: ${{ env.DATABASE_URL_TEST }}
+   #     run: pytest -v --cov=src tests/
+
+  deploy:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy to server with Docker Compose
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          script: |
+            cd /path/to/your/project/folder
+
+            # Обновление проекта
+            git pull origin master
+
+            # Переменные окружения
+            export POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+            export POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+            export POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+            export SMTP_PASS=${{ secrets.SMTP_PASS }}
+            export SMTP_USER=${{ secrets.SMTP_USER }}
+            export SMTP_PORT=${{ secrets.SMTP_PORT }}
+            export SMTP_HOST=${{ secrets.SMTP_HOST }}
+
+            # Остановка и удаление старых контейнеров
+            docker-compose down
+
+            # Пересборка и запуск новых контейнеров
+            docker-compose up -d --build

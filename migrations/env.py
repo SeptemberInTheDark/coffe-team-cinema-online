@@ -7,7 +7,7 @@ from alembic import context
 # from sqlalchemy.testing.suite.test_reflection import metadata
 
 from src.Users.models import *
-from src.Movies.models import *
+from src.movies.models import *
 
 from config import settings
 from db import BaseModel

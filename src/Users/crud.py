@@ -2,7 +2,6 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from . import models, schemas
 from .manager import user_hash_manager
-import os
 from typing import Optional, Tuple
 from src.utils.logging import AppLogger
 
@@ -54,7 +53,8 @@ class UserCRUD:
             email=user.email,
             phone=user.phone,
             hashed_password=hashed_password,
-            is_active=user.is_active
+            is_active=user.is_active,
+            role_id=2
         )
 
         try:

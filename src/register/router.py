@@ -1,4 +1,3 @@
-import os
 import re
 from fastapi import APIRouter, Depends, Form
 from fastapi.responses import JSONResponse
@@ -7,7 +6,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.Users.crud import UserCRUD
 
 from src.Users.schemas import UserCreate
-from src.Users.manager import user_hash_manager
 from src.utils.logging import AppLogger
 
 from config import settings

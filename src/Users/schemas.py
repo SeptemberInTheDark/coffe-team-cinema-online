@@ -1,6 +1,6 @@
 import logging
 from typing import Optional
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, EmailStr
 
 from config import settings
 
@@ -21,7 +21,6 @@ class User(BaseModel):
     email: str
     phone: str
     hashed_password: str
-
     is_active: Optional[bool] = True
 
 
@@ -32,3 +31,13 @@ class UserCreate(User):
     email: str
 
     model_config = ConfigDict(from_attributes=True)
+
+
+
+class PasswordResetConfirm(BaseModel):
+    """
+    Модель для подтверждения кода и сброса пароля
+    """
+    email: EmailStr
+    reset_code: str
+    new_password: str

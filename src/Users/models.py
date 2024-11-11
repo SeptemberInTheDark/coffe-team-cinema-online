@@ -23,4 +23,6 @@ class User(BaseModel):
     phone = Column(String(length=15), nullable=False, unique=True, index=True)
     hashed_password = Column(String, nullable=False)
     is_active = Column(Boolean, default=False)
-    role_id = Column(Integer, ForeignKey(Role.id), nullable=False, default=2)
+    role_id = Column(Integer, ForeignKey(Role.id), nullable=True)
+
+
