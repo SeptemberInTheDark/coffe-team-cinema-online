@@ -7,15 +7,15 @@ class Settings(BaseSettings):
         env_file=".env", env_ignore_empty=True, extra="ignore"
     )
 
-    # ALGORITHM: str
-    # SECRET_KEY: str
+    ALGORITHM: str
+    SECRET_KEY: str
 
     REDIS_URL: str
 
-    # SMTP_PASS: str
-    # SMTP_USER: str
-    # SMTP_HOST: str
-    # SMTP_PORT: int
+    SMTP_PASS: str
+    SMTP_USER: str
+    SMTP_HOST: str
+    SMTP_PORT: int
 
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
@@ -26,14 +26,9 @@ class Settings(BaseSettings):
     PHONE_VALIDATOR: str
     EMAIL_VALIDATOR: str
 
-    # DATABASE_URL_TEST: str
+    DATABASE_URL_TEST: str
 
     REDIS_URL: str
-
-    # SMTP_PASS: str
-    # SMTP_USER: str
-    # SMTP_PORT: int
-    # SMTP_HOST: str
 
 
     @computed_field
