@@ -7,6 +7,7 @@ class Settings(BaseSettings):
         env_file=".env", env_ignore_empty=True, extra="ignore"
     )
 
+    # Основные настройки
     ALGORITHM: str
     SECRET_KEY: str
 
@@ -28,8 +29,28 @@ class Settings(BaseSettings):
 
     DATABASE_URL_TEST: str
 
-    REDIS_URL: str
+    # Google OAuth
+    GOOGLE_CLIENT_ID: str
+    GOOGLE_CLIENT_SECRET: str
+    GOOGLE_REDIRECT_URI: str
 
+    SMTP_PASS: str
+    SMTP_USER: str
+    SMTP_PORT: int
+    SMTP_HOST: str
+
+    # Yandex OAuth
+    YANDEX_CLIENT_ID: str
+    YANDEX_CLIENT_SECRET: str
+    YANDEX_REDIRECT_URI: str
+
+    # VK OAuth
+    VK_CLIENT_ID: str
+    VK_CLIENT_SECRET: str
+    VK_REDIRECT_URI: str
+
+    # Префикс для API OAuth маршрутов
+    API_OAuth_PREFIX: str = "/api/oauth/v1"
 
     @computed_field
     @property
@@ -54,5 +75,6 @@ class Settings(BaseSettings):
             host=self.POSTGRES_HOST,
             path=self.POSTGRES_DB,
         )
+
 
 settings = Settings()
