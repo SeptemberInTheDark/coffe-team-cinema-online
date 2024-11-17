@@ -1,58 +1,39 @@
-from fastapi import APIRouter, HTTPException
-from fastapi.responses import RedirectResponse, JSONResponse
 import httpx
-from config import settings
+from fastapi import HTTPException
+from src.utils.logging import AppLogger
+from .base import OAuthProvider
+from config import settings as global_settings
 
-router = APIRouter()
-
-
-@router.get("/login")
-async def login_google():
-    """
-    Начало авторизации через Google.
-    """
-    google_auth_url = (
-        f"https://accounts.google.com/o/oauth2/auth"
-        f"?client_id={settings.GOOGLE_CLIENT_ID}"
-        f"&redirect_uri={settings.GOOGLE_REDIRECT_URI}"
-        f"&response_type=code&scope=openid email profile"
-    )
-    return RedirectResponse(url=google_auth_url)
+logger = AppLogger().get_logger()
 
 
-@router.get("/callback")
-async def auth_callback_google(code: str):
-    """
-    Обработка колбэка после авторизации Google.
-    """
-    token_url = "https://oauth2.googleapis.com/token"
-    data = {
-        "code": code,
-        "client_id": settings.GOOGLE_CLIENT_ID,
-        "client_secret": settings.GOOGLE_CLIENT_SECRET,
-        "redirect_uri": settings.GOOGLE_REDIRECT_URI,
-        "grant_type": "authorization_code",
-    }
+class GoogleOAuthProvider(OAuthProvider):
+    def __init__(self):
+        super().__init__()
+        self.client_id = global_settings.GOOGLE_CLIENT_ID
+        self.client_secret = global_settings.GOOGLE_CLIENT_SECRET
+        self.redirect_uri = global_settings.GOOGLE_REDIRECT_URI
+        self.authorize_url = "https://accounts.google.com/o/oauth2/auth"
+        self.token_url = "https://oauth2.googleapis.com/token"
+        self.user_info_url = "https://www.googleapis.com/oauth2/v1/userinfo"
+        self.scope = "openid email profile"
 
-    async with httpx.AsyncClient() as client:
-        response = await client.post(token_url, data=data)
-        if response.status_code != 200:
-            raise HTTPException(
-                status_code=response.status_code,
-                detail=f"Google token error: {response.text}",
-            )
-        token_data = response.json()
+    async def get_authorization_url(self):
+        return (
+            f"{self.authorize_url}"
+            f"?client_id={self.client_id}"
+            f"&redirect_uri={self.redirect_uri}"
+            f"&response_type=code&scope={self.scope}"
+        )
 
-    user_info_url = "https://www.googleapis.com/oauth2/v1/userinfo"
-    headers = {"Authorization": f"Bearer {token_data['access_token']}"}
-
-    async with httpx.AsyncClient() as client:
-        user_info_response = await client.get(user_info_url, headers=headers)
-        if user_info_response.status_code != 200:
-            raise HTTPException(
-                status_code=user_info_response.status_code,
-                detail=f"Google user info error: {user_info_response.text}",
-            )
-
-    user_info = user_info_response.json()
-    return JSONResponse(content={"user": user_info, "redirect_url": "/"})
+    async def get_user_info(self, token_data):
+        headers = {"Authorization": f"Bearer {token_data['access_token']}"}
+        async with httpx.AsyncClient() as client:
+            response = await client.get(self.user_info_url, headers=headers)
+            if response.status_code != 200:
+                logger.error(f"Google user info error: {response.text}")
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=f"Google user info error: {response.text}",
+                )
+            return response.json()

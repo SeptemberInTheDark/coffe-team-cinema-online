@@ -1,45 +1,39 @@
-from fastapi import APIRouter, HTTPException
-from fastapi.responses import RedirectResponse, JSONResponse
 import httpx
-from config import settings
+from fastapi import HTTPException
+from src.utils.logging import AppLogger
+from .base import OAuthProvider
+from config import settings as global_settings
 
-router = APIRouter()
-
-
-@router.get("/login")
-async def login_yandex():
-    """
-    Начало авторизации через Яндекс.
-    """
-    yandex_auth_url = (
-        f"https://oauth.yandex.ru/authorize"
-        f"?response_type=code"
-        f"&client_id={settings.YANDEX_CLIENT_ID}"
-        f"&redirect_uri={settings.YANDEX_REDIRECT_URI}"
-    )
-    return RedirectResponse(url=yandex_auth_url)
+logger = AppLogger().get_logger()
 
 
-@router.get("/callback")
-async def auth_callback_yandex(code: str):
-    """
-    Обработка колбэка после авторизации Яндекс.
-    """
-    token_url = "https://oauth.yandex.ru/token"
-    data = {
-        "code": code,
-        "client_id": settings.YANDEX_CLIENT_ID,
-        "client_secret": settings.YANDEX_CLIENT_SECRET,
-        "grant_type": "authorization_code",
-    }
+class YandexOAuthProvider(OAuthProvider):
+    def __init__(self):
+        super().__init__()
+        self.client_id = global_settings.YANDEX_CLIENT_ID
+        self.client_secret = global_settings.YANDEX_CLIENT_SECRET
+        self.redirect_uri = global_settings.YANDEX_REDIRECT_URI
+        self.authorize_url = "https://oauth.yandex.ru/authorize"
+        self.token_url = "https://oauth.yandex.ru/token"
+        self.user_info_url = "https://login.yandex.ru/info"
+        self.scope = "login:email login:info"
 
-    async with httpx.AsyncClient() as client:
-        response = await client.post(token_url, data=data)
-        if response.status_code != 200:
-            raise HTTPException(
-                status_code=response.status_code,
-                detail=f"Yandex token error: {response.text}",
-            )
-        token_data = response.json()
+    async def get_authorization_url(self):
+        return (
+            f"{self.authorize_url}"
+            f"?response_type=code"
+            f"&client_id={self.client_id}"
+            f"&redirect_uri={self.redirect_uri}"
+        )
 
-    return JSONResponse(content={"user": token_data, "redirect_url": "/"})
+    async def get_user_info(self, token_data):
+        headers = {"Authorization": f"OAuth {token_data['access_token']}"}
+        async with httpx.AsyncClient() as client:
+            response = await client.get(self.user_info_url, headers=headers)
+            if response.status_code != 200:
+                logger.error(f"Yandex user info error: {response.text}")
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=f"Yandex user info error: {response.text}",
+                )
+            return response.json()

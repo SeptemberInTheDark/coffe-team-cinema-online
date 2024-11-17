@@ -56,3 +56,4 @@ ujson==5.10.0
 uvicorn==0.30.6
 watchfiles==0.24.0
 websockets==13.0.1
+python-jose==3.3.0
