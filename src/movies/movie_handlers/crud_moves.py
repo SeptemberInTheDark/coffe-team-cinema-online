@@ -58,15 +58,17 @@ class MovesCRUD:
             await session.rollback()
             logger.error("Ошибка при создании фильма: %s", e)
             return False
-        @staticmethod
-        async def delete_movie(session: AsyncSession, **kwargs) -> bool:
-            movie = await session.scalar(select(models.Movie).filter_by(**kwargs))
-            if movie:
-                await session.delete(movie)
-                await session.commit()
-                return True
-            else:
-                return False
+
+
+    @staticmethod
+    async def delete_movie(session: AsyncSession, **kwargs) -> bool:
+        movie = await session.scalar(select(models.Movie).filter_by(**kwargs))
+        if movie:
+            await session.delete(movie)
+            await session.commit()
+            return True
+        else:
+            return False
 
 
     @staticmethod
