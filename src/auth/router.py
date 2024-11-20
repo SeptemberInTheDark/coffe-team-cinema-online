@@ -76,5 +76,6 @@ async def get_current_user(request: Request):
             raise HTTPException(status_code=401, detail="Не валидный токен")
 
         return {"username": username}
+
     except Exception:
         raise HTTPException(status_code=401, detail="Не валидный токен")

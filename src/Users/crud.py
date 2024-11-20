@@ -53,7 +53,8 @@ class UserCRUD:
             email=user.email,
             phone=user.phone,
             hashed_password=hashed_password,
-            is_active=user.is_active
+            is_active=user.is_active,
+            role_id=2
         )
 
         try:

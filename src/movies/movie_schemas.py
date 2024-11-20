@@ -1,5 +1,5 @@
 from typing import Optional, List
-from pydantic import BaseModel, ConfigDict, Field, HttpUrl
+from pydantic import BaseModel, ConfigDict, Field
 from src.utils.logging import AppLogger
 
 logger = AppLogger().get_logger()
@@ -21,7 +21,7 @@ class MovieSchema(BaseModel):
 
 class MoveCreateSchema(BaseModel):
     title: str
-    url_movie: HttpUrl
+    url_movie: str
     description: str
     photo: str
     release_year: int

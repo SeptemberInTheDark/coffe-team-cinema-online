@@ -30,10 +30,10 @@ class Settings(BaseSettings):
 
     REDIS_URL: str
 
-    SMTP_PASS: str
-    SMTP_USER: str
-    SMTP_PORT: int
-    SMTP_HOST: str
+    # SMTP_PASS: str
+    # SMTP_USER: str
+    # SMTP_PORT: int
+    # SMTP_HOST: str
 
 
     @computed_field

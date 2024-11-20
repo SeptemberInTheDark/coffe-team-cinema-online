@@ -28,6 +28,9 @@ class ActorsCRUD:
     async def create_actor(session: AsyncSession, actor: GenreCreateSchema) -> Optional[models.Genre | bool]:
         add_genre = models.Genre(
             name=actor.name,
+            description=actor.description,
+            photo=actor.photo,
+            movies=actor.movies
         )
         try:
             session.add(add_genre)
