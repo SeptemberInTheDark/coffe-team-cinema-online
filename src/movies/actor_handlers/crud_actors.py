@@ -9,7 +9,7 @@ from src.movies import models
 logger = AppLogger().get_logger()
 
 
-class GenreCRUD:
+class ActorsCRUD:
     @staticmethod
     async def get_actor(session: AsyncSession, **kwargs) -> Optional[models.Genre]:
         return await session.scalar(select(models.Actor).filter_by(**kwargs))
