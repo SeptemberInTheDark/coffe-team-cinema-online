@@ -1,0 +1,89 @@
+//api: fetch GET '/now_in_cinema_genres'
+"data":
+        {
+            "genres": [1, 2, 4], //где цифра это id наименования(к примеру "2 - Драма")
+        }
+
+
+//api: fetch GET '/now_in_cinema_cards'
+
+"data": {
+    "cinema_cards": [
+        {
+            "id": 1,
+            "title": "title",
+            "genres": [1, 4],
+            "rating": 8.70
+        },
+        {
+            "id": 2,
+            "title": "title",
+            "genres": [4, 8],
+            "rating": 9.70
+        },
+    ]
+
+}
+
+
+// api: fetch GET '/new_trailers'
+"data": {
+    "trailers": [
+        {
+            "film_id": 5,
+            "link_trailer": "https://forsage...",
+            "date": 15-11-2019,
+            "title": "Мулан",
+            "likes": 97,
+            "dislikes": 44,
+        },
+        {
+            "film_id": 19,
+            "link_trailer": "https://forsage...",
+            "date": 15-11-2022,
+            "title": "Форсаж 9",
+            "likes": 197,
+            "dislikes": 44,
+        },
+    ]
+}
+
+
+//api: fetch GET '/popular_films_dates'
+"data": {
+    "time": ["Всё время", "2019"]
+}
+
+//api: fetch GET '/popular_films_cards'
+"data": {
+    "popular_cinema_cards": [
+        {
+            "id": 1,
+            "title": "title",
+            "genres": [1, 4],
+            "rating": 8.70
+        },
+        {
+            "id": 2,
+            "title": "title",
+            "genres": [4, 8],
+            "rating": 9.70
+        },
+         {
+            "id": 3,
+            "title": "title",
+            "genres": [1, 4],
+            "rating": 8.70
+        },
+        {
+            "id": 4,
+            "title": "title",
+            "genres": [4, 8],
+            "rating": 9.70
+        },
+    ],
+    "counter": 4 //Отдаём по 4 карточки
+}
+
+
+
