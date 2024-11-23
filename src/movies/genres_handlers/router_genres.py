@@ -44,7 +44,7 @@ async def add_genre(
             "success": True,
             "message": "Жанр успешно добавлен",
             "data": {
-                "title": genre.name,
+                "id": genre.id,
             }
         })
 
