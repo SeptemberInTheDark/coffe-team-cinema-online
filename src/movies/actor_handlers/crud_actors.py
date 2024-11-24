@@ -9,7 +9,7 @@ from src.movies import models
 logger = AppLogger().get_logger()
 
 
-class GenreCRUD:
+class ActorsCRUD:
     @staticmethod
     async def get_actor(session: AsyncSession, **kwargs) -> Optional[models.Genre]:
         return await session.scalar(select(models.Actor).filter_by(**kwargs))
@@ -28,6 +28,9 @@ class GenreCRUD:
     async def create_actor(session: AsyncSession, actor: GenreCreateSchema) -> Optional[models.Genre | bool]:
         add_genre = models.Genre(
             name=actor.name,
+            description=actor.description,
+            photo=actor.photo,
+            movies=actor.movies
         )
         try:
             session.add(add_genre)
