@@ -14,32 +14,26 @@ phone_regex = settings.PHONE_VALIDATOR
 logger = AppLogger().get_logger()
 
 
-def get_email_template(user: str,
-                       email_address: str,
-                       reset_code: str):
+def get_email_template(user: str, email_address: str, reset_code: str):
     email = EmailMessage()
     email["Subject"] = f"Сброс пароля для аккаунта {user}"
     email["From"] = settings.SMTP_USER
     email["To"] = email_address
 
     email.set_content(
-        '<div>'
-        f'<h1>Сброс пароля для аккаунта {user}</h1>'
-        f'<p>Ваш код для сброса пароля: {reset_code}</p>'
-        f'<p>Ссылка на сброс пароля: ...</p>'
-        '</div>',
-        subtype="html"
+        "<div>"
+        f"<h1>Сброс пароля для аккаунта {user}</h1>"
+        f"<p>Ваш код для сброса пароля: {reset_code}</p>"
+        f"<p>Ссылка на сброс пароля: ...</p>"
+        "</div>",
+        subtype="html",
     )
     return email
 
 
-def send_email_reset_code(email: str,
-                          reset_code: str,
-                          user_name: str):
+def send_email_reset_code(email: str, reset_code: str, user_name: str):
     try:
-        email = get_email_template(user=user_name,
-                                   email_address=email,
-                                   reset_code=reset_code)
+        email = get_email_template(user=user_name, email_address=email, reset_code=reset_code)
         with smtplib.SMTP_SSL(settings.SMTP_HOST, settings.SMTP_PORT) as smtp:
             smtp.login(settings.SMTP_USER, settings.SMTP_PASS)
             smtp.send_message(email)

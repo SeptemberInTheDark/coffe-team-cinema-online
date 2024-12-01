@@ -3,9 +3,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(
-        env_file=".env", env_ignore_empty=True, extra="ignore"
-    )
+    model_config = SettingsConfigDict(env_file=".env", env_ignore_empty=True, extra="ignore")
 
     ALGORITHM: str
     SECRET_KEY: str
@@ -30,7 +28,6 @@ class Settings(BaseSettings):
 
     REDIS_URL: str
 
-
     @computed_field
     @property
     def asyncpg_url(self) -> PostgresDsn:
@@ -54,5 +51,6 @@ class Settings(BaseSettings):
             host=self.POSTGRES_HOST,
             path=self.POSTGRES_DB,
         )
+
 
 settings = Settings()

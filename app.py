@@ -12,7 +12,7 @@ app = FastAPI()
 origins = [
     "http://localhost",
     "http://localhost:8080",
-    "http://localhost:5173" #react
+    "http://localhost:5173",  # react
 ]
 
 
@@ -33,20 +33,13 @@ def read_root():
     return RedirectResponse(url="/docs")
 
 
-#exception handlers
+# exception handlers
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request, exc):
     return JSONResponse(
-        status_code=422,
-        content={"detail": "Validation error", "errors": exc.errors()}
+        status_code=422, content={"detail": "Validation error", "errors": exc.errors()}
     )
 
 
-if __name__ == '__main__':
-    uvicorn.run(
-        "app:app",
-        host='0.0.0.0',
-        port=8080,
-        log_level="info",
-        reload=False
-    )
+if __name__ == "__main__":
+    uvicorn.run("app:app", host="0.0.0.0", port=8080, log_level="info", reload=False)

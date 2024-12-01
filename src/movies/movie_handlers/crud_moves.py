@@ -1,4 +1,5 @@
 from sqlalchemy import select
+from sqlalchemy.orm import joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import or_
 from typing import Optional
@@ -11,14 +12,32 @@ logger = AppLogger().get_logger()
 
 
 class MovesCRUD:
-
     @staticmethod
     async def get_movie(session: AsyncSession, **kwargs) -> Optional[models.Movie]:
         return await session.scalar(select(models.Movie).filter_by(**kwargs))
 
     @staticmethod
-    async def get_movies_filter(session: AsyncSession, skip: int = 0, limit: int = 20, **kwargs, ):
-        result = await session.scalars(select(models.Movie).filter_by(**kwargs).offset(skip).limit(limit))
+    async def get_movies_filter(
+        session: AsyncSession,
+        skip: int = 0,
+        limit: int = 20,
+        **kwargs,
+    ):
+        result = await session.scalars(
+            select(models.Movie).filter_by(**kwargs).offset(skip).limit(limit)
+        )
+        return result.all()
+
+    @staticmethod
+    async def get_movies_sort(session: AsyncSession, skip: int = 0, limit: int = 20, order_by=None):
+        result = await session.scalars(
+            select(models.Movie)
+            .options(joinedload(models.Movie.actors))
+            .order_by(*order_by)
+            .offset(skip)
+            .limit(limit)
+        )
+        result = result.unique()
         return result.all()
 
     @staticmethod
@@ -27,7 +46,9 @@ class MovesCRUD:
         return result.all()
 
     @staticmethod
-    async def create_movies(session: AsyncSession, movie_data: MoveCreateSchema) -> Optional[models.Movie | bool]:
+    async def create_movies(
+        session: AsyncSession, movie_data: MoveCreateSchema
+    ) -> Optional[models.Movie | bool]:
         new_movie = models.Movie(
             title=movie_data.title,
             url_movie=movie_data.url_movie,
@@ -45,7 +66,7 @@ class MovesCRUD:
             if actor is None:
                 actor = models.Actor(name=actor_name)  # Создание нового актера
                 session.add(actor)
-            
+
             new_movie.actors.append(actor)  # Добавление актера к фильму
 
         try:
@@ -58,6 +79,7 @@ class MovesCRUD:
             await session.rollback()
             logger.error("Ошибка при создании фильма: %s", e)
             return False
+
         @staticmethod
         async def delete_movie(session: AsyncSession, **kwargs) -> bool:
             movie = await session.scalar(select(models.Movie).filter_by(**kwargs))
@@ -68,25 +90,23 @@ class MovesCRUD:
             else:
                 return False
 
-
     @staticmethod
     async def update_movie(session: AsyncSession, **kwargs) -> Optional[models.Movie | bool]:
         update_movie = await session.get(models.Movie, **kwargs)
         if update_movie:
-            update_movie.title = kwargs['title']
-            update_movie.description = kwargs['description']
-            update_movie.photo = kwargs['photo']
-            update_movie.release_year = kwargs['release_year']
-            update_movie.genre_id = kwargs['genre_id']
-            update_movie.duration = kwargs['duration']
-            update_movie.actors = kwargs['actors']
-            update_movie.director = kwargs['director']
+            update_movie.title = kwargs["title"]
+            update_movie.description = kwargs["description"]
+            update_movie.photo = kwargs["photo"]
+            update_movie.release_year = kwargs["release_year"]
+            update_movie.genre_id = kwargs["genre_id"]
+            update_movie.duration = kwargs["duration"]
+            update_movie.actors = kwargs["actors"]
+            update_movie.director = kwargs["director"]
             await session.commit()
             await session.refresh(update_movie)
             return update_movie
         else:
             return False
-
 
     @staticmethod
     async def search_movies(session: AsyncSession, query: str, skip: int = 0, limit: int = 20):
@@ -96,23 +116,27 @@ class MovesCRUD:
         search_query = f"%{query}%"
         result = await session.scalars(
             select(models.Movie)
-            .where(or_(
-                models.Movie.title.ilike(search_query),
-                models.Movie.description.ilike(search_query)
-            ))
+            .where(
+                or_(
+                    models.Movie.title.ilike(search_query),
+                    models.Movie.description.ilike(search_query),
+                )
+            )
             .offset(skip)
             .limit(limit)
         )
         return result.all()
 
-
     @staticmethod
-    async def search_movies_by_genre(session: AsyncSession, genre_name: str, skip: int = 0, limit: int = 20):
+    async def search_movies_by_genre(
+        session: AsyncSession, genre_name: str, skip: int = 0, limit: int = 20
+    ):
         """
         Поиск фильмов по названию жанра.
         """
         result = await session.scalars(
-            select(models.Movie).where(models.Movie.genre_name == genre_name)
+            select(models.Movie)
+            .where(models.Movie.genre_name == genre_name)
             .offset(skip)
             .limit(limit)
         )

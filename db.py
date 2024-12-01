@@ -24,15 +24,15 @@ AsyncSessionFactory = async_sessionmaker(
     expire_on_commit=False,
 )
 
+
 class BaseModel(DeclarativeBase):
     metadata = MetaData()
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
     updated_at = Column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
+
 
 # Dependency
 async def get_db() -> AsyncGenerator:
     async with AsyncSessionFactory() as session:
         logger.debug(f"ASYNC Pool: {engine.pool.status()}")
         yield session
-
-

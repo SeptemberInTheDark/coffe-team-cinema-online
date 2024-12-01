@@ -33,11 +33,11 @@ class UserCreate(User):
     model_config = ConfigDict(from_attributes=True)
 
 
-
 class PasswordResetConfirm(BaseModel):
     """
     Модель для подтверждения кода и сброса пароля
     """
+
     email: EmailStr
     reset_code: str
     new_password: str

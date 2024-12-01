@@ -12,8 +12,8 @@ from src.utils.logging import AppLogger
 logger = AppLogger().get_logger()
 
 router = APIRouter(
-    prefix='/api',
-    tags=['Получение пользотеля/пользователей'],
+    prefix="/api",
+    tags=["Получение пользотеля/пользователей"],
 )
 
 
@@ -21,14 +21,13 @@ router = APIRouter(
     "/users",
     response_model=User,
     summary="Получить всех пользователей",
-    response_description="Список пользователей"
-
-    )
+    response_description="Список пользователей",
+)
 async def get_all_users(db: AsyncSession = Depends(get_db)):
     try:
         users = await UserCRUD.get_users(db)
         if not users:
-            logger.info('Ни одного пользователя не найдено, либо не существует')
+            logger.info("Ни одного пользователя не найдено, либо не существует")
 
             return JSONResponse(status_code=200, content={"users": []})
 
@@ -38,9 +37,9 @@ async def get_all_users(db: AsyncSession = Depends(get_db)):
                 "login": user.username,
                 "email": user.email,
                 "phone": user.phone,
-                "is_active": user.is_active
+                "is_active": user.is_active,
             }
-           for user in users
+            for user in users
         ]
 
         return JSONResponse(status_code=200, content={"users": user_list})
@@ -53,9 +52,8 @@ async def get_all_users(db: AsyncSession = Depends(get_db)):
     "/user/by_email/{email}",
     response_model=User,
     summary="Получение пользователя по его email",
-    response_description="Конкретный пользователь"
-    )
-
+    response_description="Конкретный пользователь",
+)
 async def get_current_user_by_email(email: str, db: AsyncSession = Depends(get_db)):
     try:
         user_db_email = await UserCRUD.get_user(db, email=email)
@@ -64,11 +62,11 @@ async def get_current_user_by_email(email: str, db: AsyncSession = Depends(get_d
             return JSONResponse(status_code=400, content={"error": "Пользователь не найден"})
 
         user_data = {
-                "id": user_db_email.id,
-                "login": user_db_email.username,
-                "email": user_db_email.email,
-                "phone": user_db_email.phone,
-            }
+            "id": user_db_email.id,
+            "login": user_db_email.username,
+            "email": user_db_email.email,
+            "phone": user_db_email.phone,
+        }
 
         return JSONResponse(status_code=200, content={"user": user_data})
 
@@ -81,9 +79,8 @@ async def get_current_user_by_email(email: str, db: AsyncSession = Depends(get_d
     "/user/by_phone/{phone}",
     response_model=User,
     summary="Получение пользователя по его телефону",
-    response_description="Конкретный пользователь"
-    )
-
+    response_description="Конкретный пользователь",
+)
 async def get_current_user_by_phone(phone: str, db: AsyncSession = Depends(get_db)):
     try:
         user_phone = await UserCRUD.get_user(db, phone=phone)
@@ -92,12 +89,11 @@ async def get_current_user_by_phone(phone: str, db: AsyncSession = Depends(get_d
             return JSONResponse(status_code=400, content={"error": "Пользователь не найден"})
 
         user_data = {
-                "id": user_phone.id,
-                "login": user_phone.username,
-                "email": user_phone.email,
-                "phone": user_phone.phone,
-            }
-
+            "id": user_phone.id,
+            "login": user_phone.username,
+            "email": user_phone.email,
+            "phone": user_phone.phone,
+        }
 
         return JSONResponse(status_code=200, content={"user": user_data})
     except Exception as e:
@@ -109,9 +105,8 @@ async def get_current_user_by_phone(phone: str, db: AsyncSession = Depends(get_d
     "/user/by_login/{login}",
     response_model=User,
     summary="Получение пользователя по его логину",
-    response_description="Конкретный пользователь"
-    )
-
+    response_description="Конкретный пользователь",
+)
 async def get_current_user_by_login(login: str, db: AsyncSession = Depends(get_db)):
     try:
         user_login = await UserCRUD.get_user(db, username=login)
@@ -120,11 +115,11 @@ async def get_current_user_by_login(login: str, db: AsyncSession = Depends(get_d
             return JSONResponse(status_code=400, content={"error": "Пользователь не найден"})
 
         user_data = {
-                "id": user_login.id,
-                "login": user_login.username,
-                "email": user_login.email,
-                "phone": user_login.phone,
-            }
+            "id": user_login.id,
+            "login": user_login.username,
+            "email": user_login.email,
+            "phone": user_login.phone,
+        }
 
         return JSONResponse(status_code=200, content={"user": user_data})
     except Exception as e:

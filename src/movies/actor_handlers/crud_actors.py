@@ -15,8 +15,15 @@ class GenreCRUD:
         return await session.scalar(select(models.Actor).filter_by(**kwargs))
 
     @staticmethod
-    async def get_actors_filter(session: AsyncSession, skip: int = 0, limit: int = 20, **kwargs, ):
-        result = await session.scalars(select(models.Actor).filter_by(**kwargs).offset(skip).limit(limit))
+    async def get_actors_filter(
+        session: AsyncSession,
+        skip: int = 0,
+        limit: int = 20,
+        **kwargs,
+    ):
+        result = await session.scalars(
+            select(models.Actor).filter_by(**kwargs).offset(skip).limit(limit)
+        )
         return result.all()
 
     @staticmethod
@@ -25,7 +32,9 @@ class GenreCRUD:
         return result.all()
 
     @staticmethod
-    async def create_actor(session: AsyncSession, actor: GenreCreateSchema) -> Optional[models.Genre | bool]:
+    async def create_actor(
+        session: AsyncSession, actor: GenreCreateSchema
+    ) -> Optional[models.Genre | bool]:
         add_genre = models.Genre(
             name=actor.name,
         )
@@ -54,7 +63,7 @@ class GenreCRUD:
     async def update_actor(session: AsyncSession, **kwargs) -> Optional[models.Genre | bool]:
         update_genre = await session.get(models.Genre, **kwargs)
         if update_genre:
-            update_genre.title = kwargs['name']
+            update_genre.title = kwargs["name"]
             await session.commit()
             await session.refresh(update_genre)
             return update_genre

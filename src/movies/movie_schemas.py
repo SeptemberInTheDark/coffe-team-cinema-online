@@ -29,6 +29,7 @@ class MoveCreateSchema(BaseModel):
     actors: List[str]
     duration: int
     genre_name: str
+
     class Config:
         from_attributes = True
 
@@ -37,9 +38,9 @@ class GenreCreateSchema(BaseModel):
     name: str
     model_config = ConfigDict(from_attributes=True)
 
+
 class ActorCreateSchema(BaseModel):
     name: str = Field(..., max_length=255, description="Имя актера")
     description: str = Field(..., description="Описание актера")
     photo: str = Field(..., description="Ссылка на фото актера")
     movies: List[str] = Field(..., description="Список фильмов, в которых снимался актер")
-

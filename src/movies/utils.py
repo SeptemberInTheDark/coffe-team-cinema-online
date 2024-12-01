@@ -7,7 +7,7 @@ def form_movies_data(movies: list) -> list[dict]:
             "photo": movie.photo,
             "release_year": movie.release_year,
             "director": movie.director,
-            "actors": movie.actors,
+            "actors": [actor.name for actor in movie.actors],
             "duration": movie.duration,
             "genre_name": movie.genre_name,
         }

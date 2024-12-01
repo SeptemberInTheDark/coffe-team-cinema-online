@@ -9,7 +9,6 @@ logger = AppLogger().get_logger()
 
 
 class UserCRUD:
-
     @staticmethod
     async def get_user(db: AsyncSession, **kwargs) -> Optional[models.User]:
         return await db.scalar(select(models.User).filter_by(**kwargs))
@@ -19,13 +18,15 @@ class UserCRUD:
         result = await session.scalars(select(models.User).offset(skip).limit(limit))
         return result.all()
 
-    async def check_user(session: AsyncSession, username: str, email: str, phone: str) -> Optional[models.User]:
+    async def check_user(
+        session: AsyncSession, username: str, email: str, phone: str
+    ) -> Optional[models.User]:
         try:
             result = await session.execute(
                 select(models.User).where(
-                    (username == models.User.username) |
-                    (models.User.email == email) |
-                    (models.User.phone == phone)
+                    (username == models.User.username)
+                    | (models.User.email == email)
+                    | (models.User.phone == phone)
                 )
             )
             existing_user = result.scalar_one_or_none()
@@ -35,17 +36,17 @@ class UserCRUD:
             return None
 
     @staticmethod
-    async def get_user_credentials(db: AsyncSession, username:str) -> Optional[Tuple[str, str]]:
+    async def get_user_credentials(db: AsyncSession, username: str) -> Optional[Tuple[str, str]]:
         secrets_info = await db.execute(
-            select(models.User.hashed_password)
-            .where(models.User.username == username)
+            select(models.User.hashed_password).where(models.User.username == username)
         )
         credentials = secrets_info.scalar_one_or_none()
         return credentials
 
-
     @staticmethod
-    async def create_user(db: AsyncSession, user: schemas.UserCreate) -> Optional[models.User | bool]:
+    async def create_user(
+        db: AsyncSession, user: schemas.UserCreate
+    ) -> Optional[models.User | bool]:
         hashed_password = user_hash_manager.hash_password(user.hashed_password)
 
         db_user = models.User(
@@ -54,7 +55,7 @@ class UserCRUD:
             phone=user.phone,
             hashed_password=hashed_password,
             is_active=user.is_active,
-            role_id=2
+            role_id=2,
         )
 
         try:
