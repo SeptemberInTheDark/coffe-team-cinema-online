@@ -5,6 +5,8 @@ from src.register.router import router as register_router
 from src.Users.router import router as user_router
 from src.auth.router import router as auth_router
 from src.auth.logout.router import router as logout_router
+from src.oauth.router import router as oauth_router
+
 
 def register_routers(app):
     app.include_router(register_router)
@@ -14,3 +16,4 @@ def register_routers(app):
     app.include_router(logout_router)
     app.include_router(genres_router)
     app.include_router(moves_router)
+    app.include_router(oauth_router)
