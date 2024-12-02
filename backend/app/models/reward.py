@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, ForeignKey
 from sqlalchemy.dialects.postgresql import VARCHAR
 
-from db import BaseModel
+from app.core.init_db import BaseModel
 
 from models.movie import Movie
 from models.actor import Actor

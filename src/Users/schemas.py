@@ -2,7 +2,7 @@ import logging
 from typing import Optional
 from pydantic import BaseModel, ConfigDict, EmailStr
 
-from config import settings
+from app.config import settings
 
 """
 Регулярное выражение для телефона: (?:\+7|7|8)[-\s\(]?(\d{3})[\)\s-]?(\d{3})[-\s]?(\d{2})[-\s]?(\d{2})

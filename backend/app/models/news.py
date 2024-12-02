@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, Boolean, Text, ForeignKey
 from sqlalchemy.dialects.postgresql import VARCHAR
 
-from db import BaseModel
+from app.core.init_db import BaseModel
 from models.user import User
 
 

@@ -1,5 +1,6 @@
 from pydantic import PostgresDsn, computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from functools import lru_cache
 
 
 class Settings(BaseSettings):
@@ -7,9 +8,10 @@ class Settings(BaseSettings):
         env_file=".env", env_ignore_empty=True, extra="ignore"
     )
 
-    # Основные настройки
-    ALGORITHM: str
+    ALGORITHM: str = 'HS256'
     SECRET_KEY: str
+    JWT_SECRET_KEY: str
+    JWT_REFRESH_SECRET_KEY: str
 
     REDIS_URL: str
 
@@ -29,28 +31,30 @@ class Settings(BaseSettings):
 
     DATABASE_URL_TEST: str
 
-    # Google OAuth
-    GOOGLE_CLIENT_ID: str
-    GOOGLE_CLIENT_SECRET: str
-    GOOGLE_REDIRECT_URI: str
+    REDIS_URL: str
 
-    SMTP_PASS: str
-    SMTP_USER: str
-    SMTP_PORT: int
-    SMTP_HOST: str
+    #FastAPI
+    FASTAPI_API_V1_PATH: str = '/api/v1'
+    FASTAPI_TITLE: str = 'Your Online Cinema'
+    FASTAPI_DESCRIPTION = 'Онлайн кинотеатр (бэкенд)'
+    FASTAPI_DOCS_URL: str | None = f'{FASTAPI_API_V1_PATH}/docs'
+    FASTAPI_OPENAPI_URL: str | None = f'{FASTAPI_API_V1_PATH}/openapi'
 
-    # Yandex OAuth
-    YANDEX_CLIENT_ID: str
-    YANDEX_CLIENT_SECRET: str
-    YANDEX_REDIRECT_URI: str
+    #Middleware
+    MIDDLEWARE_CORS: bool = True
 
-    # VK OAuth
-    VK_CLIENT_ID: str
-    VK_CLIENT_SECRET: str
-    VK_REDIRECT_URI: str
+    #Trace ID
+    TRACE_ID_REQUEST_HEADER_KEY: str = 'X-Request-ID'
 
-    # Префикс для API OAuth маршрутов
-    API_OAuth_PREFIX: str = "/api/oauth/v1"
+    #CORS
+    CORS_ALLOWED_ORIGINS: list[str] = [
+        'http://127.0.0.1:8000',
+        'http://localhost:5173',
+    ]
+    CORSE_EXPOSE_HEADERS: list[str] = [
+        TRACE_ID_REQUEST_HEADER_KEY
+    ]
+
 
     @computed_field
     @property
@@ -77,4 +81,9 @@ class Settings(BaseSettings):
         )
 
 
-settings = Settings()
+@lru_cache
+def get_settings() -> Settings:
+    return Settings()
+
+
+settings = get_settings()

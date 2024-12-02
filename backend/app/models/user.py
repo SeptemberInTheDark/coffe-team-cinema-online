@@ -1,8 +1,8 @@
 from sqlalchemy import Column, Integer, Boolean, JSON, ForeignKey, CHAR, Text
 from sqlalchemy.dialects.postgresql import VARCHAR
 
-from db import BaseModel
-from models.movie import Movie
+from app.core.init_db import BaseModel
+from app.models.movie import Movie
 
 
 class Like(BaseModel):
@@ -60,4 +60,6 @@ class User(BaseModel):
     role_id = Column(Integer, ForeignKey("public.role.id"), nullable=True)
     country = Column(VARCHAR(length=255), nullable=True)
     gender = Column(CHAR(length=1), nullable=True)
+
+
 

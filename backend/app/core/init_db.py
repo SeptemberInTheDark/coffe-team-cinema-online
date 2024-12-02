@@ -5,13 +5,13 @@ from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.ext.asyncio import async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy import MetaData, Column, DateTime
-from config import settings as global_settings
-from src.utils.logging import AppLogger
+from .config import settings as db_settings
+from app.utils.logging import AppLogger
 
 logger = AppLogger().get_logger()
 
 engine = create_async_engine(
-    global_settings.asyncpg_url.unicode_string(),
+    db_settings.asyncpg_url.unicode_string(),
     future=True,
     echo=True,
 )

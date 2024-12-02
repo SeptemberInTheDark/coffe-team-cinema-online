@@ -12,7 +12,7 @@ from sqlalchemy.pool import NullPool
 
 from db import get_db, BaseModel
 from config import settings
-from app import app
+from backend.app.main import app
 
 
 DATABASE_URL_TEST = settings.DATABASE_URL_TEST
