@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, Boolean, JSON, ForeignKey, CHAR, Text
 from sqlalchemy.dialects.postgresql import VARCHAR
 
 from app.core.init_db import BaseModel
-from app.models.movie import Movie
+from .movie import Movie
 
 
 class Like(BaseModel):

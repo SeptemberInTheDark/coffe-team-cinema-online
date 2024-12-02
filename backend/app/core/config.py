@@ -36,9 +36,10 @@ class Settings(BaseSettings):
     #FastAPI
     FASTAPI_API_V1_PATH: str = '/api/v1'
     FASTAPI_TITLE: str = 'Your Online Cinema'
-    FASTAPI_DESCRIPTION = 'Онлайн кинотеатр (бэкенд)'
+    FASTAPI_DESCRIPTION: str = 'Онлайн кинотеатр(бэкенд)'
     FASTAPI_DOCS_URL: str | None = f'{FASTAPI_API_V1_PATH}/docs'
     FASTAPI_OPENAPI_URL: str | None = f'{FASTAPI_API_V1_PATH}/openapi'
+    FASTAPI_STATIC_FILES: bool = True
 
     #Middleware
     MIDDLEWARE_CORS: bool = True
@@ -51,7 +52,7 @@ class Settings(BaseSettings):
         'http://127.0.0.1:8000',
         'http://localhost:5173',
     ]
-    CORSE_EXPOSE_HEADERS: list[str] = [
+    CORS_EXPOSE_HEADERS: list[str] = [
         TRACE_ID_REQUEST_HEADER_KEY
     ]
 

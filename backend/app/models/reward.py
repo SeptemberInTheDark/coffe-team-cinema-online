@@ -3,8 +3,8 @@ from sqlalchemy.dialects.postgresql import VARCHAR
 
 from app.core.init_db import BaseModel
 
-from models.movie import Movie
-from models.actor import Actor
+from .movie import Movie
+from .actor import Actor
 
 
 class RewardActor(BaseModel):
