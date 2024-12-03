@@ -1,24 +1,21 @@
 from fastapi import APIRouter, Depends
 from fastapi.exceptions import HTTPException
 from fastapi.responses import JSONResponse
-from db import get_db
+from app.core.init_db import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.Users.crud import UserCRUD
+from app.crud.crud_user import UserCRUD
 
-from src.Users.schemas import User
-from src.utils.logging import AppLogger
+from app.schemas.User import User
+from app.utils.logging import AppLogger
 
 
 logger = AppLogger().get_logger()
 
-router = APIRouter(
-    prefix='/api',
-    tags=['Получение пользотеля/пользователей'],
-)
+router = APIRouter()
 
 
 @router.get(
-    "/users",
+    "",
     response_model=User,
     summary="Получить всех пользователей",
     response_description="Список пользователей"
