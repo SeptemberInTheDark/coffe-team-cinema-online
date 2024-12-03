@@ -2,9 +2,9 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
 
-from src.movies.movie_schemas import GenreCreateSchema
-from src.utils.logging import AppLogger
-from src.movies import models
+from app.schemas.Movie import GenreCreateSchema
+from app.utils.logging import AppLogger
+from app.models import movie as models
 
 logger = AppLogger().get_logger()
 

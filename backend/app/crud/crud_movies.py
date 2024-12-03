@@ -3,9 +3,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import or_
 from typing import Optional
 
-from src.movies.movie_schemas import MoveCreateSchema
-from src.utils.logging import AppLogger
-from src.movies import models
+from app.schemas.Movie import MoveCreateSchema
+from app.utils.logging import AppLogger
+from app.models import movie as models
 
 logger = AppLogger().get_logger()
 
@@ -45,7 +45,7 @@ class MovesCRUD:
             if actor is None:
                 actor = models.Actor(name=actor_name)  # Создание нового актера
                 session.add(actor)
-            
+
             new_movie.actors.append(actor)  # Добавление актера к фильму
 
         try:

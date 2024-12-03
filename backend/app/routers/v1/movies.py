@@ -3,23 +3,20 @@ from typing import List
 from fastapi import APIRouter, Depends, Form, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from db import get_db
-from src.movies.movie_handlers.crud_moves import MovesCRUD
-from src.movies.movie_schemas import MoveCreateSchema
+from app.core.init_db import get_db
+from app.crud.crud_movies import MovesCRUD
+from app.schemas.Movie import MoveCreateSchema
 from fastapi.responses import JSONResponse
 
-from src.movies.utils import form_movies_data
-from src.utils.logging import AppLogger
+from app.utils.form_movies import form_movies_data
+from app.utils.logging import AppLogger
 
 logger = AppLogger().get_logger()
 
-moves_router = APIRouter(
-    prefix='/api/movies',
-    tags=['Фильмы'],
-)
+router = APIRouter()
 
 
-@moves_router.post(
+@router.post(
     path="/add_movie",
     summary="Добавить фильм",
     response_description="Добавленный фильм"
@@ -53,15 +50,15 @@ async def add_movie(
             duration=duration,
             genre_name=genre_name,
         )
-        
+
         movie = await MovesCRUD.create_movies(session, new_movie)
-        
+
         if not movie:
             return JSONResponse(status_code=400,
                                 content={"error": "Ошибка при создании фильма, попробуйте еще раз..."})
-        
+
         logger.info("Фильм %s успешно добавлен", movie.title)
-        
+
         return JSONResponse(status_code=201, content={
             "success": True,
             "message": "Фильм успешно добавлен",
@@ -75,7 +72,7 @@ async def add_movie(
         return JSONResponse(status_code=500, content={"error": "Внутренняя ошибка сервера"})
 
 
-@moves_router.get(
+@router.get(
     path="/get_movies",
     summary="Получить все фильмы",
     response_description="Список фильмов"
@@ -99,7 +96,7 @@ async def get_movies(session: AsyncSession = Depends(get_db)):
 
 
 
-@moves_router.get(
+@router.get(
     path="/search_movies_by_title_and_description",
     summary="Получить фильмы по ключевому запросу",
     response_description="Список фильмов"
@@ -125,7 +122,7 @@ async def get_movies_by_title_and_description(
         logger.error('Ошибка поиске фильма: %s', exc)
 
 
-@moves_router.get(
+@router.get(
     path="/search_movies_by_genre",
     summary="Получить фильмы по жанру",
     response_description="Список фильмов"
@@ -150,7 +147,7 @@ async def get_movies_by_genre(
     except Exception as exc:
         logger.error('Ошибка поиске фильма: %s', exc)
 
-@moves_router.get(
+@router.get(
     path="/get_movie_by_title",
     summary="Получить фильм по названию",
     response_description="Список фильмов"
@@ -179,7 +176,7 @@ async def get_movie_by_title(title: str, session: AsyncSession = Depends(get_db)
         raise HTTPException(status_code=500, detail={f"Ошибка при получении пользователя: {e}"})
 
 
-@moves_router.delete(
+@router.delete(
     path="/delete_movie",
     summary="Удалить фильм",
     response_description="Удаленный фильм"

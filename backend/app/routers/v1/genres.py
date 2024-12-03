@@ -1,23 +1,20 @@
 from fastapi import APIRouter, Depends, Form
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from db import get_db
-from src.movies.genres_handlers.crud_genre import GenreCRUD
+from app.core.init_db import get_db
+from app.crud.crud_genre import GenreCRUD
 
-from src.movies.movie_schemas import GenreCreateSchema
+from app.schemas.Movie import GenreCreateSchema
 from fastapi.responses import JSONResponse
 
-from src.utils.logging import AppLogger
+from app.utils.logging import AppLogger
 
 logger = AppLogger().get_logger()
 
-genres_router = APIRouter(
-    prefix='/api/genres',
-    tags=['Жанры'],
-)
+router = APIRouter()
 
 
-@genres_router.post(
+@router.post(
     path="/add_genre",
     summary="Добавить жанр",
     response_description="Добавленный жанр"
@@ -53,7 +50,7 @@ async def add_genre(
         return JSONResponse(status_code=500, content={"error": "Внутренняя ошибка сервера"})
 
 
-@genres_router.delete(
+@router.delete(
     path="/delete_genre",
     summary="Удалить жанр",
     response_description="Удаленный жанр"
