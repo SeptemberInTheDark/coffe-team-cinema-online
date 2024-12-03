@@ -5,8 +5,8 @@ from email.message import EmailMessage
 
 from fastapi import HTTPException
 
-from config import settings
-from src.utils.logging import AppLogger
+from app.core.config import settings
+from app.utils.logging import AppLogger
 
 email_regex = settings.EMAIL_VALIDATOR
 phone_regex = settings.PHONE_VALIDATOR

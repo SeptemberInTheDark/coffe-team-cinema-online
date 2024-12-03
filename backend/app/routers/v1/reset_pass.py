@@ -5,13 +5,13 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import JSONResponse
 
-from config import settings
-from db import get_db
-from src.Users.crud import UserCRUD
-from src.Users.manager import UserHashManager
-from src.Users.reset_pass.reset_pass_utils import is_valid_email, generate_reset_code, send_email_reset_code
-from src.Users.schemas import PasswordResetConfirm
-from src.utils.logging import AppLogger
+from app.core.config import settings
+from app.core.init_db import get_db
+from app.crud.crud_user import UserCRUD
+from app.utils.manager import UserHashManager
+from app.controllers.reset_pass_controller import is_valid_email, generate_reset_code, send_email_reset_code
+from app.schemas.User import PasswordResetConfirm
+from app.utils.logging import AppLogger
 
 logger = AppLogger().get_logger()
 

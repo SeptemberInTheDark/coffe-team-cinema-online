@@ -1,8 +1,8 @@
 import httpx
 from fastapi import HTTPException
-from src.utils.logging import AppLogger
-from .base import OAuthProvider
-from config import settings as global_settings
+from app.utils.logging import AppLogger
+from .oauth_controller import OAuthProvider
+from app.core.config import settings as global_settings
 
 logger = AppLogger().get_logger()
 

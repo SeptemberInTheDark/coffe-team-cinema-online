@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends
-from config import settings
-from src.oauth.providers.google import GoogleOAuthProvider
-from src.oauth.providers.yandex import YandexOAuthProvider
-from src.oauth.providers.vk import VKOAuthProvider
+from app.core.config import settings
+from app.controllers.google_controller import GoogleOAuthProvider
+from app.controllers.yandex_controller import YandexOAuthProvider
+from app.controllers.vk_controller import VKOAuthProvider
 from sqlalchemy.ext.asyncio import AsyncSession
-from db import get_db
+from app.core.init_db import get_db
 
 google_provider = GoogleOAuthProvider()
 yandex_provider = YandexOAuthProvider()
