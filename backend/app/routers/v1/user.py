@@ -1,13 +1,12 @@
 from fastapi import APIRouter, Depends
 from fastapi.exceptions import HTTPException
 from fastapi.responses import JSONResponse
-from app.core.init_db import get_db
+from backend.app.core.init_db import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.crud.crud_user import UserCRUD
+from backend.app.crud.crud_user import UserCRUD
 
-from app.schemas.User import User
-from app.utils.logging import AppLogger
-
+from backend.app.schemas.User import User, UpdateProfileRequest
+from backend.app.utils.logging import AppLogger
 
 logger = AppLogger().get_logger()
 
@@ -20,7 +19,7 @@ router = APIRouter()
     summary="Получить всех пользователей",
     response_description="Список пользователей"
 
-    )
+)
 async def get_all_users(db: AsyncSession = Depends(get_db)):
     try:
         users = await UserCRUD.get_users(db)
@@ -37,7 +36,7 @@ async def get_all_users(db: AsyncSession = Depends(get_db)):
                 "phone": user.phone,
                 "is_active": user.is_active
             }
-           for user in users
+            for user in users
         ]
 
         return JSONResponse(status_code=200, content={"users": user_list})
@@ -51,8 +50,7 @@ async def get_all_users(db: AsyncSession = Depends(get_db)):
     response_model=User,
     summary="Получение пользователя по его email",
     response_description="Конкретный пользователь"
-    )
-
+)
 async def get_current_user_by_email(email: str, db: AsyncSession = Depends(get_db)):
     try:
         user_db_email = await UserCRUD.get_user(db, email=email)
@@ -61,11 +59,11 @@ async def get_current_user_by_email(email: str, db: AsyncSession = Depends(get_d
             return JSONResponse(status_code=400, content={"error": "Пользователь не найден"})
 
         user_data = {
-                "id": user_db_email.id,
-                "login": user_db_email.username,
-                "email": user_db_email.email,
-                "phone": user_db_email.phone,
-            }
+            "id": user_db_email.id,
+            "login": user_db_email.username,
+            "email": user_db_email.email,
+            "phone": user_db_email.phone,
+        }
 
         return JSONResponse(status_code=200, content={"user": user_data})
 
@@ -79,8 +77,7 @@ async def get_current_user_by_email(email: str, db: AsyncSession = Depends(get_d
     response_model=User,
     summary="Получение пользователя по его телефону",
     response_description="Конкретный пользователь"
-    )
-
+)
 async def get_current_user_by_phone(phone: str, db: AsyncSession = Depends(get_db)):
     try:
         user_phone = await UserCRUD.get_user(db, phone=phone)
@@ -89,12 +86,11 @@ async def get_current_user_by_phone(phone: str, db: AsyncSession = Depends(get_d
             return JSONResponse(status_code=400, content={"error": "Пользователь не найден"})
 
         user_data = {
-                "id": user_phone.id,
-                "login": user_phone.username,
-                "email": user_phone.email,
-                "phone": user_phone.phone,
-            }
-
+            "id": user_phone.id,
+            "login": user_phone.username,
+            "email": user_phone.email,
+            "phone": user_phone.phone,
+        }
 
         return JSONResponse(status_code=200, content={"user": user_data})
     except Exception as e:
@@ -107,8 +103,7 @@ async def get_current_user_by_phone(phone: str, db: AsyncSession = Depends(get_d
     response_model=User,
     summary="Получение пользователя по его логину",
     response_description="Конкретный пользователь"
-    )
-
+)
 async def get_current_user_by_login(login: str, db: AsyncSession = Depends(get_db)):
     try:
         user_login = await UserCRUD.get_user(db, username=login)
@@ -117,13 +112,40 @@ async def get_current_user_by_login(login: str, db: AsyncSession = Depends(get_d
             return JSONResponse(status_code=400, content={"error": "Пользователь не найден"})
 
         user_data = {
-                "id": user_login.id,
-                "login": user_login.username,
-                "email": user_login.email,
-                "phone": user_login.phone,
-            }
+            "id": user_login.id,
+            "login": user_login.username,
+            "email": user_login.email,
+            "phone": user_login.phone,
+        }
 
         return JSONResponse(status_code=200, content={"user": user_data})
     except Exception as e:
         logger.error("Ошибка при получении пользователя по login:\n %s", e)
         raise HTTPException(status_code=500, detail={f"Ошибка при получении пользователя: {e}"})
+
+
+@router.patch("/users/{username}/profile",
+              response_model=User,
+              summary="Настройки профиля",
+              response_description="Конкретный пользователь"
+)
+async def update_profile(
+        login: str,
+        request: UpdateProfileRequest,
+        db: AsyncSession = Depends(get_db)
+):
+    try:
+        updated_user = await UserCRUD.update_user_info(
+            db=db,
+            username=login,
+            first_name=request.first_name,
+            last_name=request.last_name,
+            gender=request.gender,
+            country=request.country
+        )
+        if updated_user:
+            return updated_user
+        else:
+            raise HTTPException(status_code=400, detail="Неудалосьобновитьпрофильпользователя.")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Ошибка:{str(e)}")

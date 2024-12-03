@@ -1,12 +1,14 @@
+from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.models.user import User
-from app.utils.manager import user_hash_manager
+from backend.app.models.user import User
+from backend.app.utils.manager import user_hash_manager
 from typing import Optional, Tuple
-from app.utils.logging import AppLogger
+from backend.app.utils.logging import AppLogger
+
+from backend.app.models import user
 
 logger = AppLogger().get_logger()
-
 
 
 class UserCRUD:
@@ -35,14 +37,13 @@ class UserCRUD:
             return None
 
     @staticmethod
-    async def get_user_credentials(db: AsyncSession, username:str) -> Optional[Tuple[str, str]]:
+    async def get_user_credentials(db: AsyncSession, username: str) -> Optional[Tuple[str, str]]:
         secrets_info = await db.execute(
             select(User.hashed_password)
             .where(User.username == username)
         )
         credentials = secrets_info.scalar_one_or_none()
         return credentials
-
 
     @staticmethod
     async def create_user(db: AsyncSession, user: User) -> Optional[User | bool]:
@@ -68,6 +69,44 @@ class UserCRUD:
             logger.error("Ошибка при создании пользователя: %s", e)
             return False
 
-    # На потом
-    def update_user_info():
-        pass
+    @staticmethod
+    async def update_user_info(
+            db: AsyncSession,
+            username: str,
+            first_name: Optional[str] = None,
+            last_name: Optional[str] = None,
+            gender: Optional[str] = None,
+            country: Optional[str] = None
+    ) -> Optional[dict]:
+        user_query = await UserCRUD.get_user(db, username=username)
+
+        if not user_query:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Пользователь с username'{username}'не найден."
+            )
+
+        if first_name:
+            user.first_name = first_name
+        if last_name:
+            user.last_name = last_name
+        if gender:
+            if gender not in ["M", "F", "O"]:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Пол должен быть одним из значений:'M','F','O'."
+                )
+            user.gender = gender
+        if country:
+            user.country = country
+
+        await db.commit()
+        await db.refresh(user)
+
+        return {
+            "username": User.username,
+            "first_name": User.first_name,
+            "last_name": User.last_name,
+            "gender": User.gender,
+            "country": User.country
+        }
