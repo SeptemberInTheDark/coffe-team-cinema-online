@@ -1,6 +1,7 @@
 from sqlmodel import Field, Relationship, SQLModel
 from typing import List
 
+from backend.app.core.init_db import BaseModel
 from backend.app.models.actor import Actor
 from backend.app.models.user import User
 

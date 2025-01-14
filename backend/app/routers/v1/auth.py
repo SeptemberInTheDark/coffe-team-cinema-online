@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Form
 from fastapi.responses import JSONResponse
-from app.core.init_db import get_db
+from backend.app.core.init_db import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.crud.crud_user import UserCRUD
-from app.utils.manager import user_hash_manager
-from app.utils.logging import AppLogger
-from app.controllers.jwt_controller import JWTManager
+from backend.app.crud.crud_user import UserCRUD
+from backend.app.utils.manager import user_hash_manager
+from backend.app.utils.logging import AppLogger
+from backend.app.controllers.jwt_controller import JWTManager
 from jose import JWTError
 from datetime import timedelta
 

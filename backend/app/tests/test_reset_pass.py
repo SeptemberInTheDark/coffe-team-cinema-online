@@ -3,8 +3,11 @@ from unittest import mock
 from unittest.mock import patch, Mock, AsyncMock
 from fastapi import HTTPException
 
-from src.Users.reset_pass.reset_pass_handlers import request_password_reset
-from src.Users.reset_pass.reset_pass_utils import generate_reset_code, is_valid_email, send_email_reset_code
+from backend.app.controllers.reset_pass_controller import (
+    generate_reset_code,
+    is_valid_email,
+    send_email_reset_code)
+from backend.app.routers.v1.reset_pass import request_password_reset
 
 
 # Тест для генерации кода сброса пароля
@@ -34,7 +37,6 @@ def test_send_email_reset_code(mock_smtp):
         send_email_reset_code("test@example.com", "123456", "TestUser")
 
 
-
 # Тест на обработку ошибки при отправке email
 @patch("smtplib.SMTP_SSL")
 def test_send_email_reset_code_exception(mock_smtp):
@@ -44,7 +46,6 @@ def test_send_email_reset_code_exception(mock_smtp):
     with patch("src.Users.reset_pass.reset_pass_utils.get_email_template") as mock_get_email:
         mock_get_email.return_value = mock.Mock()
         send_email_reset_code("test@example.com", "123456", "TestUser")
-
 
 
 # Тест на случай, когда пользователь не найден

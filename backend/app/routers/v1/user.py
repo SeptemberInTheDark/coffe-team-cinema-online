@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends
 from fastapi.exceptions import HTTPException
 from fastapi.responses import JSONResponse
-from app.core.init_db import get_db
+from backend.app.core.init_db import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.crud.crud_user import UserCRUD
+from backend.app.crud.crud_user import UserCRUD
 
-from app.schemas.User import User
-from app.utils.logging import AppLogger
+from backend.app.schemas.User import User
+from backend.app.utils.logging import AppLogger
 
 
 logger = AppLogger().get_logger()

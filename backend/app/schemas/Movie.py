@@ -1,6 +1,6 @@
 from typing import Optional, List
 from pydantic import BaseModel, ConfigDict, Field
-from app.utils.logging import AppLogger
+from backend.app.utils.logging import AppLogger
 
 logger = AppLogger().get_logger()
 

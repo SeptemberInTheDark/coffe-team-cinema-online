@@ -1,7 +1,7 @@
 from httpx import AsyncClient
 from sqlalchemy import insert, select
 
-from src.Users.models import Role
+from backend.app.models.user import Role
 from conftest import async_session_maker
 
 

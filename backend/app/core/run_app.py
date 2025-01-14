@@ -1,9 +1,9 @@
 from fastapi import FastAPI
 
 from .path_settings import STATIC_DIR
-from contextlib import asynccontextmanager
+# from contextlib import asynccontextmanager
 from .config import settings
-from app.router import route
+from backend.app.router import route
 
 # @asynccontextmanager
 # async def register_init(app: FastAPI):

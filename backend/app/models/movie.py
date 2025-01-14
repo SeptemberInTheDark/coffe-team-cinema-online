@@ -2,6 +2,8 @@ from sqlmodel import Field, Relationship, SQLModel
 from typing import List
 from datetime import date
 
+
+from backend.app.core.init_db import BaseModel
 from .actor import Actor, ActorMovie
 from .reward import RewardMovie
 from .user import User

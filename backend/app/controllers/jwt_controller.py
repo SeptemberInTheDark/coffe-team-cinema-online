@@ -1,7 +1,7 @@
 from fastapi import status, HTTPException
 import jwt
 from datetime import datetime, timedelta
-from app.core.config import settings as global_settings
+from backend.app.core.config import settings as global_settings
 
 
 class JWTManager:

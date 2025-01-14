@@ -1,9 +1,9 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.models.user import User
-from app.utils.manager import user_hash_manager
+from backend.app.models.user import User
+from backend.app.utils.manager import user_hash_manager
 from typing import Optional, Tuple
-from app.utils.logging import AppLogger
+from backend.app.utils.logging import AppLogger
 
 logger = AppLogger().get_logger()
 
