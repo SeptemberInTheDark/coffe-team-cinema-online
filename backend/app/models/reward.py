@@ -1,10 +1,7 @@
 from sqlalchemy import Column, Integer, ForeignKey
 from sqlalchemy.dialects.postgresql import VARCHAR
 
-from app.core.init_db import BaseModel
-
-from .movie import Movie
-from .actor import Actor
+from backend.app.core.init_db import BaseModel
 
 
 class RewardActor(BaseModel):

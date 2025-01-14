@@ -1,8 +1,7 @@
 from sqlalchemy import Column, Integer, Boolean, JSON, ForeignKey, CHAR, Text
 from sqlalchemy.dialects.postgresql import VARCHAR
 
-from app.core.init_db import BaseModel
-from .movie import Movie
+from backend.app.core.init_db import BaseModel
 
 
 class Like(BaseModel):

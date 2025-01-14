@@ -3,13 +3,13 @@ from typing import List
 from fastapi import APIRouter, Depends, Form, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.init_db import get_db
-from app.crud.crud_movies import MovesCRUD
-from app.schemas.Movie import MoveCreateSchema
+from backend.app.core.init_db import get_db
+from backend.app.crud.crud_movies import MovesCRUD
+from backend.app.schemas.Movie import MoveCreateSchema
 from fastapi.responses import JSONResponse
 
-from app.utils.form_movies import form_movies_data
-from app.utils.logging import AppLogger
+from backend.app.utils.form_movies import form_movies_data
+from backend.app.utils.logging import AppLogger
 
 logger = AppLogger().get_logger()
 

@@ -1,8 +1,5 @@
 from httpx import AsyncClient
-from sqlalchemy import insert, select
 
-from src.movies.models import Genre 
-from conftest import async_session_maker
 
 
 async def test_add_genre(ac: AsyncClient):

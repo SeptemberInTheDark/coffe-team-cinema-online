@@ -1,10 +1,8 @@
-from pydantic import BaseModel, Field, field_validator, EmailStr, ConfigDict
+from pydantic import BaseModel, field_validator, EmailStr, ConfigDict
 import re
-from app.core.config import settings
+from backend.app.core.config import settings
 import logging
 from typing import Optional
-
-
 
 email_regex = settings.EMAIL_VALIDATOR
 phone_regex = settings.PHONE_VALIDATOR
@@ -30,14 +28,13 @@ class UserCreate(User):
     model_config = ConfigDict(from_attributes=True)
 
     @field_validator('email')
-    def validate_username(cls, value):
+    def validate_email(cls, value):
         if not re.fullmatch(email_regex, value):
             raise ValueError("Email должен содержать символ '@' ")
         return value
 
-
     @field_validator('phone')
-    def validate_username(cls, value):
+    def validate_phone(cls, value):
         if not re.fullmatch(phone_regex, value):
             raise ValueError("Телефон должен начинаться с '+7' ")
         return value

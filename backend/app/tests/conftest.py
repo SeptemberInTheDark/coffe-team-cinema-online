@@ -10,8 +10,8 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.ext.asyncio import async_sessionmaker
 from sqlalchemy.pool import NullPool
 
-from db import get_db, BaseModel
-from config import settings
+from backend.app.core.config import settings
+from backend.app.core.init_db import BaseModel
 from backend.app.main import app
 
 

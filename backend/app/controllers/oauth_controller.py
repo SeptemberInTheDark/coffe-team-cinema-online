@@ -2,12 +2,12 @@ from abc import ABC, abstractmethod
 from fastapi import HTTPException, Depends
 from fastapi.responses import RedirectResponse, JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.core.init_db import get_db
-from app.crud.crud_user import UserCRUD
-from app.schemas.User import UserCreate
-from app.utils.manager import user_hash_manager
+from backend.app.core.init_db import get_db
+from backend.app.crud.crud_user import UserCRUD
+from backend.app.schemas.User import UserCreate
+from backend.app.utils.manager import user_hash_manager
 from .jwt_controller import JWTManager
-from app.utils.logging import AppLogger
+from backend.app.utils.logging import AppLogger
 import httpx
 import secrets
 

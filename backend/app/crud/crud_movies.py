@@ -3,9 +3,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import or_
 from typing import Optional
 
-from app.schemas.Movie import MoveCreateSchema
-from app.utils.logging import AppLogger
-from app.models import movie as models
+from backend.app.schemas.Movie import MoveCreateSchema
+from backend.app.utils.logging import AppLogger
+from backend.app.models import movie as models
 
 logger = AppLogger().get_logger()
 

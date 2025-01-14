@@ -1,8 +1,6 @@
-from pathlib import Path
-
 import uvicorn
 
-from app.core.run_app import register_app
+from backend.app.core.run_app import register_app
 
 
 app = register_app()
