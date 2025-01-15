@@ -6,11 +6,11 @@ from sqlalchemy import pool
 from alembic import context
 # from sqlalchemy.testing.suite.test_reflection import metadata
 
-from src.Users.models import *
-from src.movies.models import *
+from app.models.user import *
+from app.models.movie import *
 
-from config import settings
-from db import BaseModel
+from app.core.config import settings
+from app.core.init_db import BaseModel
 
 
 # this is the Alembic Config object, which provides
