@@ -1,8 +1,7 @@
 from sqlmodel import Field, Relationship, SQLModel
 
-from backend.app.core.init_db import BaseModel
-from backend.app.models.actor import Actor
-from backend.app.models.movie import Movie
+from app.models.actor import Actor
+from app.models.movie import Movie
 from typing import List
 
 class RewardActor(SQLModel, table=True):

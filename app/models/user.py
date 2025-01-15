@@ -1,7 +1,7 @@
 from sqlmodel import Field, Relationship, SQLModel
 from typing import List, Optional
-from backend.app.models.movie import MovieRating, MovieComments
-from backend.app.models.news import NewsViews, NewsComments
+from app.models.movie import MovieRating, MovieComments
+from app.models.news import NewsViews, NewsComments
 
 from backend.app.core.init_db import BaseModel
 
