@@ -1,6 +1,6 @@
 from fastapi import APIRouter
-from app.core.config import settings
-from app.routers.router import v1 as reg
+from backend.app.core.config import settings
+from backend.app.routers.router import v1 as reg
 
 
 

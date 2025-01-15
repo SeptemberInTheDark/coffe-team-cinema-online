@@ -56,6 +56,9 @@ class Settings(BaseSettings):
         TRACE_ID_REQUEST_HEADER_KEY
     ]
 
+    GOOGLE_CLIENT_ID: str
+    GOOGLE_CLIENT_SECRET: str
+
 
     @computed_field
     @property
