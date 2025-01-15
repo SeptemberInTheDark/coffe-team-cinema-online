@@ -37,7 +37,7 @@ class UserCreate(User):
 
 
     @field_validator('phone')
-    def validate_username(cls, value):
+    def validate_phone(cls, value):
         if not re.fullmatch(phone_regex, value):
             raise ValueError("Телефон должен начинаться с '+7' ")
         return value
