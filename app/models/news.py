@@ -1,8 +1,8 @@
 from sqlmodel import Field, Relationship, SQLModel
 from typing import List
 
-from backend.app.models.actor import Actor
-from backend.app.models.user import User
+from app.models.actor import Actor
+from app.models.user import User
 
 
 class NewsActor(SQLModel, table=True):
