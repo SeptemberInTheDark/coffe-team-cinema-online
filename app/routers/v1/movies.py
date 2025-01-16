@@ -1,6 +1,5 @@
-from typing import List
-
 from fastapi import APIRouter, Depends, Form, HTTPException, Query
+from sqlalchemy import Date
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.init_db import get_db
@@ -23,35 +22,17 @@ router = APIRouter()
 )
 async def add_movie(
         session: AsyncSession = Depends(get_db),
-        title: str = Form(...),
-        url_movie: str = Form(...),
-        description: str = Form(...),
-        photo: str = Form(...),
-        release_year: int = Form(...),
-        director: str = Form(...),
-        actors: List[str] = Form(...),
-        duration: int = Form(...),
-        genre_name: str = Form(...),
+        movie_data: MoveCreateSchema = Depends()
 ):
     try:
-        existing_movie = await MovesCRUD.get_movie(session, title=title)
+        # Проверка на существование фильма с таким названием
+        existing_movie = await MovesCRUD.get_movie(session, title=movie_data.title)
         if existing_movie:
             return JSONResponse(status_code=400,
                                 content={"error": "Фильм с таким названием уже существует."})
 
-        new_movie = MoveCreateSchema(
-            title=title,
-            url_movie=url_movie,
-            description=description,
-            photo=photo,
-            release_year=release_year,
-            director=director,
-            actors=actors,
-            duration=duration,
-            genre_name=genre_name,
-        )
-
-        movie = await MovesCRUD.create_movies(session, new_movie)
+        # Создание нового фильма
+        movie = await MovesCRUD.create_movies(session, movie_data)
 
         if not movie:
             return JSONResponse(status_code=400,
