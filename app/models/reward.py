@@ -29,6 +29,6 @@ class Reward(BaseModel):
     __table_args__ = {"schema": "public"}
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(Integer, nullable=False)
-    avatar = Column(Integer, nullable=False)
+    name = Column(VARCHAR, nullable=False)
+    avatar = Column(VARCHAR, nullable=False)
     nomination = Column(VARCHAR, nullable=False)
