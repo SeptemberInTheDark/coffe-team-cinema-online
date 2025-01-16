@@ -2,7 +2,6 @@ from sqlalchemy import Column, Integer, Boolean, Text, ForeignKey
 from sqlalchemy.dialects.postgresql import VARCHAR
 
 from app.core.init_db import BaseModel
-from .user import User
 
 
 class NewsActor(BaseModel):

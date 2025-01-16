@@ -3,9 +3,6 @@ from sqlalchemy.dialects.postgresql import VARCHAR
 
 from app.core.init_db import BaseModel
 
-from .movie import Movie
-from .actor import Actor
-
 
 class RewardActor(BaseModel):
     __tablename__ = "reward_actor"
@@ -13,7 +10,7 @@ class RewardActor(BaseModel):
 
     id = Column(Integer, primary_key=True, index=True)
     actor_id = Column(Integer, ForeignKey("public.actor.id"), nullable=False)
-    reward_id = Column(Integer, ForeignKey("public.reward.id"),nullable=False)
+    reward_id = Column(Integer, ForeignKey("public.reward.id"), nullable=False)
     year = Column(Integer, nullable=False)
 
 
