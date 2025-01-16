@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import uvicorn
 
 from app.core.run_app import register_app

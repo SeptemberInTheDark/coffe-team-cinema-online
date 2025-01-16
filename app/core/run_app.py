@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 
 from .path_settings import STATIC_DIR
-from contextlib import asynccontextmanager
 from .config import settings
 from app.router import route
 

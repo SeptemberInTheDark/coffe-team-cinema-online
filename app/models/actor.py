@@ -2,7 +2,6 @@ from sqlalchemy import Column, Integer, ForeignKey, Text, Date
 from sqlalchemy.dialects.postgresql import VARCHAR
 
 from app.core.init_db import BaseModel
-from .movie import Movie
 
 
 class ActorMovie(BaseModel):
