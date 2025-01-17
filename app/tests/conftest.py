@@ -9,10 +9,10 @@ from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.ext.asyncio import async_sessionmaker
 from sqlalchemy.pool import NullPool
-from app.core.init_db import get_db, BaseModel
+from app.core.config import settings
 from app.main import app
 
-from app.core.config import settings
+from app.core.init_db import get_db, BaseModel
 
 DATABASE_URL_TEST = settings.DATABASE_URL_TEST
 metadata = BaseModel.metadata
