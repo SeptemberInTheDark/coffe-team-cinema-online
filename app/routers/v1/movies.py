@@ -2,7 +2,6 @@ from datetime import date
 from typing import List
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Query
-from sqlalchemy import Date
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.init_db import get_db
@@ -177,14 +176,12 @@ async def get_movie_by_title(title: str, session: AsyncSession = Depends(get_db)
 
         movie_data = {
             "title": movie.title,
-            "url_movie": movie.url_movie,
+            "url": movie.url,
             "description": movie.description,
-            "photo": movie.photo,
+            "avatar": movie.avatar,
             "release_year": movie.release_year,
             "director": movie.director,
-            "actors": movie.actors,
-            "duration": movie.duration,
-            "genre_name": movie.genre_name,
+            "country": movie.country,
         }
         return JSONResponse(status_code=200, content={"movie": movie_data})
     except Exception as e:
