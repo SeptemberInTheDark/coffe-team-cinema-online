@@ -45,7 +45,7 @@ class MovesCRUD:
             screenwriter=movie_data.screenwriter,
             operator=movie_data.operator,
             composer=movie_data.composer,
-            actors=movie_data.actors,
+            actors=list(movie_data.actors),
             editor=movie_data.editor,
         )
 
