@@ -1,3 +1,4 @@
+from datetime import date
 from typing import Optional, List
 from pydantic import BaseModel, ConfigDict, Field
 from app.utils.logging import AppLogger
@@ -21,14 +22,23 @@ class MovieSchema(BaseModel):
 
 class MoveCreateSchema(BaseModel):
     title: str
-    url_movie: str
+    eng_title: str
+    url: str
     description: str
-    photo: str
-    release_year: int
+    avatar: str
+    release_year: date
     director: str
-    actors: List[str]
+    country: str
+    part: int
+    age_restriction: int
     duration: int
-    genre_name: str
+    category_id: int
+    producer: str
+    screenwriter: str
+    operator: str
+    composer: str
+    artist: str
+    editor: str
     class Config:
         from_attributes = True
 
