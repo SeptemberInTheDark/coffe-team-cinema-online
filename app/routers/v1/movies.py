@@ -1,3 +1,4 @@
+from datetime import date
 from typing import List
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Query
@@ -25,14 +26,22 @@ router = APIRouter()
 async def add_movie(
         session: AsyncSession = Depends(get_db),
         title: str = Form(...),
-        url: str = Form(...),
+        url: str = Form(None),
         description: str = Form(...),
-        avatar: str = Form(...),
-        release_year: int = Form(...),
-        director: str = Form(...),
-        actors: List[str] = Form(MoveCreateSchema.actors),
-        duration: int = Form(...),
-        genre_name: str = Form(...),
+        avatar: str = Form(None),
+        release_year: date = Form(None),
+        director: str = Form(None),
+        country: str = Form(None),
+        part: int = Form(None),
+        age_restriction: int = Form(None),
+        duration: int = Form(None),
+        category_id: int = Form(None),
+        producer: List[str] = Form(None),
+        screenwriter: List[str] = Form(None),
+        operator: List[str] = Form(None),
+        composer: List[str] = Form(None),
+        actors: List[str] = Form(None),
+        editor: List[str] = Form(None),
 ):
     try:
         existing_movie = await MovesCRUD.get_movie(session, title=title)
@@ -42,27 +51,35 @@ async def add_movie(
 
         new_movie = MoveCreateSchema(
             title=title,
-            url_movie=url_movie,
+            url=url,
             description=description,
-            photo=photo,
+            avatar=avatar,
             release_year=release_year,
             director=director,
-            actors=actors,
+            country=country,
+            part=part,
+            age_restriction=age_restriction,
             duration=duration,
-            genre_name=genre_name,
+            category_id=category_id,
+            producer=producer,
+            screenwriter=screenwriter,
+            operator=operator,
+            composer=composer,
+            actors=actors,
+            editor=editor,
         )
 
-        if not movie:
+        if not new_movie:
             return JSONResponse(status_code=400,
                                 content={"error": "Ошибка при создании фильма, попробуйте еще раз..."})
 
-        logger.info("Фильм %s успешно добавлен", movie.title)
+        logger.info("Фильм %s успешно добавлен", new_movie.title)
 
         return JSONResponse(status_code=201, content={
             "success": True,
             "message": "Фильм успешно добавлен",
             "data": {
-                "title": movie.title,
+                "title": new_movie.title,
             }
         })
 
