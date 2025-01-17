@@ -1,5 +1,7 @@
 from datetime import date
 from typing import Optional, List
+
+from fastapi import Form
 from pydantic import BaseModel, ConfigDict, Field
 from app.utils.logging import AppLogger
 
@@ -22,23 +24,23 @@ class MovieSchema(BaseModel):
 
 class MoveCreateSchema(BaseModel):
     title: str
-    eng_title: str
-    url: str
-    description: str
-    avatar: str
-    release_year: date
-    director: str
-    country: str
-    part: int
-    age_restriction: int
-    duration: int
-    category_id: int
-    producer: str
-    screenwriter: str
-    operator: str
-    composer: str
-    artist: str
-    editor: str
+    eng_title: Optional[str] = None
+    url: Optional[str] = None
+    description: Optional[str] = None
+    avatar: Optional[str] = None
+    release_year: Optional[date] = None
+    director: Optional[str] = None
+    country: Optional[str] = None
+    part: Optional[int] = None
+    age_restriction: Optional[int] = None
+    duration: Optional[int] = None
+    category_id: Optional[int] = None
+    producer: Optional[str] = None
+    screenwriter: Optional[str] = None
+    operator: Optional[str] = None
+    composer: Optional[str] = None
+    actors: Optional[List[str]] = None
+    editor: Optional[str] = None
     class Config:
         from_attributes = True
 
