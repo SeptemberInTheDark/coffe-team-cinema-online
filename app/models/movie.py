@@ -98,10 +98,10 @@ class Movie(BaseModel):
     category_id = Column(Integer,ForeignKey("public.category.id"), nullable=True)
     producer = Column(VARCHAR, nullable=True)
     screenwriter = Column(VARCHAR, nullable=True)
-    operator = Column(VARCHAR, nullable=True)
-    composer = Column(VARCHAR, nullable=True)
+    operator = Column(ARRAY(VARCHAR), nullable=True)
+    composer = Column(ARRAY(VARCHAR), nullable=True)
     actors = Column(ARRAY(VARCHAR), nullable=True)
-    editor = Column(VARCHAR, nullable=True)
+    editor = Column(ARRAY(VARCHAR), nullable=True)
 
 
 
