@@ -35,12 +35,12 @@ class MoveCreateSchema(BaseModel):
     age_restriction: Optional[int] = None
     duration: Optional[int] = None
     category_id: Optional[int] = None
-    producer: Optional[str] = None
-    screenwriter: Optional[str] = None
-    operator: Optional[str] = None
-    composer: Optional[str] = None
+    producer: Optional[List[str]] = None
+    screenwriter: Optional[List[str]] = None
+    operator: Optional[List[str]] = None
+    composer: Optional[List[str]] = None
     actors: Optional[List[str]] = None
-    editor: Optional[str] = None
+    editor: Optional[List[str]] = None
     class Config:
         from_attributes = True
 
