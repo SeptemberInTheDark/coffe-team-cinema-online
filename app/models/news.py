@@ -45,3 +45,7 @@ class News(BaseModel):
     source = Column(VARCHAR(length=255), nullable=True)
 
 
+
+
+#test
+
