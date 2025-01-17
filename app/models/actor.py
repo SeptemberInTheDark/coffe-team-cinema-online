@@ -20,12 +20,12 @@ class Actor(BaseModel):
     id = Column(Integer, primary_key=True, index=True)
     first_name = Column(VARCHAR, nullable=False)
     last_name = Column(VARCHAR, nullable=False)
-    eng_full_name = Column(VARCHAR, nullable=False)
-    biography = Column(Text, nullable=False)
-    avatar = Column(VARCHAR, nullable=False)
-    height = Column(Integer, nullable=False)
-    date_of_birth = Column(Date, nullable=False)
-    place_of_birth = Column(VARCHAR, nullable=False)
+    eng_full_name = Column(VARCHAR, nullable=True)
+    biography = Column(Text, nullable=True)
+    avatar = Column(VARCHAR, nullable=True)
+    height = Column(Integer, nullable=True)
+    date_of_birth = Column(Date, nullable=True)
+    place_of_birth = Column(VARCHAR, nullable=True)
 
 
 

@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, ForeignKey, Text, Date
 from sqlalchemy.dialects.postgresql import VARCHAR
+from sqlalchemy.dialects.postgresql import ARRAY
 
 from app.core.init_db import BaseModel
 # from .user import User
@@ -28,8 +29,8 @@ class Trailer(BaseModel):
 
     id = Column(Integer, primary_key=True, index=True)
     movie_id = Column(Integer,ForeignKey("public.movie.id"), nullable=False)
-    name = Column(VARCHAR, nullable=False)
-    url_trailer = Column(Text, nullable=False)
+    name = Column(VARCHAR, nullable=True)
+    url_trailer = Column(Text, nullable=True)
 
 
 class Category(BaseModel):
@@ -46,7 +47,7 @@ class Poster(BaseModel):
 
     id = Column(Integer, primary_key=True, index=True)
     movie_id = Column(Integer, ForeignKey("public.movie.id"), nullable=False)
-    photo = Column(VARCHAR, nullable=False)
+    photo = Column(VARCHAR, nullable=True)
 
 
 class Photo(BaseModel):
@@ -55,7 +56,7 @@ class Photo(BaseModel):
 
     id = Column(Integer, primary_key=True, index=True)
     movie_id = Column(Integer, ForeignKey("public.movie.id"), nullable=False)
-    photo = Column(VARCHAR, nullable=False)
+    photo = Column(VARCHAR, nullable=True)
 
 
 class MovieComments(BaseModel):
@@ -65,7 +66,7 @@ class MovieComments(BaseModel):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("public.user.id"), nullable=False)
     movie_id = Column(Integer, ForeignKey("public.movie.id"), nullable=False)
-    text = Column(Text, nullable=False)
+    text = Column(Text, nullable=True)
 
 
 class MovieRating(BaseModel):
@@ -75,7 +76,7 @@ class MovieRating(BaseModel):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("public.user.id"), nullable=False)
     movie_id = Column(Integer, ForeignKey("public.movie.id"), nullable=False)
-    rating = Column(Integer, nullable=False)
+    rating = Column(Integer, nullable=True)
 
 
 class Movie(BaseModel):
@@ -83,24 +84,24 @@ class Movie(BaseModel):
     __table_args__ = {"schema": "public"}
 
     id = Column(Integer, primary_key=True, index=True)
-    url = Column(Text, nullable=False)
+    url = Column(Text, nullable=True)
     title = Column(VARCHAR, nullable=False)
-    eng_title = Column(VARCHAR, nullable=False)
-    description = Column(Text, nullable=False)
-    avatar = Column(VARCHAR, nullable=False)
-    release_year = Column(Date, nullable=False)
-    director = Column(VARCHAR, nullable=False)
-    country = Column(VARCHAR, nullable=False)
-    part = Column(Integer, nullable=False)
-    age_restriction = Column(Integer, nullable=False)
-    duration = Column(Integer, nullable=False)
-    category_id = Column(Integer,ForeignKey("public.category.id"), nullable=False)
-    producer = Column(VARCHAR, nullable=False)
-    screenwriter = Column(VARCHAR, nullable=False)
-    operator = Column(VARCHAR, nullable=False)
-    composer = Column(VARCHAR, nullable=False)
-    artist = Column(VARCHAR, nullable=False)
-    editor = Column(VARCHAR, nullable=False)
+    eng_title = Column(VARCHAR, nullable=True)
+    description = Column(Text, nullable=True)
+    avatar = Column(VARCHAR, nullable=True)
+    release_year = Column(Date, nullable=True)
+    director = Column(VARCHAR, nullable=True)
+    country = Column(VARCHAR, nullable=True)
+    part = Column(Integer, nullable=True)
+    age_restriction = Column(Integer, nullable=True)
+    duration = Column(Integer, nullable=True)
+    category_id = Column(Integer,ForeignKey("public.category.id"), nullable=True)
+    producer = Column(VARCHAR, nullable=True)
+    screenwriter = Column(VARCHAR, nullable=True)
+    operator = Column(ARRAY(VARCHAR), nullable=True)
+    composer = Column(ARRAY(VARCHAR), nullable=True)
+    actors = Column(ARRAY(VARCHAR), nullable=True)
+    editor = Column(ARRAY(VARCHAR), nullable=True)
 
 
 

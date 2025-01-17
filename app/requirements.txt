@@ -23,6 +23,7 @@ markdown-it-py==3.0.0
 MarkupSafe==3.0.2
 mdurl==0.1.2
 psycopg-binary==3.2.3
+python-jose==3.3.0
 pycparser==2.22
 pydantic==2.10.2
 pydantic-settings==2.6.1
@@ -44,3 +45,4 @@ typing_extensions==4.12.2
 uvicorn==0.32.1
 watchfiles==1.0.0
 websockets==14.1
+
