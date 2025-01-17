@@ -22,11 +22,12 @@ router = APIRouter()
 )
 async def add_movie(
         session: AsyncSession = Depends(get_db),
-        movie_data: MoveCreateSchema = Depends()
+        title: str = Form(...),
+
 ):
     try:
         # Проверка на существование фильма с таким названием
-        existing_movie = await MovesCRUD.get_movie(session, title=movie_data.title)
+        existing_movie = await MovesCRUD.get_movie(session, title=title)
         if existing_movie:
             return JSONResponse(status_code=400,
                                 content={"error": "Фильм с таким названием уже существует."})
