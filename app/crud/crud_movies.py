@@ -45,11 +45,11 @@ class MovesCRUD:
             screenwriter=movie_data.screenwriter,
             operator=movie_data.operator,
             composer=movie_data.composer,
-            artist=movie_data.artist,
+            actors=movie_data.actors,
             editor=movie_data.editor,
         )
 
-        # Получение или создание актеров
+        # # Получение или создание актеров
         # for actor_name in movie_data.artist:
         #     actor_old = await session.scalar(select(actor.Actor).filter_by(first_name=actor_name))
         #     if actor_old is None:

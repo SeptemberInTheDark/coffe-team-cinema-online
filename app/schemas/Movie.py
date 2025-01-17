@@ -37,7 +37,7 @@ class MoveCreateSchema(BaseModel):
     screenwriter: str
     operator: str
     composer: str
-    artist: str
+    actors: str
     editor: str
     class Config:
         from_attributes = True
