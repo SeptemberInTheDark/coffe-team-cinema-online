@@ -37,7 +37,7 @@ class MoveCreateSchema(BaseModel):
     screenwriter: Optional[str] = None
     operator: Optional[str] = None
     composer: Optional[str] = None
-    actors: Optional[str] = None
+    actors: Optional[List[str]] = None
     editor: Optional[str] = None
     class Config:
         from_attributes = True

@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, ForeignKey, Text, Date
 from sqlalchemy.dialects.postgresql import VARCHAR
+from sqlalchemy.dialects.postgresql import ARRAY
 
 from app.core.init_db import BaseModel
 # from .user import User
@@ -99,7 +100,7 @@ class Movie(BaseModel):
     screenwriter = Column(VARCHAR, nullable=True)
     operator = Column(VARCHAR, nullable=True)
     composer = Column(VARCHAR, nullable=True)
-    actors = Column(VARCHAR, nullable=True)
+    actors = Column(ARRAY(VARCHAR), nullable=True)
     editor = Column(VARCHAR, nullable=True)
 
 
