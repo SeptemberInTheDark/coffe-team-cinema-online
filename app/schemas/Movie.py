@@ -44,6 +44,30 @@ class MoveCreateSchema(BaseModel):
         from_attributes = True
 
 
+class MovieResponseSchema(BaseModel):
+    id: int
+    title: str
+    eng_title: Optional[str] = None
+    url: Optional[str] = None
+    description: Optional[str] = None
+    avatar: Optional[str] = None
+    release_year: str | None
+    director: Optional[str] = None
+    country: Optional[str] = None
+    part: Optional[int] = None
+    age_restriction: Optional[int] = None
+    duration: Optional[int] = None
+    category_id: Optional[int] = None
+    producer: Optional[str] = None
+    screenwriter: Optional[str] = None
+    operator: Optional[List[str]] = None
+    composer: Optional[List[str]] = None
+    actors: Optional[List[str]] = None
+    editor: Optional[List[str]] = None
+
+    class Config:
+        from_attributes = True
+
 class GenreCreateSchema(BaseModel):
     name: str
     model_config = ConfigDict(from_attributes=True)
