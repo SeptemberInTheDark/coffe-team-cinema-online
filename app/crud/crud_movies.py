@@ -5,7 +5,7 @@ from typing import Optional
 
 from app.schemas.Movie import MoveCreateSchema
 from app.utils.logging import AppLogger
-from app.models import movie, actor
+from app.models import movie
 
 logger = AppLogger().get_logger()
 

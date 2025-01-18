@@ -1,7 +1,6 @@
 from datetime import date
 from typing import Optional, List
 
-from fastapi import Form
 from pydantic import BaseModel, ConfigDict, Field
 from app.utils.logging import AppLogger
 
@@ -35,8 +34,8 @@ class MoveCreateSchema(BaseModel):
     age_restriction: Optional[int] = None
     duration: Optional[int] = None
     category_id: Optional[int] = None
-    producer: Optional[List[str]] = None
-    screenwriter: Optional[List[str]] = None
+    producer: Optional[str] = None
+    screenwriter: Optional[str] = None
     operator: Optional[List[str]] = None
     composer: Optional[List[str]] = None
     actors: Optional[List[str]] = None
