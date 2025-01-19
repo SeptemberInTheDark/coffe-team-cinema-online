@@ -23,11 +23,11 @@ RUN pip install virtualenv
 WORKDIR /app
 
 # Копирование файла зависимостей
-COPY requirements/dev.txt .
+COPY requirements.txt .
 
 # Создание виртуального окружения и установка зависимостей
 RUN virtualenv venv && \
-    ./venv/bin/pip install -r dev.txt
+    ./venv/bin/pip install -r requirements.txt
 
 # Копирование всего проекта в контейнер
 COPY . .
@@ -36,4 +36,4 @@ COPY . .
 ENV PATH="/app/venv/bin:$PATH"
 
 # Команда для запуска приложения
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
