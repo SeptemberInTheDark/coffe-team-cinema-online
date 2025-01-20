@@ -2,7 +2,7 @@ from datetime import date
 from typing import List
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Query
-import json
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.init_db import get_db
@@ -93,7 +93,6 @@ async def add_movie(
                             content={"error": "Произошла ошибка сервера. Попробуйте позже."})
 
 
-
 @router.get(
     path="/get_movies",
     summary="Получить все фильмы",
@@ -117,6 +116,10 @@ async def get_movies(session: AsyncSession = Depends(get_db)):
         logger.error('Ошибка поиске фильма: %s', exc)
 
 
+from datetime import date
+
+import json
+
 
 @router.get(
     path="/search_movies_by_title_and_description",
@@ -124,24 +127,26 @@ async def get_movies(session: AsyncSession = Depends(get_db)):
     response_description="Список фильмов"
 )
 async def get_movies_by_title_and_description(
-        session: AsyncSession = Depends(get_db),
-        query: str = Query(...),
-                                              ):
-    try:
-        movies = await MovesCRUD.search_movies(session, query=query)
-        if not movies:
-            logger.info('Фильмы не найдены')
-            return JSONResponse(status_code=404,
-                                content={"error": "Фильмы не найдены."})
-
-        movies_data = form_movies_data(movies)
-        logger.info("Фильмы получены")
-        return JSONResponse(status_code=200, content={
-            "movies": movies_data
-        })
-
-    except Exception as exc:
-        logger.error('Ошибка поиске фильма: %s', exc)
+        query: str = Query(..., description="Ключевое слово для поиска"),
+        session: AsyncSession = Depends(get_db)
+):
+    movies = await MovesCRUD.search_movies(session, query=query)
+    if not movies:
+        raise HTTPException(status_code=404, detail="Фильмы не найдены")
+    movies_data = [
+        MovieResponseSchema(
+            **{
+                **movie.__dict__,
+                "release_year": movie.release_year.isoformat() if movie.release_year else None,
+                "operator": parse_list_field(movie.operator),
+                "composer": parse_list_field(movie.composer),
+                "actors": parse_list_field(movie.actors),
+                "editor": parse_list_field(movie.editor),
+            }
+        )
+        for movie in movies
+    ]
+    return {"movies": movies_data}
 
 
 @router.get(
@@ -152,7 +157,7 @@ async def get_movies_by_title_and_description(
 async def get_movies_by_genre(
         session: AsyncSession = Depends(get_db),
         genre: str = Query(...),
-                                              ):
+):
     try:
         movies = await MovesCRUD.search_movies_by_genre(session, genre_name=genre)
         if not movies:
@@ -222,7 +227,6 @@ async def get_movie_by_title(title: str, session: AsyncSession = Depends(get_db)
 )
 async def delete_movie(session: AsyncSession = Depends(get_db),
                        title: str = Form(...)):
-
     try:
         deleted = await MovesCRUD.delete_movie(session, title=title)
         if deleted:
@@ -233,5 +237,5 @@ async def delete_movie(session: AsyncSession = Depends(get_db),
             return JSONResponse(status_code=404, content={"error": "Фильм не найден."})
 
     except Exception as exc:
-            logger.error('Ошибка при удалении фильма: %s', exc)
-            return JSONResponse(status_code=500, content={"error": "Внутренняя ошибка сервера"})
+        logger.error('Ошибка при удалении фильма: %s', exc)
+        return JSONResponse(status_code=500, content={"error": "Внутренняя ошибка сервера"})
