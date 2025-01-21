@@ -27,38 +27,31 @@ class MovesCRUD:
         return result.all()
 
     @staticmethod
-    async def create_movies(session: AsyncSession, movie_data: MoveCreateSchema) -> Optional[movie.Movie | bool]:
-        new_movie = movie.Movie(
-            title=movie_data.title,
-            eng_title=movie_data.eng_title,
-            url=movie_data.url,
-            description=movie_data.description,
-            avatar=movie_data.avatar,
-            release_year=movie_data.release_year,
-            director=movie_data.director,
-            country=movie_data.country,
-            part=movie_data.part,
-            age_restriction=movie_data.age_restriction,
-            duration=movie_data.duration,
-            category_id=movie_data.category_id,
-            producer=movie_data.producer,
-            screenwriter=movie_data.screenwriter,
-            operator=movie_data.operator,
-            composer=movie_data.composer,
-            actors=list(movie_data.actors),
-            editor=movie_data.editor,
-        )
-
-        # # Получение или создание актеров
-        # for actor_name in movie_data.artist:
-        #     actor_old = await session.scalar(select(actor.Actor).filter_by(first_name=actor_name))
-        #     if actor_old is None:
-        #         actor_new = actor.Actor(actor_name=actor_name)  # Создание нового актера
-        #         session.add(actor_new)
-        #
-        #     new_movie.artist = actor_new  # Добавление актера к фильму
-
+    async def create_movies(
+            session: AsyncSession, movie_data: MoveCreateSchema
+    ) -> Optional[movie.Movie]:
         try:
+            new_movie = movie.Movie(
+                title=movie_data.title,
+                eng_title=movie_data.eng_title,
+                url=movie_data.url,
+                description=movie_data.description,
+                avatar=movie_data.avatar,
+                release_year=movie_data.release_year,
+                director=movie_data.director,
+                country=movie_data.country,
+                part=movie_data.part,
+                age_restriction=movie_data.age_restriction,
+                duration=movie_data.duration,
+                category_id=movie_data.category_id,
+                producer=movie_data.producer,
+                screenwriter=movie_data.screenwriter,
+                operator=movie_data.operator or [],
+                composer=movie_data.composer or [],
+                actors=movie_data.actors or [],
+                editor=movie_data.editor or [],
+            )
+
             session.add(new_movie)
             await session.commit()
             await session.refresh(new_movie)
@@ -66,8 +59,8 @@ class MovesCRUD:
 
         except Exception as e:
             await session.rollback()
-            logger.error("Ошибка при создании фильма: %s", e)
-            return False
+            logger.error("Ошибка при создании фильма: %s", str(e))
+            return None
 
 
     @staticmethod

@@ -1,7 +1,7 @@
 from datetime import date
-from typing import List
+from typing import List, Optional
 
-from fastapi import APIRouter, Depends, Form, HTTPException, Query
+from fastapi import APIRouter, Depends, Form, HTTPException, Query, status
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -10,7 +10,7 @@ from app.crud.crud_movies import MovesCRUD
 from app.schemas.Movie import MoveCreateSchema, MovieResponseSchema
 from fastapi.responses import JSONResponse
 
-from app.utils.form_movies import form_movies_data, parse_list_field
+from app.utils.form_movies import form_movies_data
 from app.utils.logging import AppLogger
 
 logger = AppLogger().get_logger()
@@ -21,34 +21,37 @@ router = APIRouter()
 @router.post(
     path="/add_movie",
     summary="Добавить фильм",
-    response_description="Добавленный фильм"
+    response_description="Добавленный фильм",
+    status_code=status.HTTP_201_CREATED,
 )
 async def add_movie(
         session: AsyncSession = Depends(get_db),
         title: str = Form(...),
-        url: str = Form(None),
-        description: str = Form(...),
-        avatar: str = Form(None),
-        release_year: date = Form(None),
-        director: str = Form(None),
-        country: str = Form(None),
-        part: int = Form(None),
-        age_restriction: int = Form(None),
-        duration: int = Form(None),
-        category_id: int = Form(None),
-        producer: str = Form(None),
-        screenwriter: str = Form(None),
-        operator: List[str] = Form(None),
-        composer: List[str] = Form(None),
-        actors: List[str] = Form(None),
-        editor: List[str] = Form(None),
+        url: Optional[str] = Form(None),
+        description: Optional[str] = Form(None),
+        avatar: Optional[str] = Form(None),
+        release_year: Optional[date] = Form(None),
+        director: Optional[str] = Form(None),
+        country: Optional[str] = Form(None),
+        part: Optional[int] = Form(None),
+        age_restriction: Optional[int] = Form(None),
+        duration: Optional[int] = Form(None),
+        category_id: Optional[int] = Form(None),
+        producer: Optional[str] = Form(None),
+        screenwriter: Optional[str] = Form(None),
+        operator: Optional[List[str]] = Form(None),
+        composer: Optional[List[str]] = Form(None),
+        actors: Optional[List[str]] = Form(None),
+        editor: Optional[List[str]] = Form(None),
 ):
     try:
         # Проверка на существующий фильм
         existing_movie = await MovesCRUD.get_movie(session, title=title)
         if existing_movie:
-            return JSONResponse(status_code=400,
-                                content={"error": "Фильм с таким названием уже существует."})
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Фильм с таким названием уже существует.",
+            )
 
         # Создаем объект схемы Pydantic
         new_movie_data = MoveCreateSchema(
@@ -71,26 +74,33 @@ async def add_movie(
             editor=editor,
         )
 
+        # Создаем фильм
         new_movie = await MovesCRUD.create_movies(session, new_movie_data)
-
         if not new_movie:
-            return JSONResponse(status_code=400,
-                                content={"error": "Ошибка при создании фильма, попробуйте еще раз..."})
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Ошибка при создании фильма, попробуйте еще раз...",
+            )
 
         logger.info("Фильм %s успешно добавлен", new_movie.title)
 
-        return JSONResponse(status_code=201, content={
+        return {
             "success": True,
             "message": "Фильм успешно добавлен",
             "data": {
                 "title": new_movie.title,
-            }
-        })
+            },
+        }
 
+    except HTTPException as e:
+        logger.error("Ошибка при добавлении фильма: %s", e.detail)
+        raise e
     except Exception as e:
-        logger.error("Ошибка при добавлении фильма: %s", e)
-        return JSONResponse(status_code=500,
-                            content={"error": "Произошла ошибка сервера. Попробуйте позже."})
+        logger.error("Ошибка при добавлении фильма: %s", str(e))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Произошла ошибка сервера. Попробуйте позже.",
+        )
 
 
 @router.get(
@@ -116,11 +126,6 @@ async def get_movies(session: AsyncSession = Depends(get_db)):
         logger.error('Ошибка поиске фильма: %s', exc)
 
 
-from datetime import date
-
-import json
-
-
 @router.get(
     path="/search_movies_by_title_and_description",
     summary="Получить фильмы по ключевому запросу",
@@ -133,19 +138,7 @@ async def get_movies_by_title_and_description(
     movies = await MovesCRUD.search_movies(session, query=query)
     if not movies:
         raise HTTPException(status_code=404, detail="Фильмы не найдены")
-    movies_data = [
-        MovieResponseSchema(
-            **{
-                **movie.__dict__,
-                "release_year": movie.release_year.isoformat() if movie.release_year else None,
-                "operator": parse_list_field(movie.operator),
-                "composer": parse_list_field(movie.composer),
-                "actors": parse_list_field(movie.actors),
-                "editor": parse_list_field(movie.editor),
-            }
-        )
-        for movie in movies
-    ]
+    movies_data = form_movies_data(movies)
     return {"movies": movies_data}
 
 

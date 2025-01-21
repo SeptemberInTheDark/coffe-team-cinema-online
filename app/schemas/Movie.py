@@ -51,7 +51,7 @@ class MovieResponseSchema(BaseModel):
     url: Optional[str] = None
     description: Optional[str] = None
     avatar: Optional[str] = None
-    release_year: str | None
+    release_year: Optional[date] = None
     director: Optional[str] = None
     country: Optional[str] = None
     part: Optional[int] = None
