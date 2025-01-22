@@ -118,9 +118,7 @@ async def get_movies(session: AsyncSession = Depends(get_db)):
 
         movies_data = form_movies_data(movies)
         logger.info("Фильмы получен")
-        return JSONResponse(status_code=200, content={
-            "movies": movies_data
-        })
+        return movies_data
 
     except Exception as exc:
         logger.error('Ошибка поиске фильма: %s', exc)
@@ -182,30 +180,7 @@ async def get_movie_by_title(title: str, session: AsyncSession = Depends(get_db)
             logger.info("Фильм '%s' не найден", title)
             raise HTTPException(status_code=404, detail="Фильм не найден")
 
-        # Преобразование данных для схемы
-        movie_data = MovieResponseSchema(
-            id=movie.id,
-            title=movie.title,
-            eng_title=movie.eng_title,
-            url=movie.url,
-            description=movie.description,
-            avatar=movie.avatar,
-            release_year=movie.release_year.isoformat() if movie.release_year else None,
-            director=movie.director,
-            country=movie.country,
-            part=movie.part,
-            age_restriction=movie.age_restriction,
-            duration=movie.duration,
-            category_id=movie.category_id,
-            producer=movie.producer,
-            screenwriter=movie.screenwriter,
-            operator=parse_list_field(movie.operator),
-            composer=parse_list_field(movie.composer),
-            actors=parse_list_field(movie.actors),
-            editor=parse_list_field(movie.editor),
-        )
-
-        return movie_data
+        return movie
     except HTTPException:
         raise
     except Exception as e:
