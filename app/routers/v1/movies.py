@@ -7,7 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.init_db import get_db
 from app.crud.crud_movies import MovesCRUD
-from app.schemas.Movie import MoveCreateSchema, MovieResponseSchema
+from app.models import movie
+from app.schemas.Movie import MoveCreateSchema, MovieResponseSchema, MovieUpdateSchema
 from fastapi.responses import JSONResponse
 
 from app.utils.form_movies import form_movies_data
@@ -27,6 +28,7 @@ router = APIRouter()
 async def add_movie(
         session: AsyncSession = Depends(get_db),
         title: str = Form(...),
+        eng_title: str = Form(None),
         url: Optional[str] = Form(None),
         description: Optional[str] = Form(None),
         avatar: Optional[str] = Form(None),
@@ -37,12 +39,13 @@ async def add_movie(
         age_restriction: Optional[int] = Form(None),
         duration: Optional[int] = Form(None),
         category_id: Optional[int] = Form(None),
-        producer:Optional[List[str]] = Form(None),
+        producer: Optional[List[str]] = Form(None),
         screenwriter: Optional[List[str]] = Form(None),
         operator: Optional[List[str]] = Form(None),
         composer: Optional[List[str]] = Form(None),
         actors: Optional[List[str]] = Form(None),
         editor: Optional[List[str]] = Form(None),
+        genres: Optional[List[int]] = Form(None),
 ):
     try:
         # Проверка на существующий фильм
@@ -57,6 +60,7 @@ async def add_movie(
         new_movie_data = MoveCreateSchema(
             title=title,
             url=url,
+            eng_title=eng_title,
             description=description,
             avatar=avatar,
             release_year=release_year,
@@ -72,6 +76,7 @@ async def add_movie(
             composer=composer,
             actors=actors,
             editor=editor,
+            genres=genres,
         )
 
         # Создаем фильм
@@ -84,13 +89,13 @@ async def add_movie(
 
         logger.info("Фильм %s успешно добавлен", new_movie.title)
 
-        return {
+        return JSONResponse(status_code=201, content={
             "success": True,
             "message": "Фильм успешно добавлен",
             "data": {
                 "title": new_movie.title,
             },
-        }
+        })
 
     except HTTPException as e:
         logger.error("Ошибка при добавлении фильма: %s", e.detail)
@@ -100,6 +105,67 @@ async def add_movie(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Произошла ошибка сервера. Попробуйте позже.",
+        )
+
+
+@router.patch(
+    path="/update_movie/{movie_id}",
+    summary="Обновить данные фильма",
+    response_description="Обновленный фильм",
+    status_code=status.HTTP_200_OK
+)
+async def update_movie_handler(
+        movie_id: int,
+        movie_data: MovieUpdateSchema,
+        session: AsyncSession = Depends(get_db),
+):
+    try:
+        # Проверяем существование фильма
+        existing_movie = await session.get(movie.Movie, movie_id)
+        if not existing_movie:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Фильм не найден"
+            )
+
+        # Обновляем фильм
+        updated_movie = await MovesCRUD.update_movie(
+            session=session,
+            movie_id=movie_id,
+            movie_data=movie_data
+        )
+
+        if not updated_movie:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Ошибка при обновлении фильма"
+            )
+
+        # Формируем ответ
+        movies_data = form_movies_data([updated_movie])
+
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "Фильм успешно обновлен",
+                "data": movies_data[0] if movies_data else {}
+            }
+        )
+
+    except HTTPException as e:
+        raise e
+    except ValueError as e:
+        logger.error(f"Ошибка валидации: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(e)
+        )
+    except Exception as e:
+        logger.error(f"Ошибка при обновлении фильма: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Внутренняя ошибка сервера"
         )
 
 
@@ -117,8 +183,10 @@ async def get_movies(session: AsyncSession = Depends(get_db)):
                                 content={"error": "Фильмы не найдены."})
 
         movies_data = form_movies_data(movies)
-        logger.info("Фильмы получен")
-        return movies_data
+        logger.info("Фильмы получены")
+        return JSONResponse(status_code=200, content={
+            "movies": movies_data
+        })
 
     except Exception as exc:
         logger.error('Ошибка поиске фильма: %s', exc)
@@ -137,7 +205,9 @@ async def get_movies_by_title_and_description(
     if not movies:
         raise HTTPException(status_code=404, detail="Фильмы не найдены")
     movies_data = form_movies_data(movies)
-    return {"movies": movies_data}
+    return JSONResponse(status_code=200, content={
+        "movies": movies_data
+    })
 
 
 @router.get(
@@ -150,21 +220,31 @@ async def get_movies_by_genre(
         genre: str = Query(...),
 ):
     try:
+        # Получаем список объектов Movie
         movies = await MovesCRUD.search_movies_by_genre(session, genre_name=genre)
+
         if not movies:
             logger.info('Фильмы не найдены')
-            return JSONResponse(status_code=404,
-                                content={"error": "Фильмы не найдены."})
+            return JSONResponse(
+                status_code=404,
+                content={"error": "Фильмы не найдены."}
+            )
 
+        # Предполагаем, что form_movies_data принимает список Movie
         movies_data = form_movies_data(movies)
+
         logger.info("Фильмы получены")
-        return JSONResponse(status_code=200, content={
-            "movies": movies_data
-        })
+        return JSONResponse(
+            status_code=200,
+            content={"movies": movies_data}
+        )
 
     except Exception as exc:
-        logger.error('Ошибка поиске фильма: %s', exc)
-
+        logger.error('Ошибка при поиске фильмов: %s', exc)
+        return JSONResponse(
+            status_code=500,
+            content={"error": "Внутренняя ошибка сервера."}
+        )
 
 @router.get(
     path="/get_movie_by_title",
@@ -172,15 +252,15 @@ async def get_movies_by_genre(
     response_model=MovieResponseSchema,
     response_description="Список фильмов"
 )
-async def get_movie_by_title(title: str, session: AsyncSession = Depends(get_db)) -> MovieResponseSchema:
+async def get_movie_by_title(title: str, session: AsyncSession = Depends(get_db)):
     try:
         # Получение фильма из базы данных
         movie = await MovesCRUD.get_movie(session, title=title)
         if movie is None:
             logger.info("Фильм '%s' не найден", title)
             raise HTTPException(status_code=404, detail="Фильм не найден")
-
-        return movie
+        movies_data = form_movies_data(movie)
+        return movies_data
     except HTTPException:
         raise
     except Exception as e:

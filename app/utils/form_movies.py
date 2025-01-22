@@ -1,24 +1,10 @@
 from app.schemas.Movie import MovieResponseSchema
+from app.models import movie
 
-import json
-from typing import List, Union
+from typing import Optional
 
-def parse_string_to_list(value: Union[str, List[str], None]) -> List[str]:
-    """Преобразует строку в список. Если значение уже список, возвращает его."""
-    if value is None:
-        return []
-    if isinstance(value, list):
-        return value
-    try:
-        # Удаляем лишние символы и преобразуем строку в список
-        value = value.strip()
-        if value.startswith("{") and value.endswith("}"):
-            value = "[" + value[1:-1] + "]"
-        return json.loads(value)
-    except (json.JSONDecodeError, AttributeError):
-        return []
 
-def form_movies_data(movies: list) -> list[dict]:
+def form_movies_data(movies: list | Optional[movie.Movie]) -> list[dict]:
     movies_data = []
     for movie in movies:
         movie_dict = {
@@ -40,7 +26,8 @@ def form_movies_data(movies: list) -> list[dict]:
             "operator": movie.operator,
             "composer": movie.composer,
             "actors": movie.actors,
-            "editor": parse_string_to_list(movie.editor) if hasattr(movie, "editor") else [],
+            "editor": movie.editor,
+            "genres": movie.genres,
         }
         movies_data.append(MovieResponseSchema(**movie_dict).dict())
     return movies_data
