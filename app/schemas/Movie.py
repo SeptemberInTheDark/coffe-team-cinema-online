@@ -34,12 +34,12 @@ class MoveCreateSchema(BaseModel):
     age_restriction: Optional[int] = None
     duration: Optional[int] = None
     category_id: Optional[int] = None
-    producer: Optional[str] = None
-    screenwriter: Optional[str] = None
-    operator: Optional[List[str]] = None
-    composer: Optional[List[str]] = None
-    actors: Optional[List[str]] = None
-    editor: Optional[List[str]] = None
+    producer: List[str] | None
+    screenwriter: List[str] | None
+    operator: List[str] | None
+    composer: List[str] | None
+    actors: List[str] | None
+    editor: List[str] | None
     class Config:
         from_attributes = True
 
@@ -58,9 +58,9 @@ class MovieResponseSchema(BaseModel):
     age_restriction: Optional[int] = None
     duration: Optional[int] = None
     category_id: Optional[int] = None
-    producer: Optional[str] = None
-    screenwriter: Optional[str] = None
-    operator: Optional[List[str]] = None
+    producer: List[str] | None
+    screenwriter: List[str] | None
+    operator: List[str] | None
     composer: Optional[List[str]] = None
     actors: Optional[List[str]] = None
     editor: Optional[List[str]] = None

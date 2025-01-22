@@ -37,9 +37,9 @@ def form_movies_data(movies: list) -> list[dict]:
             "category_id": movie.category_id,
             "producer": movie.producer,
             "screenwriter": movie.screenwriter,
-            "operator": parse_string_to_list(movie.operator) if hasattr(movie, "operator") else [],
-            "composer": parse_string_to_list(movie.composer) if hasattr(movie, "composer") else [],
-            "actors": parse_string_to_list(movie.actors) if hasattr(movie, "actors") else [],
+            "operator": movie.operator,
+            "composer": movie.composer,
+            "actors": movie.actors,
             "editor": parse_string_to_list(movie.editor) if hasattr(movie, "editor") else [],
         }
         movies_data.append(MovieResponseSchema(**movie_dict).dict())
