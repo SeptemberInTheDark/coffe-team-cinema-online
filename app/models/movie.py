@@ -1,8 +1,13 @@
-from sqlalchemy import Column, Integer, ForeignKey, Text, Date
-from sqlalchemy.dialects.postgresql import VARCHAR
+from typing import List
+
+from sqlalchemy import Column, Integer, ForeignKey, Text, Date, JSON
+from sqlalchemy.dialects.postgresql import VARCHAR, JSONB
 from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.init_db import BaseModel
+
+
 # from .user import User
 
 
@@ -28,7 +33,7 @@ class Trailer(BaseModel):
     __table_args__ = {"schema": "public"}
 
     id = Column(Integer, primary_key=True, index=True)
-    movie_id = Column(Integer,ForeignKey("public.movie.id"), nullable=False)
+    movie_id = Column(Integer, ForeignKey("public.movie.id"), nullable=False)
     name = Column(VARCHAR, nullable=True)
     url_trailer = Column(Text, nullable=True)
 
@@ -95,13 +100,10 @@ class Movie(BaseModel):
     part = Column(Integer, nullable=True)
     age_restriction = Column(Integer, nullable=True)
     duration = Column(Integer, nullable=True)
-    category_id = Column(Integer,ForeignKey("public.category.id"), nullable=True)
-    producer = Column(VARCHAR, nullable=True)
-    screenwriter = Column(VARCHAR, nullable=True)
-    operator = Column(ARRAY(VARCHAR), nullable=True)
-    composer = Column(ARRAY(VARCHAR), nullable=True)
-    actors = Column(ARRAY(VARCHAR), nullable=True)
-    editor = Column(ARRAY(VARCHAR), nullable=True)
-
-
-
+    category_id = Column(Integer, ForeignKey("public.category.id"), nullable=True)
+    producer: Mapped[List[str]] = mapped_column(JSON)
+    screenwriter: Mapped[List[str]] = mapped_column(JSON)
+    operator: Mapped[List[str]] = mapped_column(JSON)
+    composer: Mapped[List[str]] = mapped_column(JSON)
+    actors: Mapped[List[str]] = mapped_column(JSON)
+    editor: Mapped[List[str]] = mapped_column(JSON)
