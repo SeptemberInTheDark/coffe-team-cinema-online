@@ -1,14 +1,11 @@
 from typing import List
 
 from sqlalchemy import Column, Integer, ForeignKey, Text, Date, JSON
-from sqlalchemy.dialects.postgresql import VARCHAR, JSONB
-from sqlalchemy.dialects.postgresql import ARRAY
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.dialects.postgresql import VARCHAR
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.init_db import BaseModel
 
-
-# from .user import User
 
 
 class Genre(BaseModel):
@@ -17,6 +14,7 @@ class Genre(BaseModel):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(VARCHAR, nullable=False)
+    movies_link = relationship("GenreMovie", back_populates="genre")
 
 
 class GenreMovie(BaseModel):
@@ -26,6 +24,9 @@ class GenreMovie(BaseModel):
     id = Column(Integer, primary_key=True, index=True)
     genre_id = Column(Integer, ForeignKey("public.genre.id"), nullable=False)
     movie_id = Column(Integer, ForeignKey("public.movie.id"), nullable=False)
+
+    genre = relationship("Genre", back_populates="movies_link")
+    movie = relationship("Movie", back_populates="genres_link")
 
 
 class Trailer(BaseModel):
@@ -107,3 +108,4 @@ class Movie(BaseModel):
     composer: Mapped[List[str]] = mapped_column(JSON)
     actors: Mapped[List[str]] = mapped_column(JSON)
     editor: Mapped[List[str]] = mapped_column(JSON)
+    genres_link = relationship("GenreMovie", back_populates="movie")
