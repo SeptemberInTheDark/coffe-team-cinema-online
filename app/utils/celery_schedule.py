@@ -1,17 +1,19 @@
 import datetime
 
+
 from celery import Celery
 from celery.schedules import crontab
 from app.utils.mail_service import send_email
+from app.core.config import settings
 
-celery_app = Celery('email_sending', broker='redis://0.0.0.0:6379/0') # TODO вынести в конфиг
+celery_app = Celery('email_sending', broker=settings.REDIS_URL)
 celery_app.conf.update(
-    timezone='UTC',  # Укажите нужный вам часовой пояс, например, 'Europe/Moscow'
+    timezone='UTC',
     enable_utc=True,
-    beat_schedule={  # Добавляем расписание задач
+    beat_schedule={
         'sending-mails': {
             'task': 'send_email',
-            'schedule': crontab(minute='*/1'), # TODO заменить время на необходимое
+            'schedule': crontab(day_of_week="sunday",  hour="18", minute="00"), # TODO переместить время в конфиг
         },
     },
 )

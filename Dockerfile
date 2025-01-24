@@ -36,4 +36,6 @@ COPY . .
 ENV PATH="/app/venv/bin:$PATH"
 
 # Команда для запуска приложения
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["sh", "-c", "python -m uvicorn app.main:app --host 0.0.0.0 --port 8080 & \
+    python -m celery -A app.utils.celery_schedule worker --loglevel=info & \
+    python -m celery -A app.utils.celery_schedule.celery_app beat --loglevel=INFO"]
