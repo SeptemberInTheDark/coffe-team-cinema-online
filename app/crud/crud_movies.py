@@ -1,9 +1,11 @@
-from sqlalchemy import select, delete
+from datetime import datetime
+
+from sqlalchemy import select, delete, extract, func, and_, desc, asc
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import or_
-from typing import Optional
+from typing import Optional, List
 
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, selectinload
 
 from app.models.movie import GenreMovie, Genre
 from app.schemas.Movie import MoveCreateSchema
@@ -17,7 +19,11 @@ class MovesCRUD:
 
     @staticmethod
     async def get_movie(session: AsyncSession, **kwargs) -> Optional[movie.Movie]:
-        return await session.scalar(select(movie.Movie).filter_by(**kwargs))
+        return await session.scalar(
+            select(movie.Movie)
+            .options(selectinload(movie.Movie.genres_link))
+            .filter_by(**kwargs)
+        )
 
     @staticmethod
     async def get_movies_filter(session: AsyncSession, skip: int = 0, limit: int = 20, **kwargs, ):
@@ -26,8 +32,13 @@ class MovesCRUD:
 
     @staticmethod
     async def get_all_movies(session: AsyncSession, skip: int = 0, limit: int = 20):
-        result = await session.scalars(select(movie.Movie).offset(skip).limit(limit))
-        return result.all()
+        result = await session.scalars(
+            select(movie.Movie)
+            .options(selectinload(movie.Movie.genres_link))
+            .offset(skip)
+            .limit(limit)
+        )
+        return result.unique().all()
 
     @staticmethod
     async def create_movies(
@@ -179,13 +190,99 @@ class MovesCRUD:
     ):
         query = (
             select(movie.Movie)
+            .options(selectinload(movie.Movie.genres_link))
             .join(GenreMovie, GenreMovie.movie_id == movie.Movie.id)
             .join(Genre, Genre.id == GenreMovie.genre_id)
             .where(Genre.name == genre_name)
-            .options(joinedload(movie.Movie.genres_link))
             .offset(skip)
             .limit(limit)
         )
+        result = await session.scalars(query)
+        return result.unique().all()
+
+    @staticmethod
+    async def filter_movies(
+            session: AsyncSession,
+            title: Optional[str] = None,
+            release_year: Optional[int] = None,
+            director: Optional[str] = None,
+            country: Optional[str] = None,
+            age_restriction: Optional[int] = None,
+            category_id: Optional[int] = None,
+            genres: Optional[List[int]] = None,
+            min_duration: Optional[int] = None,
+            max_duration: Optional[int] = None,
+            created_after: Optional[datetime] = None,
+            created_before: Optional[datetime] = None,
+            sort_by: Optional[str] = None,
+            sort_order: str = "asc",
+            skip: int = 0,
+            limit: int = 20
+    ):
+        query = select(movie.Movie).options(
+            joinedload(movie.Movie.genres_link)
+        )
+        filters = []
+
+        # Базовые фильтры
+        if title:
+            filters.append(movie.Movie.title.ilike(f"%{title}%"))
+        if director:
+            filters.append(movie.Movie.director.ilike(f"%{director}%"))
+        if country:
+            filters.append(movie.Movie.country.ilike(f"%{country}%"))
+        if age_restriction is not None:
+            filters.append(movie.Movie.age_restriction == age_restriction)
+        if category_id is not None:
+            filters.append(movie.Movie.category_id == category_id)
+        if release_year is not None:
+            filters.append(extract('year', movie.Movie.release_year) == release_year)
+        if min_duration is not None:
+            filters.append(movie.Movie.duration >= min_duration)
+        if max_duration is not None:
+            filters.append(movie.Movie.duration <= max_duration)
+
+        # Фильтрация по created_at
+        if created_after or created_before:
+            if created_after and created_before:
+                filters.append(movie.Movie.created_at.between(created_after, created_before))
+            else:
+                if created_after:
+                    filters.append(movie.Movie.created_at >= created_after)
+                if created_before:
+                    filters.append(movie.Movie.created_at <= created_before)
+
+        # Фильтр по жанрам
+        if genres:
+            subquery = (
+                select(GenreMovie.movie_id)
+                .where(GenreMovie.genre_id.in_(genres))
+                .group_by(GenreMovie.movie_id)
+                .having(func.count(GenreMovie.genre_id) >= len(genres))
+            ).alias()
+            query = query.join(subquery, movie.Movie.id == subquery.c.movie_id)
+
+        if filters:
+            query = query.where(and_(*filters))
+
+        # Сортировка
+        sort_mapping = {
+            "created_at": movie.Movie.created_at,
+            "release_year": movie.Movie.release_year,
+            "duration": movie.Movie.duration,
+            "title": movie.Movie.title
+        }
+
+        if sort_by and sort_by in sort_mapping:
+            sort_field = sort_mapping[sort_by]
+            if sort_order.lower() == "desc":
+                query = query.order_by(desc(sort_field))
+            else:
+                query = query.order_by(asc(sort_field))
+        else:
+            query = query.order_by(asc(movie.Movie.created_at))  # Сортировка по умолчанию
+
+        query = query.offset(skip).limit(limit)
 
         result = await session.scalars(query)
         return result.unique().all()

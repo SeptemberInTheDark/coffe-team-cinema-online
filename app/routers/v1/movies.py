@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Query, status
@@ -89,13 +89,13 @@ async def add_movie(
 
         logger.info("Фильм %s успешно добавлен", new_movie.title)
 
-        return JSONResponse(status_code=201, content={
-            "success": True,
-            "message": "Фильм успешно добавлен",
-            "data": {
-                "title": new_movie.title,
-            },
-        })
+        return JSONResponse(
+            status_code=201,
+            content={
+                "success": True,
+                "data": form_movies_data([new_movie])[0]
+            }
+        )
 
     except HTTPException as e:
         logger.error("Ошибка при добавлении фильма: %s", e.detail)
@@ -148,8 +148,7 @@ async def update_movie_handler(
             status_code=200,
             content={
                 "success": True,
-                "message": "Фильм успешно обновлен",
-                "data": movies_data[0] if movies_data else {}
+                "data": form_movies_data([updated_movie])[0]
             }
         )
 
@@ -175,21 +174,11 @@ async def update_movie_handler(
     response_description="Список фильмов"
 )
 async def get_movies(session: AsyncSession = Depends(get_db)):
-    try:
-        movies = await MovesCRUD.get_all_movies(session)
-        if not movies:
-            logger.info('Фильмы не найдены')
-            return JSONResponse(status_code=404,
-                                content={"error": "Фильмы не найдены."})
-
-        movies_data = form_movies_data(movies)
-        logger.info("Фильмы получены")
-        return JSONResponse(status_code=200, content={
-            "movies": movies_data
-        })
-
-    except Exception as exc:
-        logger.error('Ошибка поиске фильма: %s', exc)
+    movies = await MovesCRUD.get_all_movies(session)
+    return JSONResponse(
+        status_code=200,
+        content={"movies": form_movies_data(movies)}
+    )
 
 
 @router.get(
@@ -246,26 +235,96 @@ async def get_movies_by_genre(
             content={"error": "Внутренняя ошибка сервера."}
         )
 
+
 @router.get(
     path="/get_movie_by_title",
     summary="Получить фильм по названию",
-    response_model=MovieResponseSchema,
-    response_description="Список фильмов"
+    response_description="Данные фильма"
 )
 async def get_movie_by_title(title: str, session: AsyncSession = Depends(get_db)):
+    mov = await MovesCRUD.get_movie(session, title=title)
+    if not mov:
+        raise HTTPException(status_code=404, detail="Фильм не найден")
+    return JSONResponse(
+        status_code=200,
+        content=form_movies_data([mov])[0]
+    )
+
+
+@router.get(
+    path="/filter_movies",
+    summary="Фильтрация фильмов",
+    response_description="Отфильтрованный список фильмов"
+)
+async def filter_movies(
+        session: AsyncSession = Depends(get_db),
+        title: Optional[str] = Query(None),
+        release_year: Optional[int] = Query(None),
+        director: Optional[str] = Query(None),
+        country: Optional[str] = Query(None),
+        age_restriction: Optional[int] = Query(None, ge=0, le=21),
+        category_id: Optional[int] = Query(None),
+        genres: Optional[List[int]] = Query(None),
+        min_duration: Optional[int] = Query(None, description="Минимальная длительность в минутах"),
+        max_duration: Optional[int] = Query(None, description="Максимальная длительность в минутах"),
+        created_after: Optional[datetime] = Query(
+            None,
+            description="Фильтр по дате создания (>=), формат: YYYY-MM-DDTHH:MM:SS"
+        ),
+        created_before: Optional[datetime] = Query(
+            None,
+            description="Фильтр по дате создания (<=), формат: YYYY-MM-DDTHH:MM:SS"
+        ),
+        sort_by: Optional[str] = Query(
+            None,
+            description="Поле для сортировки (created_at, release_year, duration, title)"
+        ),
+        sort_order: str = Query(
+            "asc",
+            description="Направление сортировки: asc/desc",
+            regex="^(asc|desc)$"
+        ),
+        skip: int = 0,
+        limit: int = 20
+):
     try:
-        # Получение фильма из базы данных
-        movie = await MovesCRUD.get_movie(session, title=title)
-        if movie is None:
-            logger.info("Фильм '%s' не найден", title)
-            raise HTTPException(status_code=404, detail="Фильм не найден")
-        movies_data = form_movies_data(movie)
-        return movies_data
-    except HTTPException:
-        raise
+        movies = await MovesCRUD.filter_movies(
+            session=session,
+            title=title,
+            release_year=release_year,
+            director=director,
+            country=country,
+            age_restriction=age_restriction,
+            category_id=category_id,
+            genres=genres,
+            min_duration=min_duration,
+            max_duration=max_duration,
+            created_after=created_after,  # Добавлено
+            created_before=created_before,  # Добавлено
+            sort_by=sort_by,  # Добавлено
+            sort_order=sort_order,  # Добавлено
+            skip=skip,
+            limit=limit
+        )
+
+        if not movies:
+            return JSONResponse(
+                status_code=404,
+                content={"message": "Фильмы не найдены"}
+            )
+
+        movies_data = form_movies_data(movies)
+        return JSONResponse(
+            status_code=200,
+            content={"movies": movies_data}
+        )
+
     except Exception as e:
-        logger.error("Ошибка при получении фильма '%s': %s", title, e)
-        raise HTTPException(status_code=500, detail=f"Ошибка при получении фильма: {e}")
+        logger.error(f"Ошибка фильтрации: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail="Ошибка при фильтрации фильмов"
+        )
 
 
 @router.delete(

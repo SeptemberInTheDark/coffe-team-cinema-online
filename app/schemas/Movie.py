@@ -1,7 +1,7 @@
-from datetime import date
+from datetime import date, datetime
 from typing import Optional, List
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_serializer
 from app.utils.logging import AppLogger
 
 logger = AppLogger().get_logger()
@@ -38,7 +38,7 @@ class MovieResponseSchema(BaseModel):
     url: str | None
     description: str | None
     avatar: str | None
-    release_year: str | None
+    release_year: date | None
     director: str | None
     country: str | None
     part: int | None
@@ -52,6 +52,15 @@ class MovieResponseSchema(BaseModel):
     actors: List[str] | None
     editor: List[str] | None
     genres: List[int] | None
+    created_at: datetime
+    updated_at: datetime
+
+    @field_serializer("release_year", "created_at", "updated_at")
+    def serialize_dates(self, value: date | datetime | None) -> str | None:
+        if value is None:
+            return None
+        return value.isoformat()
+
     class Config:
         from_attributes = True
 
