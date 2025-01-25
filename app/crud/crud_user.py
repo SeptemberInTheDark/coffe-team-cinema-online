@@ -1,6 +1,6 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.models.user import User
+from app.models.user import User, Notification
 from app.utils.manager import user_hash_manager
 from typing import Optional, Tuple
 from app.utils.logging import AppLogger
@@ -71,3 +71,32 @@ class UserCRUD:
     # На потом
     def update_user_info():
         pass
+
+
+class NotificationCRUD:
+    @staticmethod
+    async def create_notification(db: AsyncSession, email: str):
+
+        new_notification = Notification(
+            email=email,
+        )
+
+        try:
+            db.add(new_notification)
+            await db.commit()
+            await db.refresh(new_notification)
+        except Exception as e:
+            await db.rollback()
+            logger.error("Error creating notification: %s", e)
+            return False
+        return new_notification
+
+    @staticmethod
+    async def get_notifications(db: AsyncSession):
+        try:
+            result = await db.execute(select(Notification))
+            notifications = result.all()
+            return notifications
+        except Exception as e:
+            logger.error("Error getting notifications: %s", e)
+            return False

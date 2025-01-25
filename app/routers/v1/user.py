@@ -1,10 +1,10 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Form
 from fastapi.exceptions import HTTPException
 from fastapi.responses import JSONResponse
 from app.core.init_db import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.crud.crud_user import UserCRUD
 
+from app.crud.crud_user import UserCRUD, NotificationCRUD
 from app.schemas.User import User
 from app.utils.logging import AppLogger
 
@@ -127,3 +127,32 @@ async def get_current_user_by_login(login: str, db: AsyncSession = Depends(get_d
     except Exception as e:
         logger.error("Ошибка при получении пользователя по login:\n %s", e)
         raise HTTPException(status_code=500, detail={f"Ошибка при получении пользователя: {e}"})
+
+
+@router.post(
+    "/sign_up_for_notifications",
+    summary="Подписаться на уведомления",
+)
+async def sign_up_for_notifications(db: AsyncSession = Depends(get_db), email: str = Form(...),):
+    try:
+        await NotificationCRUD.create_notification(db, email)
+        logger.info("Пользователь %s подписался на уведомления", email)
+        return JSONResponse(status_code=200, content={"message": "Уведомления подписаны"})
+    except Exception as e:
+        logger.error("Ошибка при подписке на уведомления:\n %s", e)
+        raise HTTPException(status_code=500, detail={f"Ошибка при подписке на уведомления: {e}"})
+
+
+@router.get(
+    "/notifications",
+    summary="Получить список всех уведомлений",
+)
+async def get_all_notifications(db: AsyncSession = Depends(get_db)):
+    try:
+        notifications = await NotificationCRUD.get_notifications(db)
+        
+
+        return JSONResponse(status_code=200, content={"notifications": notifications})
+    except Exception as e:
+        logger.error("Ошибка при получении уведомления:\n %s", e)
+        raise HTTPException(status_code=500, detail={f"Ошибка при получении уведомления: {e}"})

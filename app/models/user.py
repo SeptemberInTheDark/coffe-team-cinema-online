@@ -4,6 +4,14 @@ from sqlalchemy.dialects.postgresql import VARCHAR
 from app.core.init_db import BaseModel
 
 
+class Notification(BaseModel):
+    __tablename__ = "notification"
+    __table_args__ = {"schema": "public"}
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(VARCHAR(length=255), nullable=False)
+
+
 class Like(BaseModel):
     __tablename__ = "like"
     __table_args__ = {"schema": "public"}

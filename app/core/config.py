@@ -29,6 +29,11 @@ class Settings(BaseSettings):
     PHONE_VALIDATOR: str
     EMAIL_VALIDATOR: str
 
+    #Mail service
+    DAY_OF_WEEK: str = "sunday"
+    HOUR: str | None = "18"
+    MINUTE: str = "00"
+
     DATABASE_URL_TEST: str
 
     REDIS_URL: str
