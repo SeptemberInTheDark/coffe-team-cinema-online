@@ -1,77 +1,61 @@
-from sqlmodel import Field, Relationship, SQLModel
-from typing import List, Optional
-from app.models.movie import MovieRating, MovieComments
-from app.models.news import NewsViews, NewsComments
+from sqlalchemy import Column, Integer, Boolean, JSON, ForeignKey, CHAR, Text
+from sqlalchemy.dialects.postgresql import VARCHAR
+
+from app.core.init_db import BaseModel
 
 
-class Like(SQLModel, table=True):
+class Like(BaseModel):
     __tablename__ = "like"
     __table_args__ = {"schema": "public"}
 
-    id: int = Field(primary_key=True, index=True)
-    user_id: int = Field(foreign_key="public.user.id", nullable=False)
-    movie_id: int = Field(foreign_key=("public.movie.id"), nullable=False)
-    like: bool = Field(default=False, nullable=False)
-
-    user: "User" = Relationship(back_populates="likes")
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("public.user.id"), nullable=False)
+    movie_id = Column(Integer, ForeignKey("public.movie.id"), nullable=False)
+    like = Column(Boolean, default=False, nullable=False)
 
 
-class Favorite(SQLModel, table=True):
+class Favorite(BaseModel):
     __tablename__ = "favorite"
     __table_args__ = {"schema": "public"}
 
-    id: int = Field(primary_key=True, index=True)
-    user_id: int = Field(foreign_key="public.user.id", nullable=False)
-    movie_id = Field(foreign_key="public.movie.id", nullable=False)
-    heart: bool = Field(default=True, nullable=False)
-
-    user: "User" = Relationship(back_populates="favorites")
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("public.user.id"), nullable=False)
+    movie_id = Column(Integer, ForeignKey("public.movie.id"), nullable=True)
+    heart = Column(Boolean, default=False)
 
 
-class Role(SQLModel, table=True):
+class Role(BaseModel):
     __tablename__ = "role"
     __table_args__ = {"schema": "public"}
 
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(VARCHAR(length=50), nullable=False)
+    permissions = Column(JSON, nullable=True)
 
-    id: int = Field(primary_key=True, index=True)
-    name: str = Field(max_length=50, nullable=False)
-    permissions: Optional[dict] = Field(sa_column_kwargs={"nullable": True}) # JSON ????
 
-    users: List["User"] = Relationship(back_populates="role")
-
-class SocialNetworks(SQLModel, table=True):
+class SocialNetworks(BaseModel):
     __tablename__ = "social_networks"
     __table_args__ = {"schema": "public"}
 
-    id: int = Field(primary_key=True, index=True)
-    user_id: int = Field(foreign_key="public.user.id", nullable=False)
-    name: str = Field(max_length=50, nullable=False)
-    url: str = Field(nullable=False)
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("public.user.id"), nullable=False)
+    name = Column(VARCHAR(length=50), nullable=True)
+    url = Column(Text, nullable=True)
 
-    user: "User" = Relationship(back_populates="social_networks")
 
-class User(SQLModel, table=True):
+class User(BaseModel):
     __tablename__ = "user"
     __table_args__ = {"schema": "public"}
 
-    id: int = Field(primary_key=True, index=True)
-    avatar: str | None = Field(max_length=255, nullable=True)
-    username: str = Field(max_length=255, nullable=False)
-    first_name: str | None = Field(max_length=255, nullable=True)
-    last_name: str| None = Field(max_length=255, nullable=True)
-    email: str = Field(max_length=255, nullable=False, unique=True, index=True)
-    phone: str = Field(max_length=255, nullable=False, unique=True, index=True)
-    hashed_password: str = Field(nullable=False)
-    is_active: bool = Field(default=True, nullable=False)
-    role_id: int = Field(foreign_key="public.user.id", nullable=False)
-    country: str | None = Field(max_length=255, nullable=True)
-    gender: str | None = Field(max_length=1, nullable=True)
-
-    role: Role = Relationship(back_populates="users")
-    social_networks: List[SocialNetworks] = Relationship(back_populates="user")
-    likes: List[Like] = Relationship(back_populates="user")
-    favorites: List[Favorite] = Relationship(back_populates="user")
-    comments: List["MovieComments"] = Relationship(back_populates="user")
-    ratings: List["MovieRating"] = Relationship(back_populates="user")
-    news_views: List["NewsViews"] = Relationship(back_populates="user")
-    news_comments: List["NewsComments"] = Relationship(back_populates="user")
+    id = Column(Integer, primary_key=True, index=True)
+    avatar = Column(VARCHAR(length=255), nullable=True)
+    username = Column(VARCHAR(length=255), nullable=False)
+    first_name = Column(VARCHAR(length=255), nullable=True)
+    last_name = Column(VARCHAR(length=255), nullable=True)
+    email = Column(VARCHAR(length=255), nullable=False, unique=True, index=True)
+    phone = Column(VARCHAR(length=20), nullable=False, unique=True, index=True)
+    hashed_password = Column(Text, nullable=False)
+    is_active = Column(Boolean, default=False)
+    role_id = Column(Integer, ForeignKey("public.role.id"), nullable=True)
+    country = Column(VARCHAR(length=255), nullable=True)
+    gender = Column(CHAR(length=1), nullable=True)

@@ -1,45 +1,74 @@
+from datetime import date, datetime
 from typing import Optional, List
-from pydantic import BaseModel, ConfigDict, Field
+
+from pydantic import BaseModel, ConfigDict, Field, field_serializer
 from app.utils.logging import AppLogger
 
 logger = AppLogger().get_logger()
 
 
-class MovieSchema(BaseModel):
-    id: int | None = None
-    is_active: str
-    title: str
-    description: str
-    photo: str
-    release_year: int
-    director: str
-    actors: str
-    duration: int
-    genre_id: int
-    is_active: Optional[bool] = True
-
-
 class MoveCreateSchema(BaseModel):
     title: str
-    url_movie: str
-    description: str
-    photo: str
-    release_year: int
-    director: str
-    actors: List[str]
-    duration: int
-    genre_name: str
+    eng_title: str | None
+    url: str | None
+    description: str | None
+    avatar: str | None
+    release_year: date | None
+    director: str | None
+    country: str | None
+    part: int | None
+    age_restriction: int | None
+    duration: int | None
+    category_id: Optional[int] = None
+    producer: List[str] | None
+    screenwriter: List[str] | None
+    operator: List[str] | None
+    composer: List[str] | None
+    actors: List[str] | None
+    editor: List[str] | None
+    genres: List[int] | None
     class Config:
         from_attributes = True
 
+
+class MovieResponseSchema(BaseModel):
+    id: int
+    title: str
+    eng_title: str | None
+    url: str | None
+    description: str | None
+    avatar: str | None
+    release_year: date | None
+    director: str | None
+    country: str | None
+    part: int | None
+    age_restriction: int | None
+    duration: int | None
+    category_id: int | None
+    producer: List[str] | None
+    screenwriter: List[str] | None
+    operator: List[str] | None
+    composer: List[str] | None
+    actors: List[str] | None
+    editor: List[str] | None
+    genres: List[int] | None
+    created_at: datetime
+    updated_at: datetime
+
+    @field_serializer("release_year", "created_at", "updated_at")
+    def serialize_dates(self, value: date | datetime | None) -> str | None:
+        if value is None:
+            return None
+        return value.isoformat()
+
+    class Config:
+        from_attributes = True
 
 class GenreCreateSchema(BaseModel):
     name: str
     model_config = ConfigDict(from_attributes=True)
 
-class ActorCreateSchema(BaseModel):
-    name: str = Field(..., max_length=255, description="Имя актера")
-    description: str = Field(..., description="Описание актера")
-    photo: str = Field(..., description="Ссылка на фото актера")
-    movies: List[str] = Field(..., description="Список фильмов, в которых снимался актер")
+class MovieUpdateSchema(MoveCreateSchema):
+    title: str | None
+    genres: List[int]| None
 

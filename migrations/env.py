@@ -8,6 +8,9 @@ from alembic import context
 
 from app.models.user import *
 from app.models.movie import *
+from app.models.actor import *
+from app.models.news import *
+from app.models.reward import *
 
 from app.core.config import settings
 from app.core.init_db import BaseModel

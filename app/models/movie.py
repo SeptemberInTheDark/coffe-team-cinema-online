@@ -1,131 +1,111 @@
-from sqlmodel import Field, Relationship, SQLModel
 from typing import List
-from datetime import date
 
-from .actor import Actor, ActorMovie
-from .reward import RewardMovie
-from .user import User
+from sqlalchemy import Column, Integer, ForeignKey, Text, Date, JSON
+from sqlalchemy.dialects.postgresql import VARCHAR
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from app.core.init_db import BaseModel
 
 
-class Genre(SQLModel, table=True):
+
+class Genre(BaseModel):
     __tablename__ = "genre"
     __table_args__ = {"schema": "public"}
 
-    id: int = Field(primary_key=True, index=True)
-    name: str = Field(nullable=False)
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(VARCHAR, nullable=False)
+    movies_link = relationship("GenreMovie", back_populates="genre")
 
-    movies: List["Movie"] = Relationship(back_populates="genres", link_model="GenreMovie")
 
-
-class GenreMovie(SQLModel, table=True):
+class GenreMovie(BaseModel):
     __tablename__ = "genre_movie"
     __table_args__ = {"schema": "public"}
 
-    id: int = Field(primary_key=True, index=True)
-    genre_id: int = Field(foreign_key="public.genre.id", nullable=False)
-    movie_id: int = Field(foreign_key="public.movie.id", nullable=False)
+    id = Column(Integer, primary_key=True, index=True)
+    genre_id = Column(Integer, ForeignKey("public.genre.id"), nullable=False)
+    movie_id = Column(Integer, ForeignKey("public.movie.id"), nullable=False)
+
+    genre = relationship("Genre", back_populates="movies_link")
+    movie = relationship("Movie", back_populates="genres_link")
 
 
-class Trailer(SQLModel, table=True):
+class Trailer(BaseModel):
     __tablename__ = "trailer"
     __table_args__ = {"schema": "public"}
 
-    id: int = Field(primary_key=True, index=True)
-    movie_id: int = Field(foreign_key="public.movie.id", nullable=False)
-    name: str = Field(nullable=False)
-    url_trailer: str = Field(nullable=False)
-
-    movie: "Movie" = Relationship(back_populates="trailers")
+    id = Column(Integer, primary_key=True, index=True)
+    movie_id = Column(Integer, ForeignKey("public.movie.id"), nullable=False)
+    name = Column(VARCHAR, nullable=True)
+    url_trailer = Column(Text, nullable=True)
 
 
-class Category(SQLModel, table=True):
+class Category(BaseModel):
     __tablename__ = "category"
     __table_args__ = {"schema": "public"}
 
-    id: int = Field(primary_key=True, index=True)
-    name: str = Field(nullable=False)
-
-    movies: List["Movie"] = Relationship(back_populates="category")
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(VARCHAR, nullable=False)
 
 
-class Poster(SQLModel, table=True):
+class Poster(BaseModel):
     __tablename__ = "poster"
     __table_args__ = {"schema": "public"}
 
-    id: int = Field(primary_key=True, index=True)
-    movie_id: int = Field(foreign_key="public.movie.id", nullable=False)
-    photo: str = Field(nullable=False)
-
-    movie: "Movie" = Relationship(back_populates="posters")
+    id = Column(Integer, primary_key=True, index=True)
+    movie_id = Column(Integer, ForeignKey("public.movie.id"), nullable=False)
+    photo = Column(VARCHAR, nullable=True)
 
 
-class Photo(SQLModel, table=True):
+class Photo(BaseModel):
     __tablename__ = "photo"
     __table_args__ = {"schema": "public"}
 
-    id: int = Field(primary_key=True, index=True)
-    movie_id: int = Field(foreign_key="public.movie.id", nullable=False)
-    photo: str = Field(nullable=False)
-
-    movie: "Movie" = Relationship(back_populates="photos")
+    id = Column(Integer, primary_key=True, index=True)
+    movie_id = Column(Integer, ForeignKey("public.movie.id"), nullable=False)
+    photo = Column(VARCHAR, nullable=True)
 
 
-class MovieComments(SQLModel, table=True):
+class MovieComments(BaseModel):
     __tablename__ = "movie_comments"
     __table_args__ = {"schema": "public"}
 
-    id: int = Field(primary_key=True, index=True)
-    user_id: int = Field(foreign_key="public.user.id", nullable=False)
-    movie_id: int = Field(foreign_key="public.movie.id", nullable=False)
-    text: str = Field(nullable=False)
-
-    movie: "Movie" = Relationship(back_populates="comments")
-    user: "User" = Relationship(back_populates="comments")
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("public.user.id"), nullable=False)
+    movie_id = Column(Integer, ForeignKey("public.movie.id"), nullable=False)
+    text = Column(Text, nullable=True)
 
 
-class MovieRating(SQLModel, table=True):
+class MovieRating(BaseModel):
     __tablename__ = "movie_rating"
     __table_args__ = {"schema": "public"}
 
-    id: int = Field(primary_key=True, index=True)
-    user_id: int = Field(foreign_key="public.user.id", nullable=False)
-    movie_id: int = Field(foreign_key="public.movie.id", nullable=False)
-    rating: str = Field(nullable=False)
-
-    movie: "Movie" = Relationship(back_populates="ratings")
-    user: "User" = Relationship(back_populates="ratings")
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("public.user.id"), nullable=False)
+    movie_id = Column(Integer, ForeignKey("public.movie.id"), nullable=False)
+    rating = Column(Integer, nullable=True)
 
 
-class Movie(SQLModel, table=True):
+class Movie(BaseModel):
     __tablename__ = "movie"
     __table_args__ = {"schema": "public"}
 
-    id: int = Field(primary_key=True, index=True)
-    url: str = Field(nullable=False)
-    title: str = Field(nullable=False)
-    eng_title: str = Field(nullable=False)
-    description: str = Field(nullable=False)
-    avatar: str = Field(nullable=False)
-    release_year: date = Field(nullable=False)
-    director: str = Field(nullable=False)
-    country: str = Field(nullable=False)
-    part: int = Field(nullable=False)
-    age_restriction: int = Field(nullable=False)
-    duration: int = Field(nullable=False)
-    category_id: int = Field(foreign_key="public.category.id", nullable=False)
-    producer: str = Field(nullable=False)
-    screenwriter: str = Field(nullable=False)
-    operator: str = Field(nullable=False)
-    composer: str = Field(nullable=False)
-    artist: str = Field(nullable=False)
-    editor: str = Field(nullable=False)
-
-    actors: List[Actor] = Relationship(back_populates="movies", link_model=ActorMovie)
-    category: "Category" = Relationship(back_populates="movies")
-    ratings: List["MovieRating"] = Relationship(back_populates="movie")
-    trailers: List["Trailer"] = Relationship(back_populates="movie")
-    posters: List["Poster"] = Relationship(back_populates="movie")
-    photos: List["Photo"] = Relationship(back_populates="movie")
-    comments: List["MovieComments"] = Relationship(back_populates="movie")
-    genres: List["Genre"] = Relationship(back_populates="movies", link_model="GenreMovie")
-    rewards: List["RewardMovie"] = Relationship(back_populates="movie")
+    id = Column(Integer, primary_key=True, index=True)
+    url = Column(Text, nullable=True)
+    title = Column(VARCHAR, nullable=False)
+    eng_title = Column(VARCHAR, nullable=True)
+    description = Column(Text, nullable=True)
+    avatar = Column(VARCHAR, nullable=True)
+    release_year = Column(Date, nullable=True)
+    director = Column(VARCHAR, nullable=True)
+    country = Column(VARCHAR, nullable=True)
+    part = Column(Integer, nullable=True)
+    age_restriction = Column(Integer, nullable=True)
+    duration = Column(Integer, nullable=True)
+    category_id = Column(Integer, ForeignKey("public.category.id"), nullable=True)
+    producer: Mapped[List[str]] = mapped_column(JSON)
+    screenwriter: Mapped[List[str]] = mapped_column(JSON)
+    operator: Mapped[List[str]] = mapped_column(JSON)
+    composer: Mapped[List[str]] = mapped_column(JSON)
+    actors: Mapped[List[str]] = mapped_column(JSON)
+    editor: Mapped[List[str]] = mapped_column(JSON)
+    genres_link = relationship("GenreMovie", back_populates="movie")

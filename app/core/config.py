@@ -47,6 +47,18 @@ class Settings(BaseSettings):
     #Trace ID
     TRACE_ID_REQUEST_HEADER_KEY: str = 'X-Request-ID'
 
+    # GOOGLE_CLIENT_ID: str
+    # GOOGLE_CLIENT_SECRET: str
+    # GOOGLE_REDIRECT_URI: str
+    #
+    # YANDEX_CLIENT_ID: str
+    # YANDEX_CLIENT_SECRET: str
+    # YANDEX_REDIRECT_URI: str
+    #
+    # MAILRU_CLIENT_ID: str
+    # MAILRU_CLIENT_SECRET: str
+    # MAILRU_REDIRECT_URI: str
+
     #CORS
     CORS_ALLOWED_ORIGINS: list[str] = [
         'http://127.0.0.1:8000',
