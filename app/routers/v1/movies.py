@@ -333,14 +333,14 @@ async def filter_movies(
     response_description="Удаленный фильм"
 )
 async def delete_movie(session: AsyncSession = Depends(get_db),
-                       title: str = Form(...)):
+                       film_id: int = Form(...)):
     try:
-        deleted = await MovesCRUD.delete_movie(session, title=title)
+        deleted = await MovesCRUD.delete_movie(session, id=film_id)
         if deleted:
-            logger.info("Фильм %s удален", title)
-            return JSONResponse(status_code=200, content={"message": f"Фильм '{title}' успешно удален."})
+            logger.info("Фильм %s удален", id=film_id)
+            return JSONResponse(status_code=200, content={"message": f"Фильм '{film_id}' успешно удален."})
         else:
-            logger.info("Фильм с названием %s не найден", title)
+            logger.info("Фильм с названием %s не найден", film_id)
             return JSONResponse(status_code=404, content={"error": "Фильм не найден."})
 
     except Exception as exc:

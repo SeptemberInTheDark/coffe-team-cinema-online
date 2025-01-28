@@ -19,11 +19,9 @@ class MovesCRUD:
 
     @staticmethod
     async def get_movie(session: AsyncSession, **kwargs) -> Optional[movie.Movie]:
-        return await session.scalar(
-            select(movie.Movie)
-            .options(selectinload(movie.Movie.genres_link))
-            .filter_by(**kwargs)
-        )
+        query = select(movie.Movie).filter_by(**kwargs)
+        result = await session.execute(query)
+        return result.scalars().first()
 
     @staticmethod
     async def get_movies_filter(session: AsyncSession, skip: int = 0, limit: int = 20, **kwargs, ):
@@ -67,7 +65,7 @@ class MovesCRUD:
             )
 
             session.add(new_movie)
-            await session.flush()  # Получаем ID фильма без коммита
+            await session.flush()
 
             # Добавляем жанры
             if movie_data.genres:
@@ -87,7 +85,7 @@ class MovesCRUD:
                     session.add(genre_movie)
 
             await session.commit()
-            await session.refresh(new_movie)
+            await session.refresh(new_movie, ["genres_link"])
             return new_movie
 
         except Exception as e:
