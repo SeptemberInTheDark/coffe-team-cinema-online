@@ -2,7 +2,6 @@ from datetime import datetime
 
 from sqlalchemy import select, delete, extract, func, and_, desc, asc
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import or_
 from typing import Optional, List
 
 from sqlalchemy.orm import joinedload, selectinload
@@ -93,7 +92,6 @@ class MovesCRUD:
             logger.error("Ошибка при создании фильма: %s", str(e))
             return None
 
-
     @staticmethod
     async def delete_movie(session: AsyncSession, **kwargs) -> bool:
         film = await session.scalar(select(movie.Movie).filter_by(**kwargs))
@@ -153,7 +151,7 @@ class MovesCRUD:
                     ])
 
             await session.commit()
-            await session.refresh(existing_movie)
+            await session.refresh(existing_movie, ["genres_link"])
             return existing_movie
 
         except Exception as e:
@@ -161,46 +159,10 @@ class MovesCRUD:
             logger.error(f"Ошибка при обновлении фильма: {str(e)}")
             return None
 
-
-    @staticmethod
-    async def search_movies(session: AsyncSession, query: str, skip: int = 0, limit: int = 20):
-        """
-        Поиск фильмов по любому слову из title и description.
-        """
-        search_query = f"%{query}%"
-        result = await session.scalars(
-            select(movie.Movie)
-            .where(or_(
-                movie.Movie.title.ilike(search_query),
-                movie.Movie.description.ilike(search_query)
-            ))
-            .offset(skip)
-            .limit(limit)
-        )
-        return result.all()
-
-    @staticmethod
-    async def search_movies_by_genre(
-            session: AsyncSession,
-            genre_name: str,
-            skip: int = 0,
-            limit: int = 20
-    ):
-        query = (
-            select(movie.Movie)
-            .options(selectinload(movie.Movie.genres_link))
-            .join(GenreMovie, GenreMovie.movie_id == movie.Movie.id)
-            .join(Genre, Genre.id == GenreMovie.genre_id)
-            .where(Genre.name == genre_name)
-            .offset(skip)
-            .limit(limit)
-        )
-        result = await session.scalars(query)
-        return result.unique().all()
-
     @staticmethod
     async def filter_movies(
             session: AsyncSession,
+            movie_id: Optional[int] = None,
             title: Optional[str] = None,
             release_year: Optional[int] = None,
             director: Optional[str] = None,
@@ -223,6 +185,8 @@ class MovesCRUD:
         filters = []
 
         # Базовые фильтры
+        if movie_id:
+            filters.append(movie.Movie.id == movie_id)
         if title:
             filters.append(movie.Movie.title.ilike(f"%{title}%"))
         if director:
