@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from typing import Optional, List
 
-from pydantic import BaseModel, ConfigDict, Field, field_serializer
+from pydantic import BaseModel, ConfigDict, field_serializer
 from app.utils.logging import AppLogger
 
 logger = AppLogger().get_logger()
@@ -27,6 +27,7 @@ class MoveCreateSchema(BaseModel):
     actors: List[str] | None
     editor: List[str] | None
     genres: List[int] | None
+
     class Config:
         from_attributes = True
 
@@ -64,11 +65,12 @@ class MovieResponseSchema(BaseModel):
     class Config:
         from_attributes = True
 
+
 class GenreCreateSchema(BaseModel):
     name: str
     model_config = ConfigDict(from_attributes=True)
 
+
 class MovieUpdateSchema(MoveCreateSchema):
     title: str | None
-    genres: List[int]| None
-
+    genres: List[int] | None

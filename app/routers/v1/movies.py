@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.init_db import get_db
 from app.crud.crud_movies import MovesCRUD
 from app.models import movie
-from app.schemas.Movie import MoveCreateSchema, MovieResponseSchema, MovieUpdateSchema
+from app.schemas.Movie import MoveCreateSchema
 from fastapi.responses import JSONResponse
 
 from app.utils.form_movies import form_movies_data
@@ -116,7 +116,25 @@ async def add_movie(
 )
 async def update_movie_handler(
         movie_id: int,
-        movie_data: MovieUpdateSchema,
+        title: str = Form(None),
+        eng_title: str = Form(None),
+        url: Optional[str] = Form(None),
+        description: Optional[str] = Form(None),
+        avatar: Optional[str] = Form(None),
+        release_year: Optional[date] = Form(None),
+        director: Optional[str] = Form(None),
+        country: Optional[str] = Form(None),
+        part: Optional[int] = Form(None),
+        age_restriction: Optional[int] = Form(None),
+        duration: Optional[int] = Form(None),
+        category_id: Optional[int] = Form(None),
+        producer: Optional[List[str]] = Form(None),
+        screenwriter: Optional[List[str]] = Form(None),
+        operator: Optional[List[str]] = Form(None),
+        composer: Optional[List[str]] = Form(None),
+        actors: Optional[List[str]] = Form(None),
+        editor: Optional[List[str]] = Form(None),
+        genres: Optional[List[int]] = Form(None),
         session: AsyncSession = Depends(get_db),
 ):
     try:
@@ -128,11 +146,33 @@ async def update_movie_handler(
                 detail="Фильм не найден"
             )
 
+        update_movie_data = MoveCreateSchema(
+            title=title,
+            url=url,
+            eng_title=eng_title,
+            description=description,
+            avatar=avatar,
+            release_year=release_year,
+            director=director,
+            country=country,
+            part=part,
+            age_restriction=age_restriction,
+            duration=duration,
+            category_id=category_id,
+            producer=producer,
+            screenwriter=screenwriter,
+            operator=operator,
+            composer=composer,
+            actors=actors,
+            editor=editor,
+            genres=genres,
+        )
+
         # Обновляем фильм
         updated_movie = await MovesCRUD.update_movie(
             session=session,
             movie_id=movie_id,
-            movie_data=movie_data
+            movie_data=update_movie_data
         )
 
         if not updated_movie:
@@ -140,9 +180,6 @@ async def update_movie_handler(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Ошибка при обновлении фильма"
             )
-
-        # Формируем ответ
-        movies_data = form_movies_data([updated_movie])
 
         return JSONResponse(
             status_code=200,
@@ -182,82 +219,13 @@ async def get_movies(session: AsyncSession = Depends(get_db)):
 
 
 @router.get(
-    path="/search_movies_by_title_and_description",
-    summary="Получить фильмы по ключевому запросу",
-    response_description="Список фильмов"
-)
-async def get_movies_by_title_and_description(
-        query: str = Query(..., description="Ключевое слово для поиска"),
-        session: AsyncSession = Depends(get_db)
-):
-    movies = await MovesCRUD.search_movies(session, query=query)
-    if not movies:
-        raise HTTPException(status_code=404, detail="Фильмы не найдены")
-    movies_data = form_movies_data(movies)
-    return JSONResponse(status_code=200, content={
-        "movies": movies_data
-    })
-
-
-@router.get(
-    path="/search_movies_by_genre",
-    summary="Получить фильмы по жанру",
-    response_description="Список фильмов"
-)
-async def get_movies_by_genre(
-        session: AsyncSession = Depends(get_db),
-        genre: str = Query(...),
-):
-    try:
-        # Получаем список объектов Movie
-        movies = await MovesCRUD.search_movies_by_genre(session, genre_name=genre)
-
-        if not movies:
-            logger.info('Фильмы не найдены')
-            return JSONResponse(
-                status_code=404,
-                content={"error": "Фильмы не найдены."}
-            )
-
-        # Предполагаем, что form_movies_data принимает список Movie
-        movies_data = form_movies_data(movies)
-
-        logger.info("Фильмы получены")
-        return JSONResponse(
-            status_code=200,
-            content={"movies": movies_data}
-        )
-
-    except Exception as exc:
-        logger.error('Ошибка при поиске фильмов: %s', exc)
-        return JSONResponse(
-            status_code=500,
-            content={"error": "Внутренняя ошибка сервера."}
-        )
-
-
-@router.get(
-    path="/get_movie_by_title",
-    summary="Получить фильм по названию",
-    response_description="Данные фильма"
-)
-async def get_movie_by_title(title: str, session: AsyncSession = Depends(get_db)):
-    mov = await MovesCRUD.get_movie(session, title=title)
-    if not mov:
-        raise HTTPException(status_code=404, detail="Фильм не найден")
-    return JSONResponse(
-        status_code=200,
-        content=form_movies_data([mov])[0]
-    )
-
-
-@router.get(
     path="/filter_movies",
     summary="Фильтрация фильмов",
     response_description="Отфильтрованный список фильмов"
 )
 async def filter_movies(
         session: AsyncSession = Depends(get_db),
+        movie_id: int = Query(None),
         title: Optional[str] = Query(None),
         release_year: Optional[int] = Query(None),
         director: Optional[str] = Query(None),
@@ -290,6 +258,7 @@ async def filter_movies(
     try:
         movies = await MovesCRUD.filter_movies(
             session=session,
+            movie_id=movie_id,
             title=title,
             release_year=release_year,
             director=director,
@@ -333,14 +302,14 @@ async def filter_movies(
     response_description="Удаленный фильм"
 )
 async def delete_movie(session: AsyncSession = Depends(get_db),
-                       title: str = Form(...)):
+                       film_id: int = Form(...)):
     try:
-        deleted = await MovesCRUD.delete_movie(session, title=title)
+        deleted = await MovesCRUD.delete_movie(session, id=film_id)
         if deleted:
-            logger.info("Фильм %s удален", title)
-            return JSONResponse(status_code=200, content={"message": f"Фильм '{title}' успешно удален."})
+            logger.info("Фильм %s удален", id=film_id)
+            return JSONResponse(status_code=200, content={"message": f"Фильм '{film_id}' успешно удален."})
         else:
-            logger.info("Фильм с названием %s не найден", title)
+            logger.info("Фильм с названием %s не найден", film_id)
             return JSONResponse(status_code=404, content={"error": "Фильм не найден."})
 
     except Exception as exc:
