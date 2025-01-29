@@ -14,7 +14,7 @@ class Genre(BaseModel):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(VARCHAR, nullable=False)
-    movies_link = relationship("GenreMovie", back_populates="genre")
+    movies_link = relationship("GenreMovie", back_populates="genre", cascade="all, delete-orphan")
 
 
 class GenreMovie(BaseModel):
@@ -108,4 +108,4 @@ class Movie(BaseModel):
     composer: Mapped[List[str]] = mapped_column(JSON)
     actors: Mapped[List[str]] = mapped_column(JSON)
     editor: Mapped[List[str]] = mapped_column(JSON)
-    genres_link = relationship("GenreMovie", back_populates="movie")
+    genres_link = relationship("GenreMovie", back_populates="movie", cascade="all, delete-orphan")
