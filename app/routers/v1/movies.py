@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.init_db import get_db
 from app.crud.crud_movies import MovesCRUD
+from app.crud.crud_genre_movie import GenreMovieCRUD
 from app.models import movie
 from app.schemas.Movie import MoveCreateSchema
 from fastapi.responses import JSONResponse
@@ -145,6 +146,8 @@ async def update_movie_handler(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Фильм не найден"
             )
+        # Получем id жанра
+        get_genres_id = await GenreMovieCRUD.get_genre_id(session=session, movie_id=movie_id)
 
         update_movie_data = MoveCreateSchema(
             title=title if title is not None else existing_movie.title,
@@ -165,8 +168,7 @@ async def update_movie_handler(
             composer=composer if composer is not None else existing_movie.composer,
             actors=actors if actors is not None else existing_movie.actors,
             editor=editor if editor is not None else existing_movie.editor,
-            #TODO Доработать  обновление жанра
-            genres=genres,
+            genres=genres if genres is not None else [get_genres_id.genre_id],
         )
 
         # Обновляем фильм
