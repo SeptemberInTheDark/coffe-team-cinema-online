@@ -8,10 +8,7 @@ logger = AppLogger().get_logger()
 
 
 def get_server(mail_host: str, mail_port: int):
-    return smtplib.SMTP_SSL(
-        host=mail_host,
-        port=mail_port
-    )
+    return smtplib.SMTP_SSL(host=mail_host, port=mail_port)
 
 
 def send_email(subject: str, content: str, receiver: str):
@@ -25,7 +22,6 @@ def send_email(subject: str, content: str, receiver: str):
         mail.add_header("from", sender)
         mail.add_header("to", receiver)
         mail.set_content(content)
-        
 
         server.login(sender, password)
         server.send_message(mail)

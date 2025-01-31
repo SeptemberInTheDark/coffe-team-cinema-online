@@ -8,7 +8,6 @@ from app.utils.logging import AppLogger
 logger = AppLogger().get_logger()
 
 
-
 class UserCRUD:
     @staticmethod
     async def get_user(db: AsyncSession, **kwargs) -> Optional[User]:
@@ -19,13 +18,13 @@ class UserCRUD:
         result = await session.scalars(select(User).offset(skip).limit(limit))
         return result.all()
 
-    async def check_user(session: AsyncSession, username: str, email: str, phone: str) -> Optional[User]:
+    async def check_user(
+        session: AsyncSession, username: str, email: str, phone: str
+    ) -> Optional[User]:
         try:
             result = await session.execute(
                 select(User).where(
-                    (username == User.username) |
-                    (User.email == email) |
-                    (User.phone == phone)
+                    (username == User.username) | (User.email == email) | (User.phone == phone)
                 )
             )
             existing_user = result.scalar_one_or_none()
@@ -35,14 +34,12 @@ class UserCRUD:
             return None
 
     @staticmethod
-    async def get_user_credentials(db: AsyncSession, username:str) -> Optional[Tuple[str, str]]:
+    async def get_user_credentials(db: AsyncSession, username: str) -> Optional[Tuple[str, str]]:
         secrets_info = await db.execute(
-            select(User.hashed_password)
-            .where(User.username == username)
+            select(User.hashed_password).where(User.username == username)
         )
         credentials = secrets_info.scalar_one_or_none()
         return credentials
-
 
     @staticmethod
     async def create_user(db: AsyncSession, user: User) -> Optional[User | bool]:
@@ -54,7 +51,7 @@ class UserCRUD:
             phone=user.phone,
             hashed_password=hashed_password,
             is_active=user.is_active,
-            role_id=2
+            role_id=2,
         )
 
         try:
@@ -76,7 +73,6 @@ class UserCRUD:
 class NotificationCRUD:
     @staticmethod
     async def create_notification(db: AsyncSession, email: str):
-
         new_notification = Notification(
             email=email,
         )

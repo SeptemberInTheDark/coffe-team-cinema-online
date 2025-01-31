@@ -1,6 +1,3 @@
-import datetime
-
-
 from celery import Celery
 from celery.schedules import crontab
 
@@ -15,24 +12,23 @@ import asyncio
 logger = AppLogger().get_logger()
 
 
-celery_app = Celery('email_sending', broker=settings.REDIS_URL)
+celery_app = Celery("email_sending", broker=settings.REDIS_URL)
 celery_app.conf.update(
-    timezone='UTC',
+    timezone="UTC",
     enable_utc=True,
     beat_schedule={
-        'sending-mails': {
-            'task': 'send_email',
-            'schedule': crontab(day_of_week=settings.DAY_OF_WEEK,
-                                hour=settings.HOUR,
-                                minute=settings.MINUTE
-                                ), # TODO переместить время в конфиг
+        "sending-mails": {
+            "task": "send_email",
+            "schedule": crontab(
+                day_of_week=settings.DAY_OF_WEEK, hour=settings.HOUR, minute=settings.MINUTE
+            ),  # TODO переместить время в конфиг
         },
     },
 )
 
-@celery_app.task(name='send_email')
-def send_notifications():
 
+@celery_app.task(name="send_email")
+def send_notifications():
     db = AsyncSessionFactory()
 
     async def get_notifications_async():
@@ -50,7 +46,6 @@ def send_notifications():
         send_email("test_subject", "test_message", notification.email)
         logger.info(f"Email sent to {notification.email}")
     return
-        
 
 
 # Запуск Celery
