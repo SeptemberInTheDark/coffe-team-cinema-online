@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.init_db import get_db
 from app.crud.crud_movies import MovesCRUD
+from app.crud.crud_genre_movie import GenreMovieCRUD
 from app.models import movie
 from app.schemas.Movie import MoveCreateSchema
 from fastapi.responses import JSONResponse
@@ -145,27 +146,29 @@ async def update_movie_handler(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Фильм не найден"
             )
+        # Получем id жанра
+        get_genres_id = await GenreMovieCRUD.get_genre_id(session=session, movie_id=movie_id)
 
         update_movie_data = MoveCreateSchema(
-            title=title,
-            url=url,
-            eng_title=eng_title,
-            description=description,
-            avatar=avatar,
-            release_year=release_year,
-            director=director,
-            country=country,
-            part=part,
-            age_restriction=age_restriction,
-            duration=duration,
-            category_id=category_id,
-            producer=producer,
-            screenwriter=screenwriter,
-            operator=operator,
-            composer=composer,
-            actors=actors,
-            editor=editor,
-            genres=genres,
+            title=title if title is not None else existing_movie.title,
+            url=url if url is not None else existing_movie.url,
+            eng_title=eng_title if eng_title is not None else existing_movie.eng_title,
+            description=description if description is not None else existing_movie.description,
+            avatar=avatar if avatar is not None else existing_movie.avatar,
+            release_year=release_year if release_year is not None else existing_movie.release_year,
+            director=director if director is not None else existing_movie.director,
+            country=country if country is not None else existing_movie.country,
+            part=part if part is not None else existing_movie.part,
+            age_restriction=age_restriction if age_restriction is not None else existing_movie.age_restriction,
+            duration=duration if duration is not None else existing_movie.duration,
+            category_id=category_id if category_id is not None else existing_movie.category_id,
+            producer=producer if producer is not None else existing_movie.producer,
+            screenwriter=screenwriter if screenwriter is not None else existing_movie.screenwriter,
+            operator=operator if operator is not None else existing_movie.operator,
+            composer=composer if composer is not None else existing_movie.composer,
+            actors=actors if actors is not None else existing_movie.actors,
+            editor=editor if editor is not None else existing_movie.editor,
+            genres=genres if genres is not None else [get_genres_id.genre_id],
         )
 
         # Обновляем фильм
