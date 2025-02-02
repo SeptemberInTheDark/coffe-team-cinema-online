@@ -1,10 +1,12 @@
+import pytest
 from httpx import AsyncClient
 from sqlalchemy import insert, select
 
-from src.movies.models import Movie
+from app.models.movie import Movie
 from conftest import async_session_maker
 
 
+@pytest.mark.asyncio
 async def test_add_movie(ac: AsyncClient):
     await ac.post("/api/genres/add_genre", data={
         "name": "Жанр Один"
@@ -29,11 +31,13 @@ async def test_add_movie(ac: AsyncClient):
     print(response.text)  # Выводим текст ответа для отладки
 
 
+@pytest.mark.asyncio
 async def test_search_movies_by_title_and_description(ac: AsyncClient):
     response = await ac.get("/api/movies/search_movies_by_title_and_description", params={"query": "Тест"})
     assert response.status_code == 200, f"Ожидался 200, но получен {response.status_code}"
 
 
+@pytest.mark.asyncio
 async def test_search_movies_by_genre(ac: AsyncClient):
     response = await ac.get("/api/movies/search_movies_by_genre", params={"genre": "Жанр Один"})
     assert response.status_code == 200, f"Ожидался 200, но получен {response.status_code}"

@@ -1,3 +1,4 @@
+import pytest
 from httpx import AsyncClient
 from sqlalchemy import insert, select
 
@@ -5,6 +6,7 @@ from app.models.movie import Genre
 from conftest import async_session_maker
 
 
+@pytest.mark.asyncio
 async def test_add_genre(ac: AsyncClient):
     response = await ac.post("/api/genres/add_genre", data={
         "name": "Тестовый жанр"
@@ -13,6 +15,7 @@ async def test_add_genre(ac: AsyncClient):
     assert response.json()["message"] == "Жанр успешно добавлен", "Сообщение должно быть 'Жанр успешно добавлен'"
 
 
+@pytest.mark.asyncio
 async def test_add_existing_genre(ac: AsyncClient):
     # Сначала добавим жанр
     await ac.post("/api/genres/add_genre", data={"name": "Тестовый жанр"})
