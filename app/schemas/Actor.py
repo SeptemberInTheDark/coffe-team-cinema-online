@@ -45,5 +45,18 @@ class ActorResponseSchema(BaseModel):
 
 
 class ActorUpdateSchema(ActorCreateSchema):
-    first_name: str | None
-    last_name: str | None
+    """
+    Схема для обновления данных актера.
+    Все поля необязательные, так как обновлять можно только часть данных.
+    """
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    eng_full_name: Optional[str] = None
+    biography: Optional[str] = None
+    avatar: Optional[str] = None
+    height: Optional[int] = None
+    date_of_birth: Optional[date] = None
+    place_of_birth: Optional[str] = None
+
+    class Config:
+        from_attributes = True  # Для совместимости с ORM
