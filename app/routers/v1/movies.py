@@ -12,7 +12,7 @@ from app.models import movie
 from app.schemas.Movie import MoveCreateSchema
 from fastapi.responses import JSONResponse
 
-from app.utils.form_movies import form_movies_data
+from app.utils.form_movies import form_movies_data, parse_form_data
 from app.utils.logging import AppLogger
 
 logger = AppLogger().get_logger()
@@ -28,29 +28,11 @@ router = APIRouter()
 )
 async def add_movie(
         session: AsyncSession = Depends(get_db),
-        title: str = Form(...),
-        eng_title: str = Form(None),
-        url: Optional[str] = Form(None),
-        description: Optional[str] = Form(None),
-        avatar: Optional[str] = Form(None),
-        release_year: Optional[date] = Form(None),
-        director: Optional[str] = Form(None),
-        country: Optional[str] = Form(None),
-        part: Optional[int] = Form(None),
-        age_restriction: Optional[int] = Form(None),
-        duration: Optional[int] = Form(None),
-        category_id: Optional[int] = Form(None),
-        producer: Optional[List[str]] = Form(None),
-        screenwriter: Optional[List[str]] = Form(None),
-        operator: Optional[List[str]] = Form(None),
-        composer: Optional[List[str]] = Form(None),
-        actors: Optional[List[str]] = Form(None),
-        editor: Optional[List[str]] = Form(None),
-        genres: Optional[List[int]] = Form(None),
+        form_data: dict = Depends(parse_form_data)
 ):
     try:
         # Проверка на существующий фильм
-        existing_movie = await MovesCRUD.get_movie(session, title=title)
+        existing_movie = await MovesCRUD.get_movie(session, title=form_data.get("title"))
         if existing_movie:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -58,27 +40,7 @@ async def add_movie(
             )
 
         # Создаем объект схемы Pydantic
-        new_movie_data = MoveCreateSchema(
-            title=title,
-            url=url,
-            eng_title=eng_title,
-            description=description,
-            avatar=avatar,
-            release_year=release_year,
-            director=director,
-            country=country,
-            part=part,
-            age_restriction=age_restriction,
-            duration=duration,
-            category_id=category_id,
-            producer=producer,
-            screenwriter=screenwriter,
-            operator=operator,
-            composer=composer,
-            actors=actors,
-            editor=editor,
-            genres=genres,
-        )
+        new_movie_data = MoveCreateSchema(**form_data)
 
         # Создаем фильм
         new_movie = await MovesCRUD.create_movies(session, new_movie_data)
