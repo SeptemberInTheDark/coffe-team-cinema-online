@@ -9,11 +9,13 @@ from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.ext.asyncio import async_sessionmaker
 from sqlalchemy.pool import NullPool
+from app.main import app
 
-from db import get_db, BaseModel
-from config import settings
-from backend.app.main import app
+from app.core.init_db import get_db, BaseModel
+from app.core.config import Settings
 
+# Create an instance of Settings
+settings = Settings()
 
 DATABASE_URL_TEST = settings.DATABASE_URL_TEST
 metadata = BaseModel.metadata
@@ -54,5 +56,5 @@ client = TestClient(app)
 
 @pytest.fixture(scope="session")
 async def ac() -> AsyncGenerator[AsyncClient, None]:
-    async with AsyncClient(app=app, base_url="http://test") as ac:
+    async with AsyncClient(base_url="http://127.0.0.1:8080") as ac: # в последней версии httpx не поддерживает аргумент app
         yield ac
