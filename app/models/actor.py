@@ -26,8 +26,3 @@ class Actor(BaseModel):
     height = Column(Integer, nullable=True)
     date_of_birth = Column(Date, nullable=True)
     place_of_birth = Column(VARCHAR, nullable=True)
-
-
-
-
-
