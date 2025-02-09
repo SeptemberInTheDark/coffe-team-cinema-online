@@ -31,7 +31,7 @@ async def test_create_role():
 
 @pytest.mark.asyncio
 async def test_user_registration(ac: AsyncClient):
-    response = await ac.post("/api/register", data={
+    response = await ac.post("/api/v1/register", data={
         "username": "test",
         "password": "test",
         "email": "test@test.com",
@@ -42,13 +42,13 @@ async def test_user_registration(ac: AsyncClient):
 
 @pytest.mark.asyncio
 async def test_get_all_users(ac: AsyncClient):
-    response = await ac.get("/api/users")
+    response = await ac.get("/api/v1/users")
     assert response.status_code == 200, f"Ожидался 200, но получен {response.status_code}"
 
 
 @pytest.mark.asyncio
 async def test_get_current_user_by_email(ac: AsyncClient):
-    response = await ac.get("/api/user/by_email/test@test.com")
+    response = await ac.get("/api/v1/users/by_email/test@test.com")
     assert response.status_code == 200, f"Ожидался 200, но получен {response.status_code}."
     user_email = response.json()
     assert user_email["user"]["login"] == "test", \
@@ -61,7 +61,7 @@ async def test_get_current_user_by_email(ac: AsyncClient):
 
 @pytest.mark.asyncio
 async def test_get_current_user_by_phone(ac: AsyncClient):
-    response = await ac.get("/api/user/by_phone/79999999999")
+    response = await ac.get("/api/v1/users/by_phone/79999999999")
     assert response.status_code == 200, f"Ожидался 200, но получен {response.status_code}."
     user_phone = response.json()
     assert user_phone["user"]["login"] == "test", \
@@ -74,7 +74,7 @@ async def test_get_current_user_by_phone(ac: AsyncClient):
 
 @pytest.mark.asyncio
 async def test_get_current_user_by_login(ac: AsyncClient):
-    response = await ac.get("/api/user/by_login/test")
+    response = await ac.get("/api/v1/users/by_login/test")
     assert response.status_code == 200, f"Ожидался 200, но получен {response.status_code}."
     user_login = response.json()
     assert user_login["user"]["login"] == "test", \
