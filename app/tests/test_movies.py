@@ -8,10 +8,10 @@ from conftest import async_session_maker
 
 @pytest.mark.asyncio
 async def test_add_movie(ac: AsyncClient):
-    await ac.post("/api/genres/add_genre", data={
-        "name": "Жанр Один"
+    await ac.post("/api/v1/api/genres/add_genre", data={
+        "name": "Боевик"
     })
-    response = await ac.post("/api/movies/add_movie", data={
+    response = await ac.post("/api/v1/api/movies/add_movie", data={
         "title": "Тестовый фильм",
         "eng_title": "Test film",
         "url": "http://example.com/test-movie",
@@ -43,11 +43,11 @@ async def test_add_movie(ac: AsyncClient):
 
 @pytest.mark.asyncio
 async def test_search_movies_by_title_and_description(ac: AsyncClient):
-    response = await ac.get("/api/movies/search_movies_by_title_and_description", params={"query": "Тест"})
+    response = await ac.get("/api/v1/api/movies/search_movies_by_title_and_description", params={"query": "Тест"})
     assert response.status_code == 200, f"Ожидался 200, но получен {response.status_code}"
 
 
 @pytest.mark.asyncio
 async def test_search_movies_by_genre(ac: AsyncClient):
-    response = await ac.get("/api/movies/search_movies_by_genre", params={"genre": "Боевик"})
+    response = await ac.get("/api/v1/api/movies/search_movies_by_genre", params={"genre": "Боевик"})
     assert response.status_code == 200, f"Ожидался 200, но получен {response.status_code}"
