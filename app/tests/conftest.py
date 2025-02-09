@@ -56,5 +56,5 @@ client = TestClient(app)
 
 @pytest.fixture(scope="session")
 async def ac() -> AsyncGenerator[AsyncClient, None]:
-    async with AsyncClient(app=app, base_url="http://test") as ac:
+    async with AsyncClient(base_url="http://127.0.0.1:8080") as ac: # в последней версии httpx не поддерживает аргумент app
         yield ac

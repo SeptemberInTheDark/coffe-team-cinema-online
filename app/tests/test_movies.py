@@ -13,14 +13,22 @@ async def test_add_movie(ac: AsyncClient):
     })
     response = await ac.post("/api/movies/add_movie", data={
         "title": "Тестовый фильм",
-        "url_movie": "http://example.com/test-movie",
+        "url": "http://example.com/test-movie",
         "description": "Описание тестового фильма.",
-        "photo": "http://example.com/photo.jpg",
-        "release_year": 2024,
+        "avatar": "http://example.com/photo.jpg",
+        "release_year": "2025-02-09",
         "director": "Тестовый режиссер",
-        "actors": ["Актер Один", "Актер Два"],  # Убедитесь, что это корректно обрабатывается
-        "duration": 120,
-        "genre_name": "Жанр Один"
+        "country": "Тестовая страна",
+        "part": 1,
+        "age_restriction": 18,
+        "duration": "120",
+        "category_id": 1,
+        "producer": ["producer 1","producer 2"],
+        "screenwriter": ["screenwriter 1","screenwriter 2"],
+        "operator": ["operator 1","operator 2"],
+        "composer": ["composer 1","composer 2"],
+        "actors": ["actors 1", "actors 2"],
+        "editor": ["editor 1", "editor 2"],
     })
     
     print(response.text)  # Выводим текст ответа для отладки
