@@ -1,9 +1,19 @@
 import pytest
 from httpx import AsyncClient
 from sqlalchemy import insert, select
+from sqlalchemy.testing.suite.test_reflection import users
 
 from app.models.user import Role
 from conftest import async_session_maker
+
+from sqlalchemy import delete
+from app.models.user import User
+
+@pytest.fixture(autouse=True)
+async def clear_users():
+    async with async_session_maker() as session:
+        await session.execute(delete(User))
+        await session.commit()
 
 # class Role(BaseModel):
 #     __tablename__ = "role"
@@ -42,13 +52,26 @@ async def test_user_registration(ac: AsyncClient):
 
 @pytest.mark.asyncio
 async def test_get_all_users(ac: AsyncClient):
+    response = await ac.post("/api/v1/register", data={
+        "username": "test",
+        "password": "test",
+        "email": "test@test.com",
+        "phone": "79999999999",
+    })
+
     response = await ac.get("/api/v1/users")
     assert response.status_code == 200, f"Ожидался 200, но получен {response.status_code}"
 
 
 @pytest.mark.asyncio
 async def test_get_current_user_by_email(ac: AsyncClient):
-    response = await ac.get("/api/v1/users/by_email/test@test.com")
+    response = await ac.post("/api/v1/register", data={
+        "username": "test",
+        "password": "test",
+        "email": "test@test.com",
+        "phone": "79999999999",
+    })
+    response = await ac.get("/api/v1/users/user/by_email/test@test.com")
     assert response.status_code == 200, f"Ожидался 200, но получен {response.status_code}."
     user_email = response.json()
     assert user_email["user"]["login"] == "test", \
@@ -57,11 +80,20 @@ async def test_get_current_user_by_email(ac: AsyncClient):
         f"Ожидался email = test@test.com, но получен email={user_email['user']['email']}"
     assert user_email["user"]["phone"] == "79999999999", \
         f"Ожидался phone = 79999999999, но получен phone={user_email['user']['phone']}"
-
+    async with async_session_maker() as session:
+        await session.execute(delete(User).where(User.username == "test"))
+        await session.commit()
 
 @pytest.mark.asyncio
 async def test_get_current_user_by_phone(ac: AsyncClient):
-    response = await ac.get("/api/v1/users/by_phone/79999999999")
+    response = await ac.post("/api/v1/register", data={
+        "username": "test",
+        "password": "test",
+        "email": "test@test.com",
+        "phone": "79999999999",
+    })
+
+    response = await ac.get("/api/v1/users/user/by_phone/79999999999")
     assert response.status_code == 200, f"Ожидался 200, но получен {response.status_code}."
     user_phone = response.json()
     assert user_phone["user"]["login"] == "test", \
@@ -70,11 +102,20 @@ async def test_get_current_user_by_phone(ac: AsyncClient):
         f"Ожидался email = test@test.com, но получен email={user_phone['user']['email']}"
     assert user_phone["user"]["phone"] == "79999999999", \
         f"Ожидался phone = 79999999999, но получен phone={user_phone['user']['phone']}"
-
+    async with async_session_maker() as session:
+        await session.execute(delete(User).where(User.username == "test"))
+        await session.commit()
 
 @pytest.mark.asyncio
 async def test_get_current_user_by_login(ac: AsyncClient):
-    response = await ac.get("/api/v1/users/by_login/test")
+    response = await ac.post("/api/v1/register", data={
+        "username": "test",
+        "password": "test",
+        "email": "test@test.com",
+        "phone": "79999999999",
+    })
+
+    response = await ac.get("/api/v1/users/user/by_login/test")
     assert response.status_code == 200, f"Ожидался 200, но получен {response.status_code}."
     user_login = response.json()
     assert user_login["user"]["login"] == "test", \
@@ -83,3 +124,6 @@ async def test_get_current_user_by_login(ac: AsyncClient):
         f"Ожидался email = test@test.com, но получен email={user_login['user']['email']}"
     assert user_login["user"]["phone"] == "79999999999", \
         f"Ожидался phone = 79999999999, но получен phone={user_login['user']['phone']}"
+    async with async_session_maker() as session:
+        await session.execute(delete(User).where(User.username == "test"))
+        await session.commit()
