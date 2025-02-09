@@ -44,6 +44,7 @@ async def test_add_movie(ac: AsyncClient):
 @pytest.mark.asyncio
 async def test_search_movies_by_title_and_description(ac: AsyncClient):
     response = await ac.get("/api/v1/api/movies/search_movies_by_title_and_description", params={"query": "Тест"})
+    print(response.text)
     assert response.status_code == 200, f"Ожидался 200, но получен {response.status_code}"
 
 
