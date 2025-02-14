@@ -23,7 +23,7 @@ RUN pip install virtualenv
 WORKDIR /app
 
 # Копирование файла зависимостей
-COPY requirements/dev.txt .
+COPY requirements.txt .
 
 # Создание виртуального окружения и установка зависимостей
 RUN virtualenv venv && \
