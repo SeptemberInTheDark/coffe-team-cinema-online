@@ -2,7 +2,6 @@ FROM python:3.11-alpine
 
 ENV PYTHONUNBUFFERED=1
 
-# Установка необходимых системных зависимостей для компиляции пакетов
 RUN apk add --no-cache \
     gcc \
     g++ \
@@ -16,24 +15,21 @@ RUN apk add --no-cache \
     openssl-dev \
     make
 
-# Установка virtualenv
 RUN pip install virtualenv
 
-# Установка рабочей директории
 WORKDIR /app
 
-# Копирование файла зависимостей
 COPY requirements.txt .
 
-# Создание виртуального окружения и установка зависимостей
 RUN virtualenv venv && \
     ./venv/bin/pip install -r requirements.txt
 
-# Копирование всего проекта в контейнер
 COPY . .
 
-# Добавление виртуального окружения в PATH
 ENV PATH="/app/venv/bin:$PATH"
 
-# Команда для запуска приложения
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8080"]
+# Копируем entrypoint-скрипт и делаем его исполняемым
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
+CMD ["/app/entrypoint.sh"]
