@@ -60,10 +60,7 @@ class Settings(BaseSettings):
     # MAILRU_REDIRECT_URI: str
 
     #CORS
-    CORS_ALLOWED_ORIGINS: list[str] = [
-        'http://127.0.0.1:8000',
-        'http://localhost:5173',
-    ]
+    CORS_ALLOWED_ORIGINS: list[str] = ["*"]
     CORS_EXPOSE_HEADERS: list[str] = [
         TRACE_ID_REQUEST_HEADER_KEY
     ]
