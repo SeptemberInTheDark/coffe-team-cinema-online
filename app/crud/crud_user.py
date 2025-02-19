@@ -69,5 +69,5 @@ class UserCRUD:
             return False
 
     # На потом
-    def update_user_info():
-        pass
+    # def update_user_info():
+    #     pass
