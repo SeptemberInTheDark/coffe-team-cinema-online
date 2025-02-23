@@ -119,3 +119,15 @@ class MovesCRUD:
             .limit(limit)
         )
         return result.all()
+
+    @staticmethod
+    async def search_movies_by_category(session: AsyncSession, category_id: int, skip: int = 0, limit: int = 20):
+        """
+        Поиск фильмов по названию категории.
+        """
+        result = await session.scalars(
+            select(models.Movie).where(models.Movie.category_id == category_id)
+            .offset(skip)
+            .limit(limit)
+        )
+        return result.all()

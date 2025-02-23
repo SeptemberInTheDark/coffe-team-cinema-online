@@ -10,7 +10,7 @@ from app.core.config import settings
 from app.core.init_db import AsyncSessionFactory
 from app.crud.crud_user import NotificationCRUD
 from app.crud.crud_movies import MovesCRUD
-from app.crud.crud_genre import GenreCRUD
+from app.crud.crud_category import CategoryCRUD
 from app.utils.logging import AppLogger
 import asyncio
 
@@ -34,12 +34,13 @@ celery_app.conf.update(
 
 async def proposal_creation():
     session = AsyncSessionFactory()
-    all_genres = await GenreCRUD.get_all_genres(session)
+    all_category = await CategoryCRUD.get_all_categories(session)
     proposals = {}
 
-    for genre in all_genres:
-        movies = await MovesCRUD.search_movies_by_genre(session, genre.genre_name, limit=3)
-        proposals[genre.genre_name] = movies
+    for category in all_category:
+        proposals[category.name] = await MovesCRUD.search_movies_by_category(session=session, category_id=category.id, limit=3)
+
+    logger.info("Proposals created: %s", proposals)
 
     return proposals
 
@@ -55,11 +56,9 @@ def send_notifications():
     loop = asyncio.get_event_loop()
     all_notifications = loop.run_until_complete(get_notifications_async())
 
-    async def get_movies_async():
-        return await NotificationCRUD.get_notifications(db)
 
     loop = asyncio.get_event_loop()
-    all_movies = loop.run_until_complete(get_movies_async())
+    all_movies = loop.run_until_complete(proposal_creation())
 
     # Проверка наличия уведомлений
     if not all_notifications:
