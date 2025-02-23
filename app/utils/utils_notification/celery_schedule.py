@@ -32,15 +32,16 @@ celery_app.conf.update(
     },
 )
 
+
 async def proposal_creation():
     session = AsyncSessionFactory()
     all_category = await CategoryCRUD.get_all_categories(session)
     proposals = {}
 
     for category in all_category:
-        proposals[category.name] = await MovesCRUD.search_movies_by_category(session=session, category_id=category.id, limit=3)
-
-    logger.info("Proposals created: %s", proposals)
+        proposals[category.name] = await MovesCRUD.search_movies_by_category(
+            session=session, category_id=category.id, limit=3
+        )
 
     return proposals
 
@@ -56,7 +57,6 @@ def send_notifications():
     loop = asyncio.get_event_loop()
     all_notifications = loop.run_until_complete(get_notifications_async())
 
-
     loop = asyncio.get_event_loop()
     all_movies = loop.run_until_complete(proposal_creation())
 
@@ -64,25 +64,22 @@ def send_notifications():
     if not all_notifications:
         logger.info("No notifications to send")
         return
-    
+
     # Загрузка HTML-шаблона
     with open("app/utils/utils_notification/email_template.html", "r") as file:
-            html_text = file.read()
+        html_text = file.read()
     email_template = Template(html_text)
 
     # Отправка уведомлений
     for tuple_notification in all_notifications:
         notification = tuple_notification[0]
 
-        print("all_movies", all_movies)
         # Рендеринг HTML-шаблона для конкретного пользователя
         html_content = email_template.render(
             username=notification.email,
             suggestions=all_movies,
         )
-        html_message = MIMEText(
-            html_content, "html", "utf-8"
-        )
+        html_message = MIMEText(html_content, "html", "utf-8")
 
         # Отправка уведомления
         send_email("test_subject", html_message, notification.email)

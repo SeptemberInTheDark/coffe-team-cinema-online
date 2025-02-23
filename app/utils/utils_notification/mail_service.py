@@ -1,5 +1,4 @@
 import smtplib
-from email.message import EmailMessage
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
@@ -19,7 +18,7 @@ def send_email(subject: str, html_content: MIMEText, receiver: str):
         sender = settings.SMTP_USER
         password = settings.SMTP_PASS
 
-        mail = MIMEMultipart('alternative')
+        mail = MIMEMultipart("alternative")
         mail.add_header("subject", subject)
         mail.add_header("from", sender)
         mail.add_header("to", receiver)
