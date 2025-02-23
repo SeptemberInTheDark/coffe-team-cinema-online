@@ -14,7 +14,7 @@ from app.crud.crud_news import NewsCRUD
 from app.schemas.News import NewsCreateSchema
 from fastapi.responses import JSONResponse
 
-from app.utils.form_news import form_news_data, parse_form_data
+from app.utils.form_news import form_news_data_main_page, parse_form_data, form_news_data_news_page
 from app.utils.logging import AppLogger
 
 logger = AppLogger().get_logger()
@@ -58,7 +58,7 @@ async def add_news(
             status_code=201,
             content={
                 "success": True,
-                "data": form_news_data([new_news])[0]
+                "data": form_news_data_main_page([new_news])[0]
             }
         )
 
@@ -78,11 +78,24 @@ async def add_news(
     summary="Получить все новости для главной страницы",
     response_description="Список новостей для главной страницы"
 )
-async def get_news(session: AsyncSession = Depends(get_db)):
-    news_list = await NewsCRUD.get_all_news_main_page(session)
+async def get_news_main_page(session: AsyncSession = Depends(get_db)):
+    news_list = await NewsCRUD.get_all_news(session)
     return JSONResponse(
         status_code=200,
-        content={"news": form_news_data(news_list)}
+        content={"news": form_news_data_main_page(news_list)}
+    )
+
+
+@router.get(
+    path="/get_news_news_page",
+    summary="Получить все новости для страницы новостей",
+    response_description="Список новостей для новостной страницы"
+)
+async def get_news_main_page(session: AsyncSession = Depends(get_db)):
+    news_list = await NewsCRUD.get_all_news(session)
+    return JSONResponse(
+        status_code=200,
+        content={"news": form_news_data_news_page(news_list)}
     )
 
 

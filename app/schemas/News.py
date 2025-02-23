@@ -7,24 +7,9 @@ from app.utils.logging import AppLogger
 logger = AppLogger().get_logger()
 
 
-class NewsCreateSchema(BaseModel):
-    title: str
-    sub_title: str | None
-    text_news: str | None
-    comment: int | None
-    source: str | None
-
-    class Config:
-        from_attributes = True
-
-
-class NewsResponseSchema(BaseModel):
+class NewsBaseSchema(BaseModel):
     id: int
     title: str
-    sub_title: str | None
-    text_news: str | None
-    comment: int | None
-    source: str | None
     created_at: datetime
     updated_at: datetime
 
@@ -36,3 +21,30 @@ class NewsResponseSchema(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class NewsCreateSchema(BaseModel):
+    title: str
+    sub_title: str | None
+    text_news: str | None
+    comment: int | None
+    source: str | None
+
+    class Config:
+        from_attributes = True
+
+
+class NewsResponseSchema(NewsBaseSchema):
+    sub_title: str | None
+    text_news: str | None
+    comment: int | None
+    source: str | None
+
+
+class NewsMainListResponseSchema(NewsBaseSchema):
+    sub_title: str | None
+    text_news: str | None
+
+
+class NewsListResponseSchema(NewsBaseSchema):
+    comment: int | None

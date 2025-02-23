@@ -22,7 +22,7 @@ class NewsCRUD:
         return result.scalars().first()
 
     @staticmethod
-    async def get_all_news_main_page(session: AsyncSession, skip: int = 0, limit: int = 20):
+    async def get_all_news(session: AsyncSession, skip: int = 0, limit: int = 20):
         result = await session.scalars(select(News).offset(skip).limit(limit))
         return result.all()
 

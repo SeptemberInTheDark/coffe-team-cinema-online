@@ -1,4 +1,4 @@
-from app.schemas.News import NewsResponseSchema
+from app.schemas.News import NewsListResponseSchema, NewsMainListResponseSchema
 from app.models import news
 
 from typing import Optional, List
@@ -6,24 +6,30 @@ from typing import Optional, List
 from fastapi import Form
 
 
-def form_news_data(movies: list | Optional[news.News]) -> list[dict]:
+def form_news_data_main_page(news_list: list | Optional[news.News]) -> list[dict]:
     news_data = []
     processed_ids = set()
 
-    for obj in movies:
+    for obj in news_list:
         if obj.id in processed_ids:
             continue
-        news_dict = {
-            "id": obj.id,
-            "title": obj.title,
-            "sub_title": obj.sub_title,
-            "text_news": obj.text_news,
-            "comment": obj.comment,
-            "source": obj.source,
-            "created_at": obj.created_at,  # Оставляем как datetime
-            "updated_at": obj.updated_at,  # Оставляем как datetime
-        }
-        news_data.append(NewsResponseSchema(**news_dict).model_dump())
+        news_dict = NewsMainListResponseSchema.from_orm(obj).model_dump()
+        news_data.append(news_dict)
+        processed_ids.add(obj.id)
+
+    return news_data
+
+
+# Повтор кода временный т.к. в будущем эти две функции могут измениться
+def form_news_data_news_page(news_list: list | Optional[news.News]) -> list[dict]:
+    news_data = []
+    processed_ids = set()
+
+    for obj in news_list:
+        if obj.id in processed_ids:
+            continue
+        news_dict = NewsListResponseSchema.from_orm(obj).model_dump()
+        news_data.append(news_dict)
         processed_ids.add(obj.id)
 
     return news_data
