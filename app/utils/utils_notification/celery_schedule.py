@@ -27,7 +27,7 @@ celery_app.conf.update(
             "task": "send_email",
             "schedule": crontab(
                 day_of_week=settings.DAY_OF_WEEK, hour=settings.HOUR, minute=settings.MINUTE
-            ),  # TODO переместить время в конфиг
+            )
         },
     },
 )
@@ -46,19 +46,17 @@ async def proposal_creation():
     return proposals
 
 
+def run_async(func, *args, **kwargs):
+    loop = asyncio.get_event_loop()
+    return loop.run_until_complete(func(*args, **kwargs))
+
+
 @celery_app.task(name="send_email")
 def send_notifications():
     db = AsyncSessionFactory()
 
-    # Получение уведомлений с помощью асинхронного запроса
-    async def get_notifications_async():
-        return await NotificationCRUD.get_notifications(db)
-
-    loop = asyncio.get_event_loop()
-    all_notifications = loop.run_until_complete(get_notifications_async())
-
-    loop = asyncio.get_event_loop()
-    all_movies = loop.run_until_complete(proposal_creation())
+    all_notifications = run_async(NotificationCRUD.get_notifications, db)
+    all_movies = run_async(proposal_creation)
 
     # Проверка наличия уведомлений
     if not all_notifications:
