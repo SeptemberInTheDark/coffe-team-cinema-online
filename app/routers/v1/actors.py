@@ -1,7 +1,7 @@
-from datetime import date, datetime
-from typing import List, Optional
+from datetime import date
+from typing import Optional
 
-from fastapi import APIRouter, Depends, Form, HTTPException, Query, status
+from fastapi import APIRouter, Depends, Form, HTTPException, status
 
 from sqlalchemy.ext.asyncio import AsyncSession
 

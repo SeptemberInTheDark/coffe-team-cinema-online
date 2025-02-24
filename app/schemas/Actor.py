@@ -1,7 +1,7 @@
 from datetime import date, datetime
-from typing import Optional, List
+from typing import Optional
 
-from pydantic import BaseModel, ConfigDict, field_serializer
+from pydantic import BaseModel, field_serializer
 from app.utils.logging import AppLogger
 
 logger = AppLogger().get_logger()
