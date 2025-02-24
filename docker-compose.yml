@@ -9,11 +9,15 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    networks:
+      - app-network
 
   redis:
     image: redis:alpine
     ports:
       - "6379:6379"
+    networks:
+      - app-network
 
   backend:
     build:
@@ -35,6 +39,8 @@ services:
       - redis
     ports:
      - "8080:8080"
+    networks:
+      - app-network
 
   nginx:
     build:
@@ -46,6 +52,12 @@ services:
       - "80:80"
     depends_on:
       - backend
+    networks:
+      - app-network
 
 volumes:
   postgres_data:
+
+networks:
+  app-network:
+    driver: bridge

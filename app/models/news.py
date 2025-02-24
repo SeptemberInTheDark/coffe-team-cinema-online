@@ -39,7 +39,7 @@ class News(BaseModel):
 
     id = Column(Integer, primary_key=True, index=True)
     title = Column(VARCHAR(length=50), nullable=False)
-    sub_title = Column(VARCHAR(length=255), nullable=False)
+    sub_title = Column(VARCHAR(length=255), nullable=True)
     text_news = Column(Text, nullable=True)
     comment = Column(Integer, nullable=True)
     source = Column(VARCHAR(length=255), nullable=True)
