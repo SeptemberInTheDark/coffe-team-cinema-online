@@ -245,6 +245,6 @@ class MovesCRUD:
             query = query.order_by(asc(movie.Movie.created_at))  # Сортировка по умолчанию
 
         query = query.offset(skip).limit(limit)
-
         result = await session.scalars(query)
         return result.unique().all()
+

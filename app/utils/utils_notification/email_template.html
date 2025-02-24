@@ -1,0 +1,33 @@
+<html>
+<head></head>
+<body>
+    <h1>Здравствуйте, {{ username }}!</h1>
+    <h3>Мы подготовили для вас подборку лучших фильмов на этой неделе! Выбирайте, что посмотреть в уютный вечер.</h3>
+    
+    {% for category, movies in suggestions.items() %}
+        <h2>{{ category }}:</h2>
+        {% for movie in movies %}
+            <div style="margin-bottom: 20px;">
+                <strong>
+                    <a href="{{ movie.url }}" style="text-decoration: none; color: #007bff;">
+                        {{ movie.title }}
+                    </a>
+                </strong> ({{ movie.release_year.year }})<br>
+                <em>{{ movie.director }}</em> - {{ movie.country }}<br>
+                <p>{{ movie.description[:200] }}...</p> <!-- Обрезаем описание до 200 символов -->
+                <p><strong>Возрастное ограничение:</strong> {{ movie.age_restriction }}+</p>
+                <p><strong>Продюсер:</strong> {{ movie.producer }}</p>
+                <p><strong>Длительность:</strong> {{ movie.duration }} мин.</p>
+                <br>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    📽 Выбирайте фильм и смотрите уже сегодня!<br>
+
+    Приятного просмотра! 🍿✨<br>
+
+    Ваш <b>Coffe Cinema</b><br>
+</body>
+</html>
+
