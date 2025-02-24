@@ -29,7 +29,7 @@ COPY . .
 ENV PATH="/app/venv/bin:$PATH"
 
 # Копируем entrypoint-скрипт и делаем его исполняемым
-COPY entrypoint.sh /app/entrypoint.sh
+COPY app/entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
 CMD ["/app/entrypoint.sh"]
