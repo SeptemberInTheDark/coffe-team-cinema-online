@@ -5,7 +5,9 @@ from .init_db import engine
 from .path_settings import STATIC_DIR
 from .config import settings
 from app.router import route
-from ..admin.views import UserAdmin, MovieAdmin, ActorAdmin, NewsAdmin
+from ..admin.auth import authentication_backend
+from ..admin.views import UserAdmin, MovieAdmin, ActorAdmin, NewsAdmin, \
+    GenreAdmin
 
 
 # @asynccontextmanager
@@ -38,7 +40,7 @@ def register_admin(app: FastAPI, engine):
     admin.add_view(MovieAdmin)
     admin.add_view(ActorAdmin)
     admin.add_view(NewsAdmin)
-    return admin
+    admin.add_view(GenreAdmin)
 
 def register_static_file(app: FastAPI):
     if settings.FASTAPI_STATIC_FILES:
