@@ -1,5 +1,4 @@
-from typing import List, Optional
-
+from typing import List
 from sqlalchemy import Column, Integer, ForeignKey, Text, Date, JSON
 from sqlalchemy.dialects.postgresql import VARCHAR
 from sqlalchemy.orm import Mapped, mapped_column, relationship
