@@ -6,6 +6,7 @@ from .v1.user import router as user_router
 # from .v1.auth_services import router as oauth_router
 from .v1.movies import router as movies_router
 from .v1.genres import router as genres_router
+from .v1.actors import router as actors_router
 
 v1 = APIRouter()
 
@@ -16,5 +17,5 @@ v1.include_router(user_router, prefix='/users', tags=['Получение пол
 # v1.include_router(oauth_router)
 v1.include_router(movies_router, prefix='/api/movies', tags=['Фильмы'])
 v1.include_router(genres_router, prefix='/api/genres', tags=['Жанры'])
-
+v1.include_router(actors_router, prefix='/api/actors', tags=['Актёры'])
 
