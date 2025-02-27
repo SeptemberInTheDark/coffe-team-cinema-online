@@ -70,3 +70,4 @@ vine==5.1.0
 watchfiles==1.0.0
 wcwidth==0.2.13
 websockets==14.1
+sqladmin==0.18.0

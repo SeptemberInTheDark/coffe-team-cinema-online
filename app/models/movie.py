@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from sqlalchemy import Column, Integer, ForeignKey, Text, Date, JSON
 from sqlalchemy.dialects.postgresql import VARCHAR
@@ -102,10 +102,10 @@ class Movie(BaseModel):
     age_restriction = Column(Integer, nullable=True)
     duration = Column(Integer, nullable=True)
     category_id = Column(Integer, ForeignKey("public.category.id"), nullable=True)
-    producer: Mapped[List[str]] = mapped_column(JSON)
-    screenwriter: Mapped[List[str]] = mapped_column(JSON)
-    operator: Mapped[List[str]] = mapped_column(JSON)
-    composer: Mapped[List[str]] = mapped_column(JSON)
-    actors: Mapped[List[str]] = mapped_column(JSON)
-    editor: Mapped[List[str]] = mapped_column(JSON)
+    producer: Mapped[List[str]] = mapped_column(JSON,nullable=True,default=None)
+    screenwriter: Mapped[List[str]] = mapped_column(JSON,nullable=True,default=None)
+    operator: Mapped[List[str]] = mapped_column(JSON,nullable=True,default=None)
+    composer: Mapped[List[str]] = mapped_column(JSON,nullable=True,default=None)
+    actors: Mapped[List[str]] = mapped_column(JSON,nullable=True,default=None)
+    editor: Mapped[List[str]] = mapped_column(JSON,nullable=True,default=None)
     genres_link = relationship("GenreMovie", back_populates="movie", cascade="all, delete-orphan")
