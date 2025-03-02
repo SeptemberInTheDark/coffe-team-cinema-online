@@ -1,14 +1,11 @@
-from datetime import datetime
+from typing import Optional
 
-from sqlalchemy import select, delete, extract, func, and_, desc, asc
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Optional, List
 
-from sqlalchemy.orm import joinedload, selectinload
-
-from app.schemas.News import NewsCreateSchema, NewsResponseSchema
-from app.utils.logging import AppLogger
 from app.models.news import News
+from app.schemas.News import NewsCreateSchema
+from app.utils.logging import AppLogger
 
 logger = AppLogger().get_logger()
 

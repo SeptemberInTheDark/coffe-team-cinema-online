@@ -1,19 +1,10 @@
-from datetime import date, datetime
-from typing import List, Optional
-
-from fastapi import APIRouter, Depends, Form, HTTPException, Query, status
-
+from fastapi import APIRouter, Depends, Form, HTTPException, status
+from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.init_db import get_db
-
 from app.crud.crud_news import NewsCRUD
-
-# from app.models import news
-
 from app.schemas.News import NewsCreateSchema
-from fastapi.responses import JSONResponse
-
 from app.utils.form_news import form_news_data_main_page, parse_form_data, form_news_data_news_page
 from app.utils.logging import AppLogger
 
@@ -91,7 +82,7 @@ async def get_news_main_page(session: AsyncSession = Depends(get_db)):
     summary="Получить все новости для страницы новостей",
     response_description="Список новостей для новостной страницы"
 )
-async def get_news_main_page(session: AsyncSession = Depends(get_db)):
+async def get_news_news_page(session: AsyncSession = Depends(get_db)):
     news_list = await NewsCRUD.get_all_news(session)
     return JSONResponse(
         status_code=200,
