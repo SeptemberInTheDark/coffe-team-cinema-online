@@ -1,12 +1,11 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.models.user import User
+from app.models.user import User, Notification
 from app.utils.manager import user_hash_manager
 from typing import Optional, Tuple
 from app.utils.logging import AppLogger
 
 logger = AppLogger().get_logger()
-
 
 
 class UserCRUD:
@@ -19,13 +18,13 @@ class UserCRUD:
         result = await session.scalars(select(User).offset(skip).limit(limit))
         return result.all()
 
-    async def check_user(session: AsyncSession, username: str, email: str, phone: str) -> Optional[User]:
+    async def check_user(
+        session: AsyncSession, username: str, email: str, phone: str
+    ) -> Optional[User]:
         try:
             result = await session.execute(
                 select(User).where(
-                    (username == User.username) |
-                    (User.email == email) |
-                    (User.phone == phone)
+                    (username == User.username) | (User.email == email) | (User.phone == phone)
                 )
             )
             existing_user = result.scalar_one_or_none()
@@ -35,14 +34,12 @@ class UserCRUD:
             return None
 
     @staticmethod
-    async def get_user_credentials(db: AsyncSession, username:str) -> Optional[Tuple[str, str]]:
+    async def get_user_credentials(db: AsyncSession, username: str) -> Optional[Tuple[str, str]]:
         secrets_info = await db.execute(
-            select(User.hashed_password)
-            .where(User.username == username)
+            select(User.hashed_password).where(User.username == username)
         )
         credentials = secrets_info.scalar_one_or_none()
         return credentials
-
 
     @staticmethod
     async def create_user(db: AsyncSession, user: User) -> Optional[User | bool]:
@@ -54,7 +51,7 @@ class UserCRUD:
             phone=user.phone,
             hashed_password=hashed_password,
             is_active=user.is_active,
-            role_id=2
+            role_id=2,
         )
 
         try:
@@ -71,3 +68,31 @@ class UserCRUD:
     # На потом
     def update_user_info():
         pass
+
+
+class NotificationCRUD:
+    @staticmethod
+    async def create_notification(db: AsyncSession, email: str):
+        new_notification = Notification(
+            email=email,
+        )
+
+        try:
+            db.add(new_notification)
+            await db.commit()
+            await db.refresh(new_notification)
+        except Exception as e:
+            await db.rollback()
+            logger.error("Error creating notification: %s", e)
+            return False
+        return new_notification
+
+    @staticmethod
+    async def get_notifications(db: AsyncSession):
+        try:
+            result = await db.execute(select(Notification))
+            notifications = result.all()
+            return notifications
+        except Exception as e:
+            logger.error("Error getting notifications: %s", e)
+            return False
