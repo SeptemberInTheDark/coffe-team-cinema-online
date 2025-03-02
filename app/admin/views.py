@@ -67,7 +67,6 @@ class MovieAdmin(ModelView, model=Movie):
                       'screenwriter': TextAreaField,
                       'operator': TextAreaField,
                       'composer': TextAreaField,
-                      'actors': TextAreaField,
                       'editor': TextAreaField}
 
     async def on_model_change(

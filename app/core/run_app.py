@@ -1,11 +1,10 @@
 from fastapi import FastAPI
 from sqladmin import Admin
 
+from app.router import route
+from .config import settings
 from .init_db import engine
 from .path_settings import STATIC_DIR
-from .config import settings
-from app.router import route
-from ..admin.auth import authentication_backend
 from ..admin.views import UserAdmin, MovieAdmin, ActorAdmin, NewsAdmin, \
     GenreAdmin
 
