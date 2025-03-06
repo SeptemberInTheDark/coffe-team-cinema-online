@@ -1,4 +1,4 @@
-from markupsafe import Markup
+import ast
 from sqladmin import ModelView
 from sqladmin.fields import Any
 from wtforms.fields.simple import TextAreaField
@@ -72,18 +72,34 @@ class MovieAdmin(ModelView, model=Movie):
     async def on_model_change(
             self, data: dict, model: Any, is_created: bool, request
     ) -> None:
-        columns = ['producer', 'screenwriter', 'operator', 'composer', 'actors',
-                   'editor']
+        columns = ['producer', 'screenwriter', 'operator', 'composer',
+                   'actors', 'editor']
+
         # Проверяем, есть ли название поля в данных
         for column_name in columns:
             if column_name in data:
                 # Получаем строку с именем поля
                 column_str = data[column_name]
-                # Разделяем строку по запятой и удаляем лишние пробелы
-                column_list = [column_name.strip() for column_name in
-                               column_str.split(',')]
-                # Записываем в модель полученные данные
-                data[column_name] = column_list
+
+                # Попробуем разобрать строку как литерал
+                try:
+                    parsed_value = ast.literal_eval(column_str)
+                    if parsed_value:
+                        if isinstance(parsed_value, list) and all(
+                            isinstance(item, str) for item in parsed_value):
+                            data[column_name] = parsed_value
+                        else:
+                            raise ValueError(
+                                f"Parsed value for {column_name} is not a list.")
+                    else:
+                        raise ValueError(
+                            f"Parsed value for {column_name} is not a list.")
+                except (ValueError, SyntaxError):
+                    # Если парсинг не удался, разбиваем строку по запятой
+                    if column_str:
+                        column_list = [name.strip() for name in
+                                       column_str.split(',')]
+                        data[column_name] = column_list
 
     def empty_formatter(value: any) -> str:
         """Возвращает '-' для `None` значений"""
@@ -95,20 +111,6 @@ class MovieAdmin(ModelView, model=Movie):
     column_type_formatters = {type(None): empty_formatter,
                               type({}): empty_formatter,
                               type([]): empty_formatter}
-
-    # настройка отображения JSON строк друг под другом в Form list
-    column_formatters = {
-        Movie.producer: lambda m, a: Markup('<br>'.join(m.producer)),
-        Movie.screenwriter: lambda m, a: Markup(
-            '<br>'.join(m.screenwriter)),
-        Movie.operator: lambda m, a: Markup(
-            '<br>'.join(m.operator)),
-        Movie.composer: lambda m, a: Markup(
-            '<br>'.join(m.composer)),
-        Movie.actors: lambda m, a: Markup(
-            '<br>'.join(m.actors)),
-        Movie.editor: lambda m, a: Markup(
-            '<br>'.join(m.editor)), }
 
     # список отображаемых полей из модели
     column_list = '__all__'

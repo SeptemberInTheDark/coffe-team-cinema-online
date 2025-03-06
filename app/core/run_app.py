@@ -5,8 +5,10 @@ from app.router import route
 from .config import settings
 from .init_db import engine
 from .path_settings import STATIC_DIR
-from ..admin.views import UserAdmin, MovieAdmin, ActorAdmin, NewsAdmin, \
-    GenreAdmin
+
+from .config import settings
+from app.router import route
+#from ..admin.auth import authentication_backend
 
 
 # @asynccontextmanager

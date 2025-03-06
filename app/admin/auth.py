@@ -1,5 +1,9 @@
+#from fastapi import Depends
+#from sqladmin import Admin
 from sqladmin.authentication import AuthenticationBackend
 from starlette.requests import Request
+#from starlette.responses import RedirectResponse
+
 
 from app.controllers.jwt_controller import JWTManager
 from app.routers.v1.auth import auth_user
