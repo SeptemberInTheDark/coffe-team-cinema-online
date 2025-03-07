@@ -1,14 +1,18 @@
 from fastapi import FastAPI
 from sqladmin import Admin
 
-from app.router import route
-from .config import settings
 from .init_db import engine
 from .path_settings import STATIC_DIR
 
-from .config import settings
+from app.core.config import settings
 from app.router import route
-#from ..admin.auth import authentication_backend
+from app.admin.views import (
+    UserAdmin, MovieAdmin,
+    ActorAdmin, NewsAdmin, GenreAdmin
+)
+
+
+# from .admin.auth import authentication_backend
 
 
 # @asynccontextmanager
@@ -17,7 +21,7 @@ from app.router import route
 
 
 def register_app():
-    #FastAPI
+    # FastAPI
 
     app = FastAPI(
         title=settings.FASTAPI_TITLE,
@@ -31,9 +35,8 @@ def register_app():
     register_router(app)
     register_admin(app, engine)
 
-
-
     return app
+
 
 def register_admin(app: FastAPI, engine):
     admin = Admin(app, engine, base_url="/api/v1/admin", title="Админка")
@@ -42,6 +45,7 @@ def register_admin(app: FastAPI, engine):
     admin.add_view(ActorAdmin)
     admin.add_view(NewsAdmin)
     admin.add_view(GenreAdmin)
+
 
 def register_static_file(app: FastAPI):
     if settings.FASTAPI_STATIC_FILES:
@@ -64,5 +68,5 @@ def register_middleware(app: FastAPI):
 
 
 def register_router(app: FastAPI):
-    #API
+    # API
     app.include_router(route)
